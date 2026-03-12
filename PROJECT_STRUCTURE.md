@@ -27,8 +27,8 @@ wt-project/
 - ✅ User management
 
 **Team Members:**
-- Vivek (Lead)
-- Srilatha (Support)
+- Varshitha (Lead) - Routes, Controllers, Middleware
+- NavyaSri (Support) - Models, Services, Database
 
 **Key Files:**
 - `backend/src/server.ts` - Main Express server
@@ -51,8 +51,8 @@ wt-project/
 - ✅ Stylesheet management
 
 **Team Members:**
-- Varshitha (Lead)
-- NavyaSri (Support)
+- Varshitha (Co-lead) - Routing, Pages, Integration
+- Jessy (Developer) - Components, Styling, UI/UX
 
 **Key Files:**
 - `frontend/src/App.tsx` - Main app component
@@ -69,13 +69,23 @@ wt-project/
 
 **Responsibilities:**
 - ✅ AI integration (Gemini API)
-- ✅ Interview room setup
+- ✅ Interview question generation
 - ✅ WebRTC configuration
 - ✅ Real-time communication (Socket.io)
 - ✅ Recording & streaming
 
 **Team Member:**
-- Jessy (Solo)
+- Vivek (Solo)
+
+### **TESTING & QA TEAM** (1 developer)
+**Responsibilities:**
+- ✅ Test all features
+- ✅ Find and report bugs
+- ✅ Verify integrations
+- ✅ Performance testing
+
+**Team Member:**
+- Srilatha (QA Lead)
 
 **Sub-folders:**
 - `features/ai-integration/` - AI service module
