@@ -4,9 +4,9 @@
 
 ```
 wt-project/
-├── backend/              👈 Backend Team (2 developers: Vivek, Srilatha)
-├── frontend/             👈 Frontend Team (2 developers: Varshitha, NavyaSri)
-├── features/             👈 Special Features (1 developer: Jessy)
+├── backend/              👈 Backend Team (2 developers: Prathima, NavyaSri)
+├── frontend/             👈 Frontend Team (2 developers: Varshitha, Jessy)
+├── features/             👈 Special Features (1 developer: Vivek)
 ├── shared/               👈 Shared utilities & types
 ├── docs/                 👈 Project documentation
 └── package.json          👈 Root configuration
@@ -27,7 +27,7 @@ wt-project/
 - ✅ User management
 
 **Team Members:**
-- Varshitha (Lead) - Routes, Controllers, Middleware
+- Prathima (Lead) - Routes, Controllers, Middleware
 - NavyaSri (Support) - Models, Services, Database
 
 **Key Files:**
@@ -51,7 +51,7 @@ wt-project/
 - ✅ Stylesheet management
 
 **Team Members:**
-- Varshitha (Co-lead) - Routing, Pages, Integration
+- Varshitha (Lead) - Pages, Routing, Layout Logic
 - Jessy (Developer) - Components, Styling, UI/UX
 
 **Key Files:**

@@ -6,18 +6,18 @@ The team tasks have been reorganized to better utilize skills and balance worklo
 
 ---
 
-## 👥 NEW TEAM STRUCTURE (5 Members)
+## 👥 NEW TEAM STRUCTURE (6 Members)
 
 ```
 wt-project/
 │
 ├─ BACKEND TEAM (2 members) 🖥️
-│  ├─ Varshitha (Lead) - API Design, Routes, Controllers
+│  ├─ Prathima (Lead) - API Design, Routes, Controllers
 │  └─ NavyaSri (Support) - Database, Services, Models
 │  └─ Working in: backend/src/
 │
 ├─ FRONTEND TEAM (2 members) 🎨
-│  ├─ Varshitha (Co-lead) - Routing, Page Structure, Integration
+│  ├─ Varshitha (Lead) - Pages, Routing, Page Structure
 │  └─ Jessy (Developer) - Components, Styling, UI/UX
 │  └─ Working in: frontend/src/
 │
@@ -63,10 +63,10 @@ feat: add interview room controls
 
 ---
 
-### **VARSHITHA** - Backend Lead + Frontend Co-lead 🚀
-**Primary Folders:** `backend/src/` (Lead) + `frontend/src/` (Co-lead)
+### **PRATHIMA** - Backend Lead 🖥️
+**Primary Folder:** `backend/src/`
 
-**Backend Responsibilities:**
+**Responsibilities:**
 - ✅ Design REST API architecture
 - ✅ Create API routes (`backend/src/routes/`)
 - ✅ Build route controllers (`backend/src/controllers/`)
@@ -74,36 +74,36 @@ feat: add interview room controls
 - ✅ Design database relationships
 - ✅ Setup middleware
 - ✅ OAuth/JWT implementation
+- ✅ API endpoint coordination
 
-**Frontend Responsibilities:**
-- ✅ Design and validate routing structure (`App.tsx`)
-- ✅ Create page layouts and structure
-- ✅ Component integration strategy
-- ✅ Frontend-backend API integration
-- ✅ State management across pages
-
-**Key Files Backend:**
+**Key Files:**
 - `backend/src/routes/*.ts`
 - `backend/src/controllers/*.ts`
 - `backend/src/middleware/*.ts`
-
-**Key Files Frontend:**
-- `frontend/src/App.tsx`
-- `frontend/src/pages/*.tsx`
-- `frontend/src/services/api.ts`
 
 **Commits Should Include:**
 ```
 feat: create user authentication routes
 feat: implement company job posting endpoints
-feat: design React routing structure
-feat: integrate frontend with backend APIs
+feat: setup API middleware and validation
+feat: create database relationship schema
 refactor: optimize API request handlers
 ```
 
 ---
 
-### **NAVYASRI** - Backend Developer 💾
+### **VARSHITHA** - Frontend Lead 🎨
+**Primary Folder:** `frontend/src/`
+
+**Responsibilities:**
+- ✅ Design and validate routing structure (`App.tsx`)
+- ✅ Create page layouts and structure
+- ✅ Component integration strategy
+- ✅ Frontend-backend API integration
+- ✅ State management across pages
+- ✅ Overall frontend architecture
+- ✅ Page component organization
+(Database & Services) 💾
 **Primary Folder:** `backend/src/`
 
 **Responsibilities:**
@@ -111,6 +111,23 @@ refactor: optimize API request handlers
 - ✅ Create service layer functions
 - ✅ Database query optimization
 - ✅ Handle data validation
+- ✅ Implement CRUD operations
+- ✅ User profile management
+- ✅ Student profile functionality
+- ✅ Company data management
+
+**Key Files:**
+- `backend/src/models/*.ts` (Database schemas)
+- `backend/src/services/*.ts` (Business logic)
+- `backend/src/routes/students.ts`
+- `backend/src/routes/companies.ts`
+
+**Commits Should Include:**
+```
+feat: create student profile database model
+feat: implement student search service
+feat: add database validation for user data
+feat: create company management service
 - ✅ Implement CRUD operations
 - ✅ User profile management
 - ✅ Student profile endpoints
@@ -133,22 +150,23 @@ fix: optimize database query performance
 
 ---
 
-### **JESSY** - Frontend Developer 🎨
+### **JESSY** - Frontend Developer (Components & Styling) 🎨
 **Primary Folder:** `frontend/src/`
 
 **Responsibilities:**
 - ✅ Build React components (buttons, cards, modals, etc.)
-- ✅ Create page components (dashboard, auth, profile, etc.)
 - ✅ Stylesheet management and Tailwind CSS
 - ✅ Responsive design implementation
 - ✅ UI/UX polish and animations
 - ✅ Form handling and validation
 - ✅ Component prop management
+- ✅ Reusable component library
+- ✅ styling consistency
 
 **Key Files:**
 - `frontend/src/components/*.tsx` (Reusable components)
-- `frontend/src/pages/*.tsx` (Page components)
 - `frontend/src/styles/*.css` (Styling)
+- `frontend/src/pages/*.tsx` (Component integration)
 
 **Components to Build:**
 ```
@@ -157,20 +175,13 @@ Navbar, Footer, Layout, Loading, Error
 StudentCard, CompanyCard, JobCard
 ```
 
-**Pages to Build:**
-```
-LandingPage, AuthPage, StudentDashboard
-CompanyDashboard, AdminDashboard, ProfilePage
-StudentSearch, ExploreCompanies
-```
-
 **Commits Should Include:**
 ```
 feat: create reusable button component
-feat: build student dashboard page
+feat: build form input component with validation
 style: add responsive design for mobile
-feat: implement form validation component
-fix: improve component styling
+feat: implement modal component
+style: improve component styling with Tailwind
 ```
 
 ---
@@ -327,79 +338,90 @@ Action: Fix bugs found through testing
 
 | Person | Folder(s) | Expected Commits | Examples |
 |--------|-----------|-----------------|----------|
-| **Vivek** | `features/` | 10-15 | AI service, WebRTC, Interview room |
-| **Varshitha** | `backend/` + `frontend/` | 15-20 | Routes, endpoints, pages, routing |
+| **Prathima** | `backend/` | 10-15 | Routes, controllers, middleware |
 | **NavyaSri** | `backend/` | 10-15 | Models, services, database logic |
-| **Jessy** | `frontend/` | 10-15 | Components, pages, styling |
+| **Varshitha** | `frontend/` | 10-15 | Pages, routing, page layouts |
+| **Jessy** | `frontend/` | 10-15 | Components, styling |
+| **Vivek** | `features/` | 10-15 | AI service, WebRTC, Interview room |
 | **Srilatha** | All | 5-10 | Tests, bug fixes, test reports |
 
 ---
 
 ## 🎯 Immediate Next Steps
 
-1. **Vivek:**
+1. **Prathima:**
    ```bash
-   cd features/
-   # Start: AI service module setup
-   # File: features/ai-integration/src/aiService.ts
+   cd backend/src/
+   # Start: Design and create auth routes
+   # File: routes/auth.ts, controllers/authController.ts
    ```
 
-2. **Varshitha:**
-   ```bash
-   cd backend/
-   # Backend: Design and create auth routes
-   cd frontend/
-   # Frontend: Setup App.tsx routing
-   ```
-
-3. **NavyaSri:**
+2. **NavyaSri:**
    ```bash
    cd backend/src/
    # Create: user model, student model
    # Create: userService, studentService
    ```
 
+3. **Varshitha:**
+   ```bash
+   cd frontend/src/
+   # Setup: App.tsx routing
+   # Create: Page layouts and structure
+   ```
+
 4. **Jessy:**
    ```bash
    cd frontend/src/
    # Create: Button, Card, Input components
-   # Create: LandingPage component
+   # Create: Styling with Tailwind
    ```
 
-5. **Srilatha:**
+5. **Vivek:**
+   ```bash
+   cd features/
+   # Start: AI service module setup
+   # File: features/ai-integration/src/aiService.ts
+   ```
+
+6. **Srilatha:**
    ```bash
    # Test each component as others complete
    # Report issues found
    # Fix bugs in respective folders
-   ```
-
----
-
-## 📊 Git Commit Strategy
-
-### Vivek's Commits:
+   `Prathima's Commits:
 ```
-git commit -m "feat: setup Google Gemini API client"
-git commit -m "feat: implement interview question generation"
-git commit -m "feat: setup WebRTC peer connection"
-git commit -m "feat: implement Socket.io event handlers"
-```
-
-### Varshitha's Commits:
-```
-# Backend commits
 git commit -m "feat: create user authentication routes"
-# Frontend commits
-git commit -m "feat: setup React Router configuration"
-git commit -m "feat: create StudentDashboard page structure"
+git commit -m "feat: setup JWT middleware"
+git commit -m "feat: create company endpoints"
 ```
 
 ### NavyaSri's Commits:
 ```
 git commit -m "feat: create User database model"
 git commit -m "feat: implement user service functions"
-git commit -m "feat: create student profile endpoint"
+git commit -m "feat: create student profile model"
 ```
+
+### Varshitha's Commits:
+```
+git commit -m "feat: setup React Router configuration"
+git commit -m "feat: create StudentDashboard page structure"
+git commit -m "feat: implement API integration"
+```
+
+### Jessy's Commits:
+```
+git commit -m "feat: create Button component"
+git commit -m "feat: build Form component with validation"
+git commit -m "style: add responsive design"
+```
+
+### Vivek's Commits:
+```
+git commit -m "feat: setup Google Gemini API client"
+git commit -m "feat: implement interview question generation"
+git commit -m "feat: setup WebRTC peer connectio
 
 ### Jessy's Commits:
 ```
