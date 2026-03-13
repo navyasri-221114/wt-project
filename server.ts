@@ -11,12 +11,19 @@ import dotenv from "dotenv";
 import { Server as SocketServer } from "socket.io";
 import http from "http";
 
+import connectDB from "./backend/src/config/database.js";
+import { UserModel } from "./backend/src/models/User.js";
+import { StudentModel } from "./backend/src/models/Student.js";
+import { CompanyModel } from "./backend/src/models/Company.js";
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 console.log("Starting server initialization...");
+
+connectDB();
 
 let db: any;
 try {
@@ -207,19 +214,28 @@ app.post("/api/auth/signup", async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
-    const info = db.prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)").run(name, email, hashedPassword, role);
-    const userId = info.lastInsertRowid;
-    
-    if (role === 'student') {
-      db.prepare("INSERT INTO student_profiles (user_id) VALUES (?)").run(userId);
-    } else if (role === 'company') {
-      db.prepare("INSERT INTO companies (user_id) VALUES (?)").run(userId);
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email already exists" });
     }
 
-    const token = jwt.sign({ id: userId, role, name, email }, JWT_SECRET);
-    res.json({ token, user: { id: userId, name, email, role } });
+    const newUser = await UserModel.create({
+      name,
+      email,
+      password: hashedPassword,
+      role
+    });
+
+    if (role === 'student') {
+      await StudentModel.create({ user_id: newUser._id });
+    } else if (role === 'company') {
+      await CompanyModel.create({ user_id: newUser._id });
+    }
+
+    const token = jwt.sign({ id: newUser._id.toString(), role, name, email }, JWT_SECRET);
+    res.json({ token, user: { id: newUser._id.toString(), name, email, role } });
   } catch (err: any) {
-    res.status(400).json({ error: "Email already exists" });
+    res.status(400).json({ error: "Signup failed", details: err.message });
   }
 });
 
@@ -231,16 +247,20 @@ app.post("/api/auth/login", async (req, res) => {
   const ADMIN_PASS = "admin123";
 
   if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
-    const token = jwt.sign({ id: 0, role: 'admin', name: 'System Admin', email: ADMIN_EMAIL }, JWT_SECRET);
-    return res.json({ token, user: { id: 0, name: 'System Admin', email: ADMIN_EMAIL, role: 'admin' } });
+    const token = jwt.sign({ id: "0", role: 'admin', name: 'System Admin', email: ADMIN_EMAIL }, JWT_SECRET);
+    return res.json({ token, user: { id: "0", name: 'System Admin', email: ADMIN_EMAIL, role: 'admin' } });
   }
 
-  const user: any = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(401).json({ error: "Invalid credentials" });
+  try {
+    const user = await UserModel.findOne({ email });
+    if (!user || !(await bcrypt.compare(password, user.password || ""))) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+    const token = jwt.sign({ id: user._id.toString(), role: user.role, name: user.name, email: user.email }, JWT_SECRET);
+    res.json({ token, user: { id: user._id.toString(), name: user.name, email: user.email, role: user.role, avatar_url: user.avatar_url } });
+  } catch (err: any) {
+    res.status(500).json({ error: "Login failed", details: err.message });
   }
-  const token = jwt.sign({ id: user.id, role: user.role, name: user.name, email: user.email }, JWT_SECRET);
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar_url: user.avatar_url } });
 });
 
 // Profile
