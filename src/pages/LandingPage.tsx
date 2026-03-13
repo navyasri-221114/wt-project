@@ -45,7 +45,7 @@ export default function LandingPage() {
               <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Talent and Opportunity</span>
             </h1>
             <p className="mt-6 text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              A comprehensive platform designed for students, recruiters, and placement officers to streamline the entire campus hiring process with AI-powered insights.
+              A digital hub where students showcase skills and recruiters discover future talent from campuses.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/auth?signup=true" className="w-full sm:w-auto px-8 py-4 bg-indigo-600 text-white font-semibold rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 flex items-center justify-center gap-2">
