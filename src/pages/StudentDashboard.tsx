@@ -89,7 +89,7 @@ export default function StudentDashboard() {
           <p className="text-slate-500 font-medium mt-1">Discover opportunities personalized for your growth.</p>
         </div>
         <div className="flex bg-white p-1.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
-           <Link to="/job-profiles" className="px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all">
+           <Link to="/jobs" className="px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all">
              Explore All Positions <ArrowUpRight size={14} />
            </Link>
         </div>

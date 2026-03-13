@@ -17,7 +17,7 @@ export const api = {
 
   auth: {
     login: (credentials: any) => api.request("/auth/login", { method: "POST", body: JSON.stringify(credentials) }),
-    adminLogin: (credentials: any) => api.request("/auth/admin/login", { method: "POST", body: JSON.stringify(credentials) }),
+    adminLogin: (credentials: any) => api.request("/auth/login", { method: "POST", body: JSON.stringify(credentials) }),
     signup: (data: any) => api.request("/auth/signup", { method: "POST", body: JSON.stringify(data) }),
   },
 
@@ -63,5 +63,9 @@ export const api = {
 
   students: {
     getProfile: (id: string) => api.request(`/students/${id}`),
+  },
+  notifications: {
+    getMy: () => api.request("/notifications/my"),
+    markAsRead: (id: string) => api.request(`/notifications/${id}/read`, { method: "PUT" }),
   },
 };
