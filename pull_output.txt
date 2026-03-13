@@ -1,0 +1,20 @@
+﻿git : fatal: unable to 
+access 'https://github.com
+/navyasri-221114/wt-projec
+t.git/': Could not 
+resolve host: github.com
+At line:1 char:1
++ git pull origin main 
+*>&1 | Out-File -Encoding 
+utf8 pull_output.txt
++ 
+~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (f  
+  atal: unable t...ost:   
+  github.com:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
