@@ -1,10 +1,14 @@
-import Database from "better-sqlite3";
-import path from "path";
+import mongoose from "mongoose";
 
-// Initialize the SQLite database connection
-const dbPath = path.resolve(process.cwd(), "placement.db");
-const db = new Database(dbPath, { verbose: console.log });
+const connectDB = async () => {
+  try {
+    const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/placement";
+    const conn = await mongoose.connect(mongoUri);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error: any) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
+  }
+};
 
-console.log(`Database connected successfully at ${dbPath}`);
-
-export default db;
+export default connectDB;

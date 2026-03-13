@@ -1,30 +1,56 @@
-import { UserModel, User } from "../models/User.js";
+import { UserModel } from "../models/User.js";
 import { StudentModel } from "../models/Student.js";
 import { CompanyModel } from "../models/Company.js";
 
 export const UserService = {
-  getUserProfile: (userId: number, role: string) => {
-    const user = UserModel.findById(userId);
-    if (!user) return null;
+  getUserProfile: async (userId: string, role: string) => {
+    try {
+      const user = await UserModel.findById(userId).lean();
+      if (!user) return null;
 
-    let profile = null;
-    if (role === 'student') {
-      profile = StudentModel.findByUserId(userId);
-    } else if (role === 'company') {
-      profile = CompanyModel.findByUserId(userId);
+      let profile = null;
+      if (role === 'student') {
+        profile = await StudentModel.findOne({ user_id: userId }).lean();
+      } else if (role === 'company') {
+        profile = await CompanyModel.findOne({ user_id: userId }).lean();
+      }
+
+      return { ...user, profile };
+    } catch (error) {
+       console.error("Error in getUserProfile:", error);
+       return null;
     }
-
-    return { ...user, profile };
   },
 
-  updateUserProfile: (userId: number, role: string, data: any) => {
-    const { name, avatar_url, ...profileData } = data;
-    UserModel.updateProfile(userId, name, avatar_url);
+  updateUserProfile: async (userId: string, role: string, data: any) => {
+    try {
+      const { name, avatar_url, ...profileData } = data;
+      
+      const updateData: any = {};
+      if (name) updateData.name = name;
+      if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
 
-    if (role === 'student') {
-      StudentModel.updateProfile(userId, profileData);
-    } else if (role === 'company') {
-      CompanyModel.updateProfile(userId, profileData);
+      if (Object.keys(updateData).length > 0) {
+        await UserModel.findByIdAndUpdate(userId, updateData);
+      }
+
+      if (role === 'student' && Object.keys(profileData).length > 0) {
+        await StudentModel.findOneAndUpdate(
+            { user_id: userId }, 
+            profileData, 
+            { new: true, upsert: true }
+        );
+      } else if (role === 'company' && Object.keys(profileData).length > 0) {
+        await CompanyModel.findOneAndUpdate(
+            { user_id: userId }, 
+            profileData, 
+            { new: true, upsert: true }
+        );
+      }
+      return true;
+    } catch (error) {
+      console.error("Error in updateUserProfile:", error);
+      return false;
     }
   }
 };

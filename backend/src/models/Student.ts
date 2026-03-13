@@ -1,7 +1,7 @@
-import db from "../config/database.js";
+import mongoose, { Document, Schema } from 'mongoose';
 
-export interface StudentProfile {
-  user_id: number;
+export interface IStudentProfile extends Document {
+  user_id: mongoose.Types.ObjectId;
   department?: string;
   branch?: string;
   college?: string;
@@ -13,30 +13,23 @@ export interface StudentProfile {
   resume_url?: string;
   linkedin_url?: string;
   github_url?: string;
-  is_public?: number;
+  is_public: number;
 }
 
-export const StudentModel = {
-  findByUserId: (userId: number): StudentProfile | undefined => {
-    return db.prepare("SELECT * FROM student_profiles WHERE user_id = ?").get(userId) as StudentProfile | undefined;
-  },
-  createEmptyProfile: (userId: number): void => {
-    db.prepare("INSERT INTO student_profiles (user_id) VALUES (?)").run(userId);
-  },
-  updateProfile: (userId: number, profile: Partial<StudentProfile>): void => {
-    const fields = [];
-    const values = [];
-    for (const [key, value] of Object.entries(profile)) {
-      if (key !== 'user_id') {
-        fields.push(`${key} = ?`);
-        values.push(value);
-      }
-    }
-    
-    if (fields.length > 0) {
-      values.push(userId);
-      const query = `UPDATE student_profiles SET ${fields.join(", ")} WHERE user_id = ?`;
-      db.prepare(query).run(...values);
-    }
-  }
-};
+const studentProfileSchema = new Schema<IStudentProfile>({
+  user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  department: { type: String },
+  branch: { type: String },
+  college: { type: String },
+  year: { type: Number },
+  cgpa: { type: Number },
+  skills: { type: String },
+  certifications: { type: String },
+  projects: { type: String },
+  resume_url: { type: String },
+  linkedin_url: { type: String },
+  github_url: { type: String },
+  is_public: { type: Number, default: 1 }
+});
+
+export const StudentModel = mongoose.models.StudentProfile || mongoose.model<IStudentProfile>('StudentProfile', studentProfileSchema);
