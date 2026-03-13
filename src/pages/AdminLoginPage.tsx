@@ -20,7 +20,7 @@ export default function AdminLoginPage({ setUser }: { setUser: (user: any) => vo
       setUser(res.user);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ export default function AdminLoginPage({ setUser }: { setUser: (user: any) => vo
           <p className="text-slate-500 text-center mb-8">Secure portal for Admin Cell only</p>
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm mb-6 border border-red-100">
+            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm mb-6 border border-red-100 break-words">
               {error}
             </div>
           )}

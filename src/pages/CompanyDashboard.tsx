@@ -16,6 +16,13 @@ export default function CompanyDashboard() {
   const [applicants, setApplicants] = useState<any[]>([]);
   const [interviews, setInterviews] = useState<any[]>([]);
   const [showPostModal, setShowPostModal] = useState(false);
+  const [schedulingApp, setSchedulingApp] = useState<any>(null);
+  const [interviewDate, setInterviewDate] = useState('');
+  const selectedJobRef = React.useRef<any>(null);
+  
+  useEffect(() => { 
+     selectedJobRef.current = selectedJob; 
+  }, [selectedJob]);
   const [newJob, setNewJob] = useState({
     title: '',
     description: '',
@@ -29,13 +36,21 @@ export default function CompanyDashboard() {
   useEffect(() => {
     fetchJobs();
     fetchInterviews();
+    const interval = setInterval(() => {
+      fetchJobs(true);
+      fetchInterviews();
+      if (selectedJobRef.current) {
+        api.applications.getByJob(selectedJobRef.current.id).then(setApplicants).catch(() => {});
+      }
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (isPolling = false) => {
     try {
       const res = await api.jobs.getMy();
       setJobs(res);
-      if (res.length > 0 && !selectedJob) {
+      if (res.length > 0 && !selectedJobRef.current && !isPolling) {
         handleSelectJob(res[0]);
       }
     } catch (err) {
@@ -74,7 +89,7 @@ export default function CompanyDashboard() {
     }
   };
 
-  const handleUpdateStatus = async (appId: number, status: string) => {
+  const handleUpdateStatus = async (appId: string, status: string) => {
     try {
       await api.applications.updateStatus(appId, status);
       if (selectedJob) handleSelectJob(selectedJob);
@@ -83,38 +98,21 @@ export default function CompanyDashboard() {
     }
   };
 
-  const handleScheduleInterview = async (applicationId: number) => {
-    const date = prompt("Enter interview date (YYYY-MM-DD HH:MM):", "2026-03-15 10:00");
-    if (!date) return;
+  const handleArrangeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!interviewDate || !schedulingApp) return;
     try {
-      await api.interviews.schedule({ application_id: applicationId, scheduled_at: date });
-      alert('Interview scheduled successfully');
+      await api.interviews.schedule({ application_id: schedulingApp.id, scheduled_at: interviewDate });
+      setSchedulingApp(null);
+      setInterviewDate('');
       fetchInterviews();
-      if (selectedJob) handleSelectJob(selectedJob);
+      if (selectedJobRef.current) handleSelectJob(selectedJobRef.current);
     } catch (err) {
-      alert('Failed to schedule interview');
+      alert('Failed to arrange interview');
     }
   };
 
-  const handleAIShortlist = async () => {
-    if (!applicants.length) return;
-    const count = prompt("How many top candidates to shortlist?", "3");
-    if (!count) return;
-    
-    const topCandidates = [...applicants]
-      .sort((a, b) => (b.ai_score || 0) - (a.ai_score || 0))
-      .slice(0, parseInt(count));
 
-    if (confirm(`Shortlist top ${topCandidates.length} candidates based on AI matching scores?`)) {
-      try {
-        await Promise.all(topCandidates.map(c => api.applications.updateStatus(c.id, 'shortlisted')));
-        alert('AI Engine has successfully shortlisted the top talent.');
-        if (selectedJob) handleSelectJob(selectedJob);
-      } catch (err) {
-        alert('Failed to shortlist candidates');
-      }
-    }
-  };
 
   return (
     <div className="space-y-10">
@@ -137,8 +135,8 @@ export default function CompanyDashboard() {
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard label="Active Postings" value={jobs.length} color="indigo" icon={Briefcase} trend="+2 from last week" />
-        <StatCard label="Total Applicants" value={jobs.reduce((acc, j) => acc + (j.application_count || 0), 0)} color="violet" icon={Users} trend="40% avg. match" />
-        <StatCard label="Live Interviews" value={interviews.length} color="blue" icon={Video} trend="3 scheduled today" />
+        <StatCard label="Total Applicants" value={jobs.reduce((acc, j) => acc + (j.application_count || 0), 0)} color="violet" icon={Users} trend="Active applications" />
+        <StatCard label="Live Interviews" value={interviews.length} color="blue" icon={Video} trend="Scheduled sessions" />
         <StatCard label="Conversion Rate" value="12%" color="green" icon={TrendingUp} trend="+4.5% efficiency" />
       </div>
 
@@ -209,11 +207,7 @@ export default function CompanyDashboard() {
               >
                 {/* Insights HUD */}
                 <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
-                   <div className="absolute top-0 right-0 p-8">
-                     <button className="flex items-center gap-2 px-6 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-indigo-100" onClick={handleAIShortlist}>
-                       <Sparkles size={14} /> AI Shortlist
-                     </button>
-                   </div>
+
                    
                    <h2 className="text-3xl font-black text-slate-900 mb-6">{selectedJob.title}</h2>
                    
@@ -223,8 +217,8 @@ export default function CompanyDashboard() {
                        <p className="text-2xl font-black text-slate-900">{applicants.length}</p>
                      </div>
                      <div className="space-y-1">
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Avg. AI Score</p>
-                       <p className="text-2xl font-black text-indigo-600">78%</p>
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Status</p>
+                       <p className="text-2xl font-black text-indigo-600">Priority</p>
                      </div>
                      <div className="space-y-1">
                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Requirements</p>
@@ -268,16 +262,6 @@ export default function CompanyDashboard() {
                           </div>
                           
                           <div className="flex items-center gap-10 w-full md:w-auto">
-                             <div className="text-center">
-                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">AI Harmony</div>
-                                <div className={cn(
-                                  "text-2xl font-black",
-                                  app.ai_score >= 80 ? "text-green-500" : app.ai_score >= 50 ? "text-indigo-500" : "text-amber-500"
-                                )}>
-                                  {app.ai_score || 0}%
-                                </div>
-                             </div>
-                             
                              <div className="h-10 w-px bg-slate-100 hidden md:block"></div>
                              
                              <div className="flex items-center gap-3">
@@ -298,11 +282,18 @@ export default function CompanyDashboard() {
                                   </>
                                 ) : app.status === 'shortlisted' ? (
                                   <button 
-                                    onClick={() => handleScheduleInterview(app.id)}
+                                    onClick={() => setSchedulingApp(app)}
                                     className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
                                   >
-                                    <Video size={16} /> Schedule Session
+                                    <Calendar size={16} /> Arrange Interview
                                   </button>
+                                ) : app.status === 'interview_scheduled' ? (
+                                  <Link 
+                                    to={`/interview/${app.room_id}`}
+                                    className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center gap-2"
+                                  >
+                                    <Video size={16} /> Conduct Interview
+                                  </Link>
                                 ) : (
                                   <span className="px-6 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400">
                                     {app.status}
@@ -384,6 +375,43 @@ export default function CompanyDashboard() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Arrange Interview Modal */}
+      <AnimatePresence>
+        {schedulingApp && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+               onClick={() => setSchedulingApp(null)}
+               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div
+               initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+               className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-10 overflow-hidden"
+            >
+               <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50 rounded-full blur-3xl -mr-24 -mt-24"></div>
+               <div className="relative mb-8 flex items-center justify-between">
+                 <div>
+                   <h2 className="text-2xl font-black text-slate-900">Arrange <span className="text-gradient">Interview</span></h2>
+                   <p className="text-slate-500 font-bold text-sm mt-1">{schedulingApp.student_name}</p>
+                 </div>
+                 <button onClick={() => setSchedulingApp(null)} className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 transition-colors">
+                   <X size={20} />
+                 </button>
+               </div>
+               <form onSubmit={handleArrangeSubmit} className="relative space-y-6">
+                 <div>
+                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Date & Time</label>
+                   <input type="datetime-local" required value={interviewDate} onChange={e => setInterviewDate(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-5 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700" />
+                 </div>
+                 <button type="submit" className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95">
+                   Confirm Schedule
+                 </button>
+               </form>
             </motion.div>
           </div>
         )}

@@ -76,6 +76,7 @@ export const userController = {
         const profile = profiles.find(p => p.user_id.toString() === company._id.toString());
         return {
           ...company.toObject(),
+          id: company._id.toString(),
           ...profile?.toObject()
         };
       });

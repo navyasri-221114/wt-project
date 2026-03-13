@@ -11,7 +11,8 @@ export const adminController = {
     if (req.user?.role !== 'admin') return res.status(403).json({ error: "Forbidden" });
     try {
       const keys = await ActivationKeyModel.find().sort({ created_at: -1 });
-      res.json(keys);
+      const result = keys.map(k => ({ ...k.toObject(), id: k._id.toString() }));
+      res.json(result);
     } catch (err: any) {
       res.status(500).json({ error: "Failed to fetch keys", details: err.message });
     }

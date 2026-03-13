@@ -9,7 +9,7 @@ export default function StudentDashboard() {
   const [applications, setApplications] = useState<any[]>([]);
   const [interviews, setInterviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [applying, setApplying] = useState<number | null>(null);
+  const [applying, setApplying] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -32,7 +32,7 @@ export default function StudentDashboard() {
     }
   };
 
-  const handleApply = async (jobId: number) => {
+  const handleApply = async (jobId: string) => {
     setApplying(jobId);
     try {
       await api.applications.apply(jobId);
@@ -44,7 +44,7 @@ export default function StudentDashboard() {
     }
   };
 
-  const getAppStatus = (jobId: number) => {
+  const getAppStatus = (jobId: string) => {
     return applications.find(app => app.job_id === jobId);
   };
 
@@ -192,11 +192,6 @@ export default function StudentDashboard() {
                         )} />
                         <span className="text-xs font-medium text-slate-700 capitalize">{app.status}</span>
                       </div>
-                      {app.ai_score > 0 && (
-                        <div className="text-xs font-bold text-indigo-600">
-                          AI Score: {app.ai_score}
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))}

@@ -12,6 +12,7 @@ export const jobController = {
       // Transform to match previous structure if necessary (company_name field)
       const transformedJobs = jobs.map(job => ({
         ...job.toObject(),
+        id: job._id.toString(),
         company_name: (job.company_id as any)?.name
       }));
       
@@ -49,7 +50,7 @@ export const jobController = {
   getMyJobs: async (req: AuthRequest, res: Response) => {
     try {
       const jobs = await JobModel.find({ company_id: req.user?.id });
-      res.json(jobs);
+      res.json(jobs.map(job => ({ ...job.toObject(), id: job._id.toString() })));
     } catch (err: any) {
       res.status(500).json({ error: "Failed to fetch your jobs", details: err.message });
     }

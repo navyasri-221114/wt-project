@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Search, Filter, Mail, Phone, Check, X, Video, Award, Sparkles, ChevronDown, Download, UserCheck, UserX, MoreHorizontal } from 'lucide-react';
 import { api } from '../../services/api';
+import { Link } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -9,6 +10,8 @@ export default function CompanyApplicants() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [schedulingApp, setSchedulingApp] = useState<string | null>(null);
+  const [scheduleDate, setScheduleDate] = useState('');
 
   useEffect(() => {
     fetchApplicants();
@@ -18,8 +21,15 @@ export default function CompanyApplicants() {
     try {
       // Typically we'd fetch all jobs then all apps, or a dedicated "get all my applicants" endpoint
       const jobs = await api.jobs.getMy();
-      const allApps = await Promise.all(jobs.map((j: any) => api.applications.getByJob(j.id)));
-      setApplicants(allApps.flat());
+      const allApps = await Promise.all(jobs.map((j: any) => api.applications.getByJob(j._id || j.id)));
+      
+      // We also need to attach the job title to these apps so the UI can display it
+      const flattenedApps = allApps.flat().map((app: any) => {
+        const job = jobs.find((j: any) => (j._id || j.id) === app.job_id);
+        return { ...app, title: app.title || job?.title };
+      });
+      
+      setApplicants(flattenedApps);
     } catch (err) {
       console.error(err);
     } finally {
@@ -27,12 +37,28 @@ export default function CompanyApplicants() {
     }
   };
 
-  const handleUpdateStatus = async (appId: number, status: string) => {
+  const handleUpdateStatus = async (appId: string, status: string) => {
     try {
       await api.applications.updateStatus(appId, status);
       fetchApplicants();
     } catch (err) {
       alert("Status update failed");
+    }
+  };
+
+  const handleScheduleInterview = async (appId: string) => {
+    if (!scheduleDate) {
+      alert("Please select a valid date and time.");
+      return;
+    }
+    try {
+      await api.interviews.schedule({ application_id: appId, scheduled_at: scheduleDate });
+      setSchedulingApp(null);
+      setScheduleDate('');
+      fetchApplicants();
+      alert("Interview successfully scheduled!");
+    } catch (err: any) {
+      alert(err.message || "Failed to schedule interview");
     }
   };
 
@@ -95,12 +121,14 @@ export default function CompanyApplicants() {
       ) : (
         <div className="grid grid-cols-1 gap-4">
            {filteredApplicants.length > 0 ? (
-             filteredApplicants.map((app, idx) => (
+             filteredApplicants.map((app, idx) => {
+               const appId = app.id || app._id;
+               return (
                <motion.div 
                  initial={{ opacity: 0, scale: 0.95 }}
                  animate={{ opacity: 1, scale: 1 }}
                  transition={{ delay: idx * 0.05 }}
-                 key={app.id} 
+                 key={appId} 
                  className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all flex flex-col md:flex-row items-start md:items-center gap-8 group"
                >
                  <div className="flex flex-1 items-center gap-6">
@@ -112,48 +140,71 @@ export default function CompanyApplicants() {
                        <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-400">
                           <span className="flex items-center gap-1.5 text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md"><Award size={12} /> {app.title}</span>
                           <span className="flex items-center gap-1.5"><Mail size={12} /> {app.student_email || 'n/a'}</span>
-                          <span className="flex items-center gap-1.5 font-black text-slate-900 uppercase tracking-tighter border-l pl-4 border-slate-100">8.8 CGPA</span>
+                          <span className="flex items-center gap-1.5 font-black text-slate-900 uppercase tracking-tighter border-l pl-4 border-slate-100">{app.cgpa || app.student_cgpa || '8.8'} CGPA</span>
                        </div>
                     </div>
                  </div>
 
-                 <div className="flex items-center gap-10 w-full md:w-auto">
-                    <div className="text-center group-hover:scale-110 transition-transform">
-                       <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                          <Sparkles size={10} className="text-indigo-400" /> AI Harmony
-                       </div>
-                       <div className={cn(
-                          "text-3xl font-black",
-                          app.ai_score >= 80 ? "text-green-500" : app.ai_score >= 50 ? "text-indigo-500" : "text-amber-500"
-                       )}>
-                          {app.ai_score || 0}%
-                       </div>
-                    </div>
-
-                    <div className="h-10 w-px bg-slate-100 hidden md:block" />
-
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-10 w-full md:w-auto">
+                     <div className="flex items-center gap-3">
                        {app.status === 'applied' ? (
                          <>
                            <button 
-                             onClick={() => handleUpdateStatus(app.id, 'shortlisted')}
+                             onClick={() => handleUpdateStatus(appId, 'shortlisted')}
                              className="p-3 bg-green-50 text-green-600 rounded-2xl border border-green-100 hover:bg-green-600 hover:text-white transition-all shadow-lg shadow-green-100 group/btn"
                            >
                              <UserCheck size={20} className="group-hover/btn:scale-110 transition-transform" />
                            </button>
                            <button
-                             onClick={() => handleUpdateStatus(app.id, 'rejected')} 
+                             onClick={() => handleUpdateStatus(appId, 'rejected')} 
                              className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-lg shadow-red-100 group/btn"
                            >
                              <UserX size={20} className="group-hover/btn:scale-110 transition-transform" />
                            </button>
                          </>
-                       ) : (
+                       ) : app.status === 'shortlisted' ? (
+                         schedulingApp === appId ? (
+                           <div className="flex items-center gap-2 bg-indigo-50/50 p-2 rounded-2xl border border-indigo-100">
+                             <input 
+                               type="datetime-local" 
+                               value={scheduleDate}
+                               onChange={(e) => setScheduleDate(e.target.value)}
+                               className="px-3 py-2 text-xs border border-indigo-200 bg-white rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold"
+                             />
+                             <button 
+                               onClick={() => handleScheduleInterview(appId)}
+                               className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200"
+                             >
+                               Confirm
+                             </button>
+                             <button 
+                               onClick={() => { setSchedulingApp(null); setScheduleDate(''); }}
+                               className="p-2 border border-slate-200 text-slate-400 bg-white rounded-xl hover:bg-slate-50 hover:text-red-500 transition-colors"
+                             >
+                               <X size={14} />
+                             </button>
+                           </div>
+                         ) : (
+                           <button 
+                             onClick={() => setSchedulingApp(appId)}
+                             className="px-6 py-3 bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
+                           >
+                             <Video size={14} /> Arrange Interview
+                           </button>
+                         )
+                       ) : app.status === 'interview_scheduled' ? (
+                          <Link 
+                            to={`/interview/${app.room_id}`}
+                            className="px-6 py-3 bg-indigo-600 text-white border border-indigo-100 hover:bg-indigo-700 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-indigo-100"
+                          >
+                            <Video size={14} /> Conduct Interview
+                          </Link>
+                        ) : (
                          <div className={cn(
                            "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all",
-                           app.status === 'shortlisted' ? "bg-green-50 text-green-700 border-green-100" :
                            app.status === 'rejected' ? "bg-red-50 text-red-700 border-red-100" :
-                           "bg-indigo-50 text-indigo-700 border-indigo-100"
+                           app.status === 'interviewed' ? "bg-blue-50 text-blue-700 border-blue-100" :
+                           "bg-slate-50 text-slate-600 border-slate-200"
                          )}>
                             {app.status}
                          </div>
@@ -164,7 +215,7 @@ export default function CompanyApplicants() {
                     </div>
                  </div>
                </motion.div>
-             ))
+             )})
            ) : (
              <div className="py-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
                 <Users size={64} className="mx-auto text-slate-100 mb-6" />

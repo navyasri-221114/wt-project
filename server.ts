@@ -16,6 +16,7 @@ import interviewRoutes from "./backend/src/routes/interviewRoutes.js";
 import userRoutes from "./backend/src/routes/userRoutes.js";
 import adminRoutes from "./backend/src/routes/adminRoutes.js";
 import notificationRoutes from "./backend/src/routes/notificationRoutes.js";
+import competitionRoutes from "./backend/src/routes/competitionRoutes.js";
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
   socket.on("join-room", (roomId) => {
+    console.log(`Socket ${socket.id} joining room: ${roomId}`);
     if (roomToUsers[roomId]) {
       roomToUsers[roomId].push(socket.id);
     } else {
@@ -52,15 +54,33 @@ io.on("connection", (socket) => {
     }
     socketToRoom[socket.id] = roomId;
     const usersInThisRoom = roomToUsers[roomId].filter(id => id !== socket.id);
+    console.log(`Users in room ${roomId} (excluding self):`, usersInThisRoom);
     socket.emit("all-users", usersInThisRoom);
   });
 
   socket.on("sending-signal", payload => {
+    console.log(`Sending signal from ${payload.callerID} to ${payload.userToSignal}`);
     io.to(payload.userToSignal).emit('user-joined', { signal: payload.signal, callerID: payload.callerID });
   });
 
   socket.on("returning-signal", payload => {
+    console.log(`Returning signal from socket to ${payload.callerID}`);
     io.to(payload.callerID).emit('receiving-returned-signal', { signal: payload.signal, id: socket.id });
+  });
+  
+  socket.on("send-message", (payload) => {
+    const roomId = socketToRoom[socket.id];
+    io.to(roomId).emit("new-message", {
+      text: payload.text,
+      sender: payload.sender,
+      id: socket.id,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  socket.on("update-scratchpad", (payload) => {
+    const roomId = socketToRoom[socket.id];
+    socket.to(roomId).emit("scratchpad-updated", payload);
   });
 
   socket.on("disconnect", () => {
@@ -88,6 +108,7 @@ app.use("/api/interviews", interviewRoutes);
 app.use("/api", userRoutes); // students/search, students/:id, companies, profile
 app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/competitions", competitionRoutes);
 
 // Vite Setup
 async function startServer() {

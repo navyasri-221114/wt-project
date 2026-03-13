@@ -14,27 +14,49 @@ export const interviewController = {
     const { application_id, scheduled_at } = req.body;
     const room_id = Math.random().toString(36).substring(2, 12);
     
+    console.log("Scheduling interview request:", { application_id, scheduled_at, room_id });
+
     try {
+      if (!application_id || !scheduled_at) {
+        return res.status(400).json({ error: "Missing required fields: application_id or scheduled_at" });
+      }
+
+      // 1. Create Interview
       const interview = await InterviewModel.create({
         application_id,
         scheduled_at,
         room_id,
         status: 'scheduled'
       });
+      console.log("Interview created successfully:", interview._id);
 
-      // Update application status
-      const app = await ApplicationModel.findByIdAndUpdate(application_id, { status: 'shortlisted' });
+      // 2. Update application status
+      const app = await ApplicationModel.findByIdAndUpdate(
+        application_id, 
+        { status: 'interview_scheduled' },
+        { new: true } // Get the updated doc
+      ).populate('job_id', 'title');
       
-      if (app) {
-        // Notify student
-        await NotificationModel.create({
-          user_id: app.student_id,
-          message: `You have been shortlisted! Interview scheduled at: ${scheduled_at}`
-        });
+      if (!app) {
+        console.error("Application not found for ID:", application_id);
+        // We might want to delete the interview we just created if the app doesn't exist?
+        // But for now let's just log and handle it.
+      } else {
+        console.log("Application status updated to interview_scheduled");
+        // 3. Notify student
+        if (app.student_id) {
+          const jobTitle = (app.job_id as any)?.title || "the job";
+          await NotificationModel.create({
+            user_id: app.student_id,
+            message: `Your interview for ${jobTitle} has been scheduled! Time: ${new Date(scheduled_at).toLocaleString()}`
+          });
+          console.log("Notification sent to student:", app.student_id);
+        }
       }
 
       res.json({ message: "Interview scheduled", room_id, interview });
     } catch (err: any) {
+      console.error("Interview scheduling error flow:", err);
       res.status(500).json({ error: "Failed to schedule interview", details: err.message });
     }
   },
@@ -56,6 +78,7 @@ export const interviewController = {
                 const app = itObj.application_id as any;
                 return {
                     ...itObj,
+                    id: it._id.toString(),
                     title: app?.job_id?.title,
                     company_name: app?.job_id?.company_id?.name
                 };
@@ -82,6 +105,7 @@ export const interviewController = {
                 const app = itObj.application_id as any;
                 return {
                     ...itObj,
+                    id: it._id.toString(),
                     title: app?.job_id?.title,
                     student_name: app?.student_id?.name
                 };

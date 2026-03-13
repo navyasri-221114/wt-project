@@ -1,55 +1,35 @@
-import { useState } from "react";
-import { Trophy, Calendar, Users, ArrowRight, Zap, Star, Target, Code } from "lucide-react";
-import { motion } from "framer-motion"; // Corrected import for framer-motion
+import { useState, useEffect } from "react";
+import { Trophy, Calendar, Users, ArrowRight, Zap, Star, Target, Code, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "../lib/utils";
+import { api } from "../services/api";
 
 export default function CompetitionsPage() {
-  const [competitions] = useState([
-    {
-      id: 1,
-      name: "Smart India Hackathon 2026",
-      organizer: "Govt. of India",
-      date: "June 15-20, 2026",
-      participants: "50,000+",
-      prize: "₹1,00,000",
-      category: "Hackathon",
-      difficulty: "Hard",
-      tags: ["Innovation", "Problem Solving"]
-    },
-    {
-      id: 2,
-      name: "Google Kickstart Round G",
-      organizer: "Google",
-      date: "July 12, 2026",
-      participants: "100,000+",
-      prize: "Swags & Interviews",
-      category: "Coding",
-      difficulty: "Extreme",
-      tags: ["Data Structures", "Algorithms"]
-    },
-    {
-      id: 3,
-      name: "TCS CodeVita Season 13",
-      organizer: "TCS",
-      date: "August 5, 2026",
-      participants: "200,000+",
-      prize: "Job Offers",
-      category: "Coding",
-      difficulty: "Medium",
-      tags: ["Competitive Programming"]
-    },
-    {
-      id: 4,
-      name: "AWS GameDay 2026",
-      organizer: "Amazon",
-      date: "September 10, 2026",
-      participants: "10,000+",
-      prize: "AWS Credits",
-      category: "Cloud",
-      difficulty: "Advanced",
-      tags: ["Cloud Architecture", "DevOps"]
+  const [competitions, setCompetitions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCompetitions();
+  }, []);
+
+  const fetchCompetitions = async () => {
+    try {
+      const res = await api.competitions.getAll();
+      setCompetitions(res);
+    } catch (err) {
+      console.error("Failed to fetch competitions:", err);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  if (loading) {
+    return (
+      <div className="h-[60vh] flex items-center justify-center">
+        <Loader2 className="animate-spin text-indigo-600" size={40} />
+      </div>
+    );
+  }
 
   const container = {
     hidden: { opacity: 0 },
@@ -96,7 +76,7 @@ export default function CompetitionsPage() {
       >
         {competitions.map((comp) => (
           <motion.div
-            key={comp.id}
+            key={comp._id}
             variants={item}
             whileHover={{ y: -8 }}
             className="group relative bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all p-10 overflow-hidden"

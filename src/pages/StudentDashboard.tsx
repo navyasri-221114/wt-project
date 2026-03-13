@@ -14,13 +14,17 @@ export default function StudentDashboard() {
   const [applications, setApplications] = useState<any[]>([]);
   const [interviews, setInterviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [applying, setApplying] = useState<number | null>(null);
+  const [applying, setApplying] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
+    const interval = setInterval(() => {
+      fetchData(true);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (isPolling = false) => {
     try {
       const [jobsRes, appsRes, interviewsRes] = await Promise.all([
         api.jobs.getAll(),
@@ -33,14 +37,14 @@ export default function StudentDashboard() {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      if (!isPolling) setLoading(false);
     }
   };
 
-  const handleApply = async (jobId: number) => {
+  const handleApply = async (jobId: string) => {
     setApplying(jobId);
     try {
-      await api.applications.apply(jobId);
+      await api.applications.apply(jobId as any);
       fetchData();
     } catch (err: any) {
       alert(err.message);
@@ -49,8 +53,8 @@ export default function StudentDashboard() {
     }
   };
 
-  const getAppStatus = (jobId: number) => {
-    return applications.find(app => app.job_id === jobId);
+  const getAppStatus = (jobId: string) => {
+    return applications.find(app => (app.job_id?._id || app.job_id?.id || app.job_id) === jobId || app.job_id === jobId);
   };
 
   if (loading) return (
@@ -121,11 +125,12 @@ export default function StudentDashboard() {
           <div className="space-y-6">
             <AnimatePresence>
               {jobs.map((job) => {
-                const app = getAppStatus(job.id);
+                const jobId = job._id || job.id;
+                const app = getAppStatus(jobId);
                 return (
                   <motion.div 
                     layout
-                    key={job.id} 
+                    key={jobId} 
                     variants={item}
                     className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:border-indigo-100 transition-all group"
                   >
@@ -156,11 +161,11 @@ export default function StudentDashboard() {
                           </div>
                         ) : (
                           <button
-                            onClick={() => handleApply(job.id)}
-                            disabled={applying === job.id}
+                            onClick={() => handleApply(jobId)}
+                            disabled={applying === jobId}
                             className="w-full md:w-auto px-8 py-3.5 bg-slate-900 text-white font-black rounded-2xl shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-95"
                           >
-                            {applying === job.id ? (
+                            {applying === jobId ? (
                               <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                             ) : (
                               <>Quick Apply <ChevronRight size={18} /></>
@@ -173,7 +178,7 @@ export default function StudentDashboard() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-6 border-t border-slate-50">
                        <Metric icon={IndianRupee} label="Expected Package" value={job.salary} />
                        <Metric icon={AlertCircle} label="Eligibility" value={`${job.min_cgpa}+ CGPA`} />
-                       <Metric icon={Users} label="Total Capacity" value={`${job.vacancies} Seats`} />
+                       <Metric icon={Users} label="Total Capacity" value={`${job.vacancies || 1} Seats`} />
                        <Metric icon={Clock} label="Closing Date" value="4 Days Left" />
                     </div>
 
@@ -267,12 +272,6 @@ export default function StudentDashboard() {
                         )} />
                         <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{app.status}</span>
                       </div>
-                      {app.ai_score > 0 && (
-                        <div className="flex items-center gap-1.5">
-                           <Sparkles size={12} className="text-indigo-400" />
-                           <span className="text-[10px] font-black text-indigo-600 uppercase">{app.ai_score}% Match</span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))

@@ -61,7 +61,8 @@ export const authController = {
   },
 
   login: async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+    const email = req.body.email || req.body.adminId;
+    const password = req.body.password;
 
     // Hardcoded Admin Login (as per server.ts)
     const ADMIN_EMAIL = "admin@college.com";
@@ -77,6 +78,8 @@ export const authController = {
         user: { id: "0", name: 'System Admin', email: ADMIN_EMAIL, role: 'admin' } 
       });
     }
+
+
 
     try {
       const user = await UserModel.findOne({ email });

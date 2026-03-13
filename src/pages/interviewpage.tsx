@@ -1,56 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Video, Clock, Building2, Calendar, CheckCircle2, AlertCircle, ArrowRight, User, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { Link } from "react-router-dom";
+import { api } from "../services/api";
 import { cn } from "../lib/utils";
 
 export default function InterviewsPage() {
-  const [interviews] = useState([
-    {
-      id: 1,
-      company: "Google",
-      role: "Frontend Developer",
-      date: "20 May 2026",
-      time: "10:30 AM",
-      status: "scheduled",
-      type: "Virtual",
-      interviewer: "Sarah Jenkins"
-    },
-    {
-      id: 2,
-      company: "Amazon",
-      role: "Backend Developer",
-      date: "25 May 2026",
-      time: "02:00 PM",
-      status: "scheduled",
-      type: "Phone Screen",
-      interviewer: "Michael Chen"
-    },
-    {
-      id: 3,
-      company: "Microsoft",
-      role: "Software Engineer",
-      date: "15 May 2026",
-      time: "09:00 AM",
-      status: "completed",
-      type: "Virtual",
-      interviewer: "David Miller"
-    },
-    {
-      id: 4,
-      company: "Meta",
-      role: "Product Designer",
-      date: "10 May 2026",
-      time: "11:00 AM",
-      status: "cancelled",
-      type: "On-site",
-      interviewer: "Jessica Alba"
-    }
-  ]);
-
+  const [interviews, setInterviews] = useState<any[]>([]);
   const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchInterviews();
+    const interval = setInterval(() => {
+      fetchInterviews(true);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchInterviews = async (isPolling = false) => {
+    try {
+      const res = await api.interviews.getMy();
+      setInterviews(res);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      if (!isPolling) setLoading(false);
+    }
+  };
 
   const filteredInterviews = interviews.filter(i => 
     filter === "all" ? true : i.status === filter
+  );
+
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <div className="w-12 h-12 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
+      <p className="text-slate-400 font-black text-sm uppercase tracking-widest">Loading Schedule...</p>
+    </div>
   );
 
   return (
@@ -99,7 +86,9 @@ export default function InterviewsPage() {
         </div>
         <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
           <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Success Rate</p>
-          <p className="text-4xl font-black text-violet-600">65%</p>
+          <p className="text-4xl font-black text-violet-600">
+            {interviews.length > 0 ? Math.round((interviews.filter(i => i.status === 'completed').length / interviews.length) * 100) : 0}%
+          </p>
         </div>
       </div>
 
@@ -132,7 +121,7 @@ export default function InterviewsPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
                         <h3 className="text-xl lg:text-2xl font-black text-slate-900 leading-tight truncate">
-                          {interview.role}
+                          {interview.title || "Interview Session"}
                         </h3>
                         {interview.status === 'scheduled' && (
                           <span className="inline-flex shrink-0 items-center gap-1.5 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-full">
@@ -142,7 +131,7 @@ export default function InterviewsPage() {
                         )}
                       </div>
                       <p className="flex items-center gap-1.5 text-indigo-600 font-bold text-sm">
-                        <Building2 size={14} className="shrink-0" /> <span className="truncate">{interview.company}</span>
+                        <Building2 size={14} className="shrink-0" /> <span className="truncate">{interview.company_name || interview.application_id?.job_id?.company_id?.name || "Company"}</span>
                       </p>
                     </div>
                   </div>
@@ -153,10 +142,12 @@ export default function InterviewsPage() {
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Schedule</p>
                       <div className="space-y-1">
                         <p className="font-bold text-slate-700 text-sm flex items-center gap-2">
-                          <Calendar size={14} className="text-indigo-400 shrink-0" /> <span className="truncate">{interview.date}</span>
+                          <Calendar size={14} className="text-indigo-400 shrink-0" /> 
+                          <span className="truncate">{new Date(interview.scheduled_at).toLocaleDateString()}</span>
                         </p>
                         <p className="text-xs font-semibold text-slate-500 flex items-center gap-2">
-                          <Clock size={14} className="text-indigo-400 shrink-0" /> <span className="truncate">{interview.time}</span>
+                          <Clock size={14} className="text-indigo-400 shrink-0" /> 
+                          <span className="truncate">{new Date(interview.scheduled_at).toLocaleTimeString([], {timeStyle: 'short'})}</span>
                         </p>
                       </div>
                     </div>
@@ -165,20 +156,20 @@ export default function InterviewsPage() {
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Session</p>
                       <div className="space-y-1">
                         <p className="font-bold text-slate-700 text-sm flex items-center gap-2">
-                          <User size={14} className="text-indigo-400 shrink-0" /> <span className="truncate">{interview.interviewer}</span>
+                          <User size={14} className="text-indigo-400 shrink-0" /> <span className="truncate">Recruiting Team</span>
                         </p>
                         <p className="text-xs font-semibold text-slate-500 flex items-center gap-2">
-                          <MapPin size={14} className="text-indigo-400 shrink-0" /> <span className="truncate">{interview.type}</span>
+                          <MapPin size={14} className="text-indigo-400 shrink-0" /> <span className="truncate">Virtual</span>
                         </p>
                       </div>
                     </div>
 
                     <div className="col-span-2 md:col-span-1 flex items-center md:justify-end lg:pl-4">
                       {interview.status === 'scheduled' ? (
-                        <button className="w-full md:w-auto px-6 lg:px-8 py-3 bg-indigo-600 text-white text-sm font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 group/btn shrink-0">
+                        <Link to={`/interview/${interview.room_id}`} className="w-full md:w-auto px-6 lg:px-8 py-3 bg-indigo-600 text-white text-sm font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 group/btn shrink-0">
                           Join <span className="hidden sm:inline">Meeting</span>
                           <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                        </button>
+                        </Link>
                       ) : (
                         <span className={cn(
                           "px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest border text-center w-full md:w-auto",

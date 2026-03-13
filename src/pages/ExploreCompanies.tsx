@@ -12,9 +12,13 @@ export default function ExploreCompanies() {
 
   useEffect(() => {
     fetchData();
+    const interval = setInterval(() => {
+      fetchData(true);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (isPolling = false) => {
     try {
       const [companiesRes, jobsRes] = await Promise.all([
         api.companies.getAll(),
@@ -22,15 +26,19 @@ export default function ExploreCompanies() {
       ]);
       setCompanies(companiesRes);
       setJobs(jobsRes);
-      if (companiesRes.length > 0) setSelectedCompany(companiesRes[0]);
+      if (companiesRes.length > 0 && !isPolling) setSelectedCompany(companiesRes[0]);
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      if (!isPolling) setLoading(false);
     }
   };
 
-  const companyJobs = jobs.filter(j => j.company_id === selectedCompany?.id);
+  const companyJobs = jobs.filter(j => {
+    const compId = j.company_id?._id || j.company_id?.id || j.company_id;
+    const selectedId = selectedCompany?.id || selectedCompany?._id;
+    return compId && selectedId && compId.toString() === selectedId.toString();
+  });
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh]">

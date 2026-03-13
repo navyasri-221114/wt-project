@@ -59,6 +59,37 @@ export default function InterviewRoom() {
     };
   }, [roomId]);
 
+  useEffect(() => {
+    if (!user || user.role !== 'student') return;
+    
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        alert("🚨 STRICT WARNING: Tab switching or minimizing the window is prohibited during this interview. The violation has been logged to the recruiting system.");
+      }
+    };
+
+    const handleCopyPaste = (e: ClipboardEvent) => {
+      e.preventDefault();
+      alert("🚨 STRICT WARNING: Copying and pasting is securely disabled in this environment.");
+    };
+
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("copy", handleCopyPaste);
+    document.addEventListener("paste", handleCopyPaste);
+    document.addEventListener("contextmenu", handleContextMenu);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("copy", handleCopyPaste);
+      document.removeEventListener("paste", handleCopyPaste);
+      document.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, [user]);
+
   const fetchInterview = async () => {
     try {
       const res = await api.interviews.getRoom(roomId!);

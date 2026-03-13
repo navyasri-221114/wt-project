@@ -29,7 +29,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
       setUser(res.user);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -63,6 +63,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
                 { id: 'admin', label: 'Admin', icon: ShieldCheck },
               ].map((item) => (
                 <button
+                  type="button"
                   key={item.id}
                   onClick={() => setRole(item.id as any)}
                   className={cn(
@@ -142,7 +143,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
               </div>
             )}
 
-            {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
+            {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg overflow-hidden break-words">{error}</p>}
 
             <button
               type="submit"
@@ -158,6 +159,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
             <button
               onClick={() => setIsSignup(!isSignup)}
               className="text-sm text-slate-500 hover:text-indigo-600 transition-colors"
+              type="button"
             >
               {isSignup ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
             </button>
