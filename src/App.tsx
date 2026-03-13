@@ -20,10 +20,10 @@ import ResumeBuilder from './pages/resumebuilder';
 import HelpPage from './pages/HelpPage';
 
 /* COMPANY MODULE PAGES */
-import CompanyProfile from './pages/company/CompanyProfile';
-import CompanyJobs from './pages/company/CompanyJobs';
-import CompanyApplicants from './pages/company/CompanyApplicants';
-import CompanyBranches from './pages/company/CompanyBranches';
+import CompanyProfile from './pages/company/CompanyProfile.tsx';
+import CompanyJobs from './pages/company/CompanyJobs.tsx';
+import CompanyApplicants from './pages/company/CompanyApplicants.tsx';
+import CompanyBranches from './pages/company/CompanyBranches.tsx';
 
 import Layout from './components/Layout';
 
@@ -34,8 +34,12 @@ export default function App() {
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    if (savedUser && savedUser !== 'undefined') {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.error("Failed to parse user from local storage", e);
+      }
     }
     setLoading(false);
   }, []);
