@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import Peer from 'simple-peer';
 import { Video, VideoOff, Mic, MicOff, PhoneOff, MessageSquare, User, FileText, Star } from 'lucide-react';
-import { api } from '../services/api';
-import { cn } from '../lib/utils';
+import { api } from '../../../../src/services/api';
+import { cn } from '../../../../src/lib/utils';
 
 export default function InterviewRoom() {
   const { roomId } = useParams();

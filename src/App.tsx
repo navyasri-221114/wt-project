@@ -19,6 +19,12 @@ import CompetitionsPage from './pages/CompetitionsPage';
 import ResumeBuilder from './pages/resumebuilder';
 import HelpPage from './pages/HelpPage';
 
+/* COMPANY MODULE PAGES */
+import CompanyProfile from './pages/company/CompanyProfile';
+import CompanyJobs from './pages/company/CompanyJobs';
+import CompanyApplicants from './pages/company/CompanyApplicants';
+import CompanyBranches from './pages/company/CompanyBranches';
+
 import Layout from './components/Layout';
 
 export default function App() {
@@ -57,10 +63,10 @@ export default function App() {
             user?.role === 'student'
               ? <StudentDashboard />
               : user?.role === 'company'
-              ? <CompanyDashboard />
-              : user?.role === 'admin'
-              ? <AdminDashboard />
-              : <Navigate to="/auth" />
+                ? <CompanyDashboard />
+                : user?.role === 'admin'
+                  ? <AdminDashboard />
+                  : <Navigate to="/auth" />
           }
         />
 
@@ -72,7 +78,7 @@ export default function App() {
 
         <Route path="/companies" element={<ExploreCompanies />} />
 
-        {/* NEW FEATURES ROUTES */}
+        {/* STUDENT FEATURES */}
 
         <Route path="/jobs" element={<JobProfiles />} />
 
@@ -84,9 +90,23 @@ export default function App() {
 
         <Route path="/help" element={<HelpPage />} />
 
+        {/* COMPANY MODULE ROUTES */}
+
+        <Route path="/company/dashboard" element={<CompanyDashboard />} />
+
+        <Route path="/company/profile" element={<CompanyProfile />} />
+
+        <Route path="/company/jobs" element={<CompanyJobs />} />
+
+        <Route path="/company/applicants" element={<CompanyApplicants />} />
+
+        <Route path="/company/branches" element={<CompanyBranches />} />
+
       </Route>
 
-      <Route path="/interview/:roomId" element={<interviewRoom />} />
+      {/* INTERVIEW ROOM */}
+
+      <Route path="/interview/:roomId" element={<InterviewRoom />} />
 
     </Routes>
   );
