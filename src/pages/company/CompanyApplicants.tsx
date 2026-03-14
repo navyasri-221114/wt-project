@@ -25,7 +25,8 @@ export default function CompanyApplicants() {
       
       // We also need to attach the job title to these apps so the UI can display it
       const flattenedApps = allApps.flat().map((app: any) => {
-        const job = jobs.find((j: any) => (j._id || j.id) === app.job_id);
+        const appId = app.job_id?._id || app.job_id;
+        const job = jobs.find((j: any) => (j._id || j.id) === appId);
         return { ...app, title: app.title || job?.title };
       });
       
@@ -64,8 +65,8 @@ export default function CompanyApplicants() {
 
   const filteredApplicants = applicants.filter(app => {
     const matchesFilter = filter === 'all' || app.status === filter;
-    const matchesSearch = app.student_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          app.title?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (app.student_name || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (app.title || "").toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
