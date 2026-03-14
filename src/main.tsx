@@ -1,5 +1,11 @@
 import { Buffer } from 'buffer';
 window.Buffer = Buffer;
+(window as any).process = {
+  env: { NODE_DEBUG: false },
+  nextTick: (cb: any) => setTimeout(cb, 0),
+  version: '',
+  browser: true
+};
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

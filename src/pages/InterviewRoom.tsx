@@ -153,6 +153,7 @@ export default function InterviewRoom() {
 
   useEffect(() => {
     if (remoteStream && remoteVideo.current) {
+      console.log("Attaching remote stream to video element...");
       remoteVideo.current.srcObject = remoteStream;
     }
   }, [remoteStream]);
