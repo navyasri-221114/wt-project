@@ -77,7 +77,8 @@ export default function InterviewRoom() {
       .then((currentStream) => {
         setStream(currentStream);
         
-        socket.current = io();
+        const socketUrl = import.meta.env.VITE_API_URL || window.location.origin;
+        socket.current = io(socketUrl);
         socket.current.emit('join-room', roomId);
 
         socket.current.on('all-users', (users: string[]) => {

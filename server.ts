@@ -6,6 +6,7 @@ import fs from "fs";
 import http from "http";
 import dotenv from "dotenv";
 import { Server as SocketServer } from "socket.io";
+import cors from "cors";
 
 // Backend Imports
 import connectDB from "./backend/src/config/database.js";
@@ -30,11 +31,20 @@ connectDB();
 
 const app = express();
 const httpServer = http.createServer(app);
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "*",
+  credentials: true
+}));
+
 const io = new SocketServer(httpServer, {
-  cors: { origin: "*" }
+  cors: { 
+    origin: process.env.FRONTEND_URL || "*",
+    methods: ["GET", "POST"]
+  }
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
@@ -141,7 +151,7 @@ async function startServer() {
   }
 
   console.log(`Attempting to listen on port ${PORT}...`);
-  httpServer.listen(PORT, "0.0.0.0", () => {
+  httpServer.listen(Number(PORT), "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
   });
 }
