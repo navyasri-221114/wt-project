@@ -90,8 +90,9 @@ export default function InterviewRoom() {
         socket.current.on('connect', () => {
           console.log("Socket connected successfully with ID:", socket.current.id);
           if (roomId) {
-            console.log("Emitting join-room for:", roomId);
-            socket.current.emit('join-room', roomId);
+            const cleanRoom = roomId.toLowerCase();
+            console.log("Emitting join-room for:", cleanRoom);
+            socket.current.emit('join-room', cleanRoom);
           }
         });
 
@@ -114,7 +115,7 @@ export default function InterviewRoom() {
 
         socket.current.on('receiving-returned-signal', (payload: any) => {
           console.log("Received returned signal. Peer connection completing...");
-          if (peerRef.current) {
+          if (peerRef.current && !peerRef.current.destroyed) {
             peerRef.current.signal(payload.signal);
           }
         });
@@ -174,7 +175,9 @@ export default function InterviewRoom() {
       return;
     }
     try {
-      const res = await api.interviews.getRoom(roomId!);
+      // Use lowercase for room ID consistency
+      const cleanRoomId = roomId.toLowerCase();
+      const res = await api.interviews.getRoom(cleanRoomId);
       setInterview(res);
       setNotes(res.recruiter_notes || '');
       setRating(res.evaluation_rating || 0);
@@ -183,10 +186,23 @@ export default function InterviewRoom() {
     }
   };
 
+  const initiateConnection = () => {
+    console.log("Manual connection refresh triggered...");
+    setPeerConnected(false);
+    setRemoteStream(null);
+    if (peerRef.current) {
+        peerRef.current.destroy();
+    }
+    if (socket.current && stream && roomId) {
+        socket.current.emit('join-room', roomId.toLowerCase());
+    }
+  };
+
   const createPeer = (userToSignal: string, callerID: string, stream: MediaStream) => {
+    console.log("Initiating P2P connection as initiator...");
     const peer = new Peer({
       initiator: true,
-      trickle: false,
+      trickle: true,
       stream,
       config: { 
         iceServers: [
@@ -195,6 +211,7 @@ export default function InterviewRoom() {
           { urls: 'stun:stun2.l.google.com:19302' },
           { urls: 'stun:stun3.l.google.com:19302' },
           { urls: 'stun:stun4.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' }
         ] 
       }
     });
@@ -204,32 +221,37 @@ export default function InterviewRoom() {
     });
 
     peer.on('stream', (remoteStream) => {
-      console.log("Received Remote Stream (Initiator)");
+      console.log(">>> Received Remote Stream (Initiator)");
       setRemoteStream(remoteStream);
-      if (remoteVideo.current) {
-        remoteVideo.current.srcObject = remoteStream;
-      }
     });
 
     peer.on('connect', () => {
-      console.log("Peer Connection Established! (Initiator)");
+      console.log(">>> P2P Connection Established! (Initiator)");
       setPeerConnected(true);
     });
-    peer.on('close', () => {
-      console.log("Peer Connection Closed. (Initiator)");
-      setPeerConnected(false);
-    });
+
     peer.on('error', (err) => {
-      console.error("Peer Error: (Initiator)", err);
+      console.error(">>> Peer Error (Initiator):", err.message);
+      if (err.message.includes('supported')) {
+         alert("Your browser might be blocking WebRTC. Please disable any 'Shields' or strict privacy blockers.");
+      }
     });
 
     peerRef.current = peer;
   };
 
   const addPeer = (incomingSignal: any, callerID: string, stream: MediaStream) => {
+    console.log("Responding to P2P connection request...");
+    
+    // If we already have a peer and it's from the same person, just signal it (trickle)
+    if (peerRef.current && !peerRef.current.destroyed) {
+        peerRef.current.signal(incomingSignal);
+        return;
+    }
+
     const peer = new Peer({
       initiator: false,
-      trickle: false,
+      trickle: true,
       stream,
       config: { 
         iceServers: [
@@ -238,6 +260,7 @@ export default function InterviewRoom() {
           { urls: 'stun:stun2.l.google.com:19302' },
           { urls: 'stun:stun3.l.google.com:19302' },
           { urls: 'stun:stun4.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' }
         ] 
       }
     });
@@ -247,23 +270,17 @@ export default function InterviewRoom() {
     });
 
     peer.on('stream', (remoteStream) => {
-      console.log("Received Remote Stream");
+      console.log(">>> Received Remote Stream (Receiver)");
       setRemoteStream(remoteStream);
-      if (remoteVideo.current) {
-        remoteVideo.current.srcObject = remoteStream;
-      }
     });
 
     peer.on('connect', () => {
-      console.log("Peer Connection (initiator: false) Established!");
+      console.log(">>> P2P Connection Established! (Receiver)");
       setPeerConnected(true);
     });
-    peer.on('close', () => {
-      console.log("Peer Connection (initiator: false) Closed.");
-      setPeerConnected(false);
-    });
+
     peer.on('error', (err) => {
-      console.error("Peer Error (initiator: false):", err);
+        console.error(">>> Peer Error (Receiver):", err.message);
     });
 
     peer.signal(incomingSignal);
@@ -359,6 +376,12 @@ export default function InterviewRoom() {
           </div>
         </div>
         <div className="flex items-center gap-6">
+          <button 
+            onClick={initiateConnection}
+            className="text-[10px] font-black uppercase tracking-widest bg-slate-700/50 hover:bg-slate-700 border border-slate-600 px-3 py-1.5 rounded-lg transition-all"
+          >
+            Refresh Link
+          </button>
           <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-700/50 border border-slate-600 rounded-lg text-xs font-bold">
             <div className={cn(
               "w-2 h-2 rounded-full animate-pulse shadow-[0_0_8px]",
