@@ -120,6 +120,12 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/competitions", competitionRoutes);
 
+// Root route for Render health check
+app.get("/", (req, res) => {
+  res.send("<h1>Campus Placement API is Live</h1><p>Status: Running</p>");
+});
+
+
 // Vite Setup
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
@@ -143,11 +149,18 @@ async function startServer() {
       }
     });
   } else {
-    console.log("Starting in production mode...");
-    app.use(express.static(path.join(__dirname, "dist")));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(__dirname, "dist", "index.html"));
-    });
+    console.log("Starting in production mode (API Only)...");
+    // Only try to serve static files if they actually exist (local build)
+    const distPath = path.join(__dirname, "dist");
+    if (fs.existsSync(distPath)) {
+      app.use(express.static(distPath));
+      app.get("*", (req, res) => {
+         // Fallback to index.html for SPA if it's not an /api route
+         if (!req.path.startsWith('/api')) {
+           res.sendFile(path.join(distPath, "index.html"));
+         }
+      });
+    }
   }
 
   console.log(`Attempting to listen on port ${PORT}...`);

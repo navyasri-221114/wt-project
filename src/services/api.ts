@@ -1,4 +1,6 @@
 const API_URL = (import.meta.env.VITE_API_URL || "") + "/api";
+console.log("🚀 API Connection initialized at:", API_URL);
+if (!import.meta.env.VITE_API_URL) console.warn("⚠️ VITE_API_URL is missing! Frontend is trying to call itself, which will cause 405 Errors.");
 
 export const api = {
   async request(endpoint: string, options: RequestInit = {}) {
