@@ -89,7 +89,10 @@ export default function InterviewRoom() {
 
         socket.current.on('connect', () => {
           console.log("Socket connected successfully with ID:", socket.current.id);
-          socket.current.emit('join-room', roomId);
+          if (roomId) {
+            console.log("Emitting join-room for:", roomId);
+            socket.current.emit('join-room', roomId);
+          }
         });
 
         socket.current.on('connect_error', (error: any) => {

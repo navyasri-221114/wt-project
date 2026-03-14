@@ -58,15 +58,22 @@ io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
   socket.on("join-room", (roomId) => {
+    if (!roomId) return;
     console.log(`Socket ${socket.id} joining room: ${roomId}`);
+    
+    socket.join(roomId);
+    
     if (roomToUsers[roomId]) {
-      roomToUsers[roomId].push(socket.id);
+      if (!roomToUsers[roomId].includes(socket.id)) {
+        roomToUsers[roomId].push(socket.id);
+      }
     } else {
       roomToUsers[roomId] = [socket.id];
     }
     socketToRoom[socket.id] = roomId;
+    
     const usersInThisRoom = roomToUsers[roomId].filter(id => id !== socket.id);
-    console.log(`Users in room ${roomId} (excluding self):`, usersInThisRoom);
+    console.log(`User ${socket.id} joined ${roomId}. Current peers:`, usersInThisRoom);
     socket.emit("all-users", usersInThisRoom);
   });
 
