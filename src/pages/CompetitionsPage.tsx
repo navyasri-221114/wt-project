@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Trophy, Calendar, Users, ArrowRight, Zap, Star, Target, Code, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { cn } from "../lib/utils";
 import { api } from "../services/api";
 
