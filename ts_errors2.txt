@@ -1,0 +1,6 @@
+features/interview-mode/src/pages/InterviewRoom.tsx(6,21): error TS2307: Cannot find module '../services/api' or its corresponding type declarations.
+features/interview-mode/src/pages/InterviewRoom.tsx(7,20): error TS2307: Cannot find module '../lib/utils' or its corresponding type declarations.
+src/App.tsx(23,8): error TS1192: Module '"C:/Users/chvar/Desktop/wt-project/src/pages/company/CompanyProfile"' has no default export.
+src/App.tsx(24,8): error TS1192: Module '"C:/Users/chvar/Desktop/wt-project/src/pages/company/CompanyJobs"' has no default export.
+src/App.tsx(25,31): error TS2307: Cannot find module './pages/company/CompanyApplicants' or its corresponding type declarations.
+src/App.tsx(26,8): error TS1192: Module '"C:/Users/chvar/Desktop/wt-project/src/pages/company/CompanyBranches"' has no default export.
