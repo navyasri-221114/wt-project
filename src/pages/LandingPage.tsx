@@ -122,13 +122,13 @@ export default function LandingPage() {
               {
                 title: 'For Students',
                 icon: Users,
-                features: ['AI Resume Analysis', 'One-click Applications', 'Interview Tracking', 'Skill Gap Insights'],
+                features: ['Digital Portfolio Builder', 'One-click Applications', 'Interview Tracking', 'Skill Assessment'],
                 color: 'bg-blue-50 text-blue-600'
               },
               {
                 title: 'For Recruiters',
                 icon: Briefcase,
-                features: ['Smart Candidate Ranking', 'Automated Shortlisting', 'Bulk Communication', 'Analytics Dashboard'],
+                features: ['Qualified Candidate Filtering', 'Structured Interviewing', 'Bulk Communication', 'Analytics Dashboard'],
                 color: 'bg-indigo-50 text-indigo-600'
               },
               {

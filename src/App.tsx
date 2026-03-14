@@ -20,10 +20,10 @@ import ResumeBuilder from './pages/resumebuilder';
 import HelpPage from './pages/HelpPage';
 
 /* COMPANY MODULE PAGES */
-import CompanyProfile from './pages/company/CompanyProfile.tsx';
-import CompanyJobs from './pages/company/CompanyJobs.tsx';
-import CompanyApplicants from './pages/company/CompanyApplicants.tsx';
-import CompanyBranches from './pages/company/CompanyBranches.tsx';
+import CompanyProfile from './pages/company/CompanyProfile';
+import CompanyJobs from './pages/company/CompanyJobs';
+import CompanyApplicants from './pages/company/CompanyApplicants';
+import CompanyBranches from './pages/company/CompanyBranches';
 
 import Layout from './components/Layout';
 

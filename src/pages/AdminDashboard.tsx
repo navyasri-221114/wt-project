@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Users, Building2, Briefcase, TrendingUp, Download, CheckCircle2, Video, Key, Plus, Trash2, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Users, Building2, Briefcase, TrendingUp, Download, CheckCircle2, Video, Key, Plus, Trash2, ShieldCheck, X } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { api } from '../services/api';
 import { cn } from '../lib/utils';
@@ -9,10 +9,21 @@ export default function AdminDashboard() {
   const [keys, setKeys] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [competitions, setCompetitions] = useState<any[]>([]);
+  const [showCompModal, setShowCompModal] = useState(false);
+  const [newComp, setNewComp] = useState({
+    name: '', organizer: '', date: '', prize: '', category: 'Coding', difficulty: 'Medium', tags: ''
+  });
 
   useEffect(() => {
     fetchStats();
     fetchKeys();
+    fetchCompetitions();
+    const interval = setInterval(() => {
+      fetchStats();
+      fetchKeys(true);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchStats = async () => {
@@ -24,14 +35,14 @@ export default function AdminDashboard() {
     }
   };
 
-  const fetchKeys = async () => {
+  const fetchKeys = async (isPolling = false) => {
     try {
       const res = await api.admin.getKeys();
       setKeys(res);
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      if (!isPolling) setLoading(false);
     }
   };
 
@@ -49,10 +60,44 @@ export default function AdminDashboard() {
 
   const handleUpdateKeyStatus = async (id: number, status: string) => {
     try {
-      await api.admin.updateKeyStatus(id, status);
+      await api.admin.updateKeyStatus(id.toString(), status);
       fetchKeys();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const fetchCompetitions = async () => {
+    try {
+      const res = await api.competitions.getAll();
+      setCompetitions(res);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleCreateCompetition = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.competitions.create({
+        ...newComp,
+        tags: newComp.tags.split(',').map(t => t.trim())
+      });
+      setShowCompModal(false);
+      setNewComp({ name: '', organizer: '', date: '', prize: '', category: 'Coding', difficulty: 'Medium', tags: '' });
+      fetchCompetitions();
+    } catch (err) {
+      alert("Failed to create competition");
+    }
+  };
+
+  const handleDeleteCompetition = async (id: string) => {
+    if (!confirm("Are you sure?")) return;
+    try {
+      await api.competitions.delete(id);
+      fetchCompetitions();
+    } catch (err) {
+      alert("Failed to delete");
     }
   };
 
@@ -249,6 +294,125 @@ export default function AdminDashboard() {
           </table>
         </div>
       </div>
+
+      {/* Competitions Management */}
+      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm mt-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h3 className="text-xl font-bold text-slate-900">Student Competitions</h3>
+            <p className="text-sm text-slate-500 mt-1">Add hackathons and coding challenges for students</p>
+          </div>
+          <button
+            onClick={() => setShowCompModal(true)}
+            className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 flex items-center gap-2"
+          >
+            <Plus size={20} />
+            Post New Arena
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="text-left border-b border-slate-100">
+                <th className="pb-4 font-bold text-slate-900 text-sm">Competition</th>
+                <th className="pb-4 font-bold text-slate-900 text-sm">Organizer</th>
+                <th className="pb-4 font-bold text-slate-900 text-sm">Date</th>
+                <th className="pb-4 font-bold text-slate-900 text-sm">Category</th>
+                <th className="pb-4 font-bold text-slate-900 text-sm">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {competitions.map((comp) => (
+                <tr key={comp._id} className="group hover:bg-slate-50 transition-colors">
+                  <td className="py-4 font-bold text-slate-700">{comp.name}</td>
+                  <td className="py-4 text-sm text-slate-500">{comp.organizer}</td>
+                  <td className="py-4 text-sm text-slate-500">{comp.date}</td>
+                  <td className="py-4">
+                    <span className="px-2.5 py-1 bg-slate-100 rounded-lg text-[10px] font-black uppercase tracking-wider text-slate-600">
+                      {comp.category}
+                    </span>
+                  </td>
+                  <td className="py-4">
+                    <button
+                      onClick={() => handleDeleteCompetition(comp._id)}
+                      className="p-2 text-slate-400 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {competitions.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-12 text-center text-slate-500">
+                    No competitions posted yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Modal for adding competition */}
+      {showCompModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] w-full max-w-xl p-10 shadow-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-black text-slate-900">Add <span className="text-indigo-600">Competition</span></h2>
+              <button onClick={() => setShowCompModal(false)} className="text-slate-400 hover:text-slate-900"><X size={24} /></button>
+            </div>
+            <form onSubmit={handleCreateCompetition} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Competition Name</label>
+                  <input required value={newComp.name} onChange={e => setNewComp({...newComp, name: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500" placeholder="e.g. SIH 2026" />
+                </div>
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Organizer</label>
+                  <input required value={newComp.organizer} onChange={e => setNewComp({...newComp, organizer: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Google" />
+                </div>
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Date</label>
+                  <input required value={newComp.date} onChange={e => setNewComp({...newComp, date: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Aug 15" />
+                </div>
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Category</label>
+                  <select value={newComp.category} onChange={e => setNewComp({...newComp, category: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500">
+                    <option value="Coding">Coding</option>
+                    <option value="Hackathon">Hackathon</option>
+                    <option value="Cloud">Cloud</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Difficulty</label>
+                  <select value={newComp.difficulty} onChange={e => setNewComp({...newComp, difficulty: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500">
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                    <option value="Advanced">Advanced</option>
+                    <option value="Extreme">Extreme</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Prize</label>
+                  <input required value={newComp.prize} onChange={e => setNewComp({...newComp, prize: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500" placeholder="e.g. ₹50,000" />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Tags (comma separated)</label>
+                  <input value={newComp.tags} onChange={e => setNewComp({...newComp, tags: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500" placeholder="Algorithms, Cloud" />
+                </div>
+              </div>
+              <div className="flex gap-4 mt-6">
+                <button type="button" onClick={() => setShowCompModal(false)} className="flex-1 py-4 bg-slate-100 text-slate-500 font-black rounded-xl hover:bg-slate-200 transition-all">Cancel</button>
+                <button type="submit" className="flex-[2] py-4 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100">Post Competition</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,6 @@
-const API_URL = "/api";
+const API_URL = (import.meta.env.VITE_API_URL || "") + "/api";
+console.log("🚀 API Connection initialized at:", API_URL);
+if (!import.meta.env.VITE_API_URL) console.warn("⚠️ VITE_API_URL is missing! Frontend is trying to call itself, which will cause 405 Errors.");
 
 export const api = {
   async request(endpoint: string, options: RequestInit = {}) {
@@ -10,14 +12,24 @@ export const api = {
     };
 
     const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Something went wrong");
-    return data;
+    
+    // Check if the response is actually JSON
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || `Error ${response.status}: Something went wrong`);
+      return data;
+    } else {
+      // It's likely an HTML 404 or 500 error from the hosting provider (Vercel/Render)
+      const text = await response.text();
+      console.error("Non-JSON response received:", text.slice(0, 100));
+      throw new Error(`Server returned HTML instead of JSON (Status ${response.status}). This usually means the API URL is incorrect or the backend is down.`);
+    }
   },
 
   auth: {
     login: (credentials: any) => api.request("/auth/login", { method: "POST", body: JSON.stringify(credentials) }),
-    adminLogin: (credentials: any) => api.request("/auth/admin/login", { method: "POST", body: JSON.stringify(credentials) }),
+    adminLogin: (credentials: any) => api.request("/auth/login", { method: "POST", body: JSON.stringify(credentials) }),
     signup: (data: any) => api.request("/auth/signup", { method: "POST", body: JSON.stringify(data) }),
   },
 
@@ -41,27 +53,36 @@ export const api = {
   },
 
   applications: {
-    apply: (jobId: number) => api.request("/applications", { method: "POST", body: JSON.stringify({ job_id: jobId }) }),
+    apply: (jobId: string) => api.request("/applications", { method: "POST", body: JSON.stringify({ job_id: jobId }) }),
     getMy: () => api.request("/applications/my"),
-    getByJob: (jobId: number) => api.request(`/applications/job/${jobId}`),
-    updateStatus: (id: number, status: string) => api.request(`/applications/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),
+    getByJob: (jobId: string) => api.request(`/applications/job/${jobId}`),
+    updateStatus: (id: string, status: string) => api.request(`/applications/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),
   },
 
   interviews: {
-    schedule: (data: { application_id: number, scheduled_at: string }) => api.request("/interviews", { method: "POST", body: JSON.stringify(data) }),
+    schedule: (data: { application_id: string, scheduled_at: string }) => api.request("/interviews", { method: "POST", body: JSON.stringify(data) }),
     getMy: () => api.request("/interviews/my"),
     getRoom: (roomId: string) => api.request(`/interviews/${roomId}`),
-    evaluate: (id: number, data: { notes: string, rating: number, status: string }) => api.request(`/interviews/${id}/evaluate`, { method: "PUT", body: JSON.stringify(data) }),
+    evaluate: (id: string, data: { notes: string, rating: number, status: string }) => api.request(`/interviews/${id}/evaluate`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
   admin: {
     getStats: () => api.request("/admin/stats"),
     getKeys: () => api.request("/admin/keys"),
     generateKey: () => api.request("/admin/keys", { method: "POST" }),
-    updateKeyStatus: (id: number, status: string) => api.request(`/admin/keys/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),
+    updateKeyStatus: (id: string, status: string) => api.request(`/admin/keys/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),
   },
 
   students: {
     getProfile: (id: string) => api.request(`/students/${id}`),
+  },
+  notifications: {
+    getMy: () => api.request("/notifications/my"),
+    markAsRead: (id: string) => api.request(`/notifications/${id}/read`, { method: "PUT" }),
+  },
+  competitions: {
+    getAll: () => api.request("/competitions"),
+    create: (data: any) => api.request("/competitions", { method: "POST", body: JSON.stringify(data) }),
+    delete: (id: string) => api.request(`/competitions/${id}`, { method: "DELETE" }),
   },
 };
