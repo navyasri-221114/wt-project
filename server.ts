@@ -40,8 +40,10 @@ app.use(cors({
 const io = new SocketServer(httpServer, {
   cors: { 
     origin: process.env.FRONTEND_URL || "*",
-    methods: ["GET", "POST"]
-  }
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ['websocket', 'polling']
 });
 
 const PORT = process.env.PORT || 3000;

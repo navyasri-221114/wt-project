@@ -78,12 +78,28 @@ export default function InterviewRoom() {
         setStream(currentStream);
         
         const socketUrl = import.meta.env.VITE_API_URL || window.location.origin;
-        socket.current = io(socketUrl);
-        socket.current.emit('join-room', roomId);
+        console.log("Connecting socket to:", socketUrl);
+        
+        socket.current = io(socketUrl, {
+          transports: ['websocket', 'polling'],
+          withCredentials: true,
+          reconnectionAttempts: 5,
+          timeout: 10000
+        });
+
+        socket.current.on('connect', () => {
+          console.log("Socket connected successfully with ID:", socket.current.id);
+          socket.current.emit('join-room', roomId);
+        });
+
+        socket.current.on('connect_error', (error: any) => {
+          console.error("Socket connection error:", error);
+        });
 
         socket.current.on('all-users', (users: string[]) => {
           console.log("Joined room. Users already in room:", users);
           if (users.length > 0) {
+            // Initiate connection to the first user found
             createPeer(users[0], socket.current.id, currentStream);
           }
         });
@@ -95,7 +111,9 @@ export default function InterviewRoom() {
 
         socket.current.on('receiving-returned-signal', (payload: any) => {
           console.log("Received returned signal. Peer connection completing...");
-          peerRef.current.signal(payload.signal);
+          if (peerRef.current) {
+            peerRef.current.signal(payload.signal);
+          }
         });
 
         socket.current.on('new-message', (msg: any) => {
@@ -167,7 +185,15 @@ export default function InterviewRoom() {
       initiator: true,
       trickle: false,
       stream,
-      config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+      config: { 
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:stun3.l.google.com:19302' },
+          { urls: 'stun:stun4.l.google.com:19302' },
+        ] 
+      }
     });
 
     peer.on('signal', (signal) => {
@@ -202,7 +228,15 @@ export default function InterviewRoom() {
       initiator: false,
       trickle: false,
       stream,
-      config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+      config: { 
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:stun3.l.google.com:19302' },
+          { urls: 'stun:stun4.l.google.com:19302' },
+        ] 
+      }
     });
 
     peer.on('signal', (signal) => {
