@@ -10,9 +10,19 @@ export const api = {
     };
 
     const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Something went wrong");
-    return data;
+    
+    // Check if the response is actually JSON
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || `Error ${response.status}: Something went wrong`);
+      return data;
+    } else {
+      // It's likely an HTML 404 or 500 error from the hosting provider (Vercel/Render)
+      const text = await response.text();
+      console.error("Non-JSON response received:", text.slice(0, 100));
+      throw new Error(`Server returned HTML instead of JSON (Status ${response.status}). This usually means the API URL is incorrect or the backend is down.`);
+    }
   },
 
   auth: {
