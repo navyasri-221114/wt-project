@@ -103,11 +103,22 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
     const roomId = socketToRoom[socket.id];
-    let room = roomToUsers[roomId];
-    if (room) {
-      room = room.filter(id => id !== socket.id);
-      roomToUsers[roomId] = room;
+    if (roomId) {
+      let room = roomToUsers[roomId];
+      if (room) {
+        room = room.filter(id => id !== socket.id);
+        roomToUsers[roomId] = room;
+        // Notify remaining users in the room that this peer left
+        room.forEach(userId => {
+          io.to(userId).emit('user-disconnected', socket.id);
+        });
+        // Clean up empty rooms
+        if (room.length === 0) {
+          delete roomToUsers[roomId];
+        }
+      }
     }
     delete socketToRoom[socket.id];
   });

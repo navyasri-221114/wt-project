@@ -31,7 +31,32 @@ export default function InterviewRoom() {
   const myVideo = useRef<HTMLVideoElement>(null);
   const remoteVideo = useRef<HTMLVideoElement>(null);
   const peerRef = useRef<any>();
+  const peerCallerID = useRef<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Shared ICE server config with TURN for cross-network support
+  const iceConfig = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      }
+    ]
+  };
 
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -73,59 +98,89 @@ export default function InterviewRoom() {
     window.addEventListener('keydown', preventUnauthorized);
     window.addEventListener('contextmenu', handleContextMenu);
 
+    let mounted = true;
+    let localStream: MediaStream | null = null;
+    let localSocket: any = null;
+
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then((currentStream) => {
+        if (!mounted) {
+           currentStream.getTracks().forEach(track => track.stop());
+           return;
+        }
+        
+        localStream = currentStream;
         setStream(currentStream);
         
         const socketUrl = import.meta.env.VITE_API_URL || window.location.origin;
         console.log("Connecting socket to:", socketUrl);
         
-        socket.current = io(socketUrl, {
+        localSocket = io(socketUrl, {
           transports: ['websocket', 'polling'],
           withCredentials: true,
           reconnectionAttempts: 5,
           timeout: 10000
         });
+        socket.current = localSocket;
 
-        socket.current.on('connect', () => {
-          console.log("Socket connected successfully with ID:", socket.current.id);
+        localSocket.on('connect', () => {
+          if (!mounted) return;
+          console.log("Socket connected successfully with ID:", localSocket.id);
           if (roomId) {
             const cleanRoom = roomId.toLowerCase();
             console.log("Emitting join-room for:", cleanRoom);
-            socket.current.emit('join-room', cleanRoom);
+            localSocket.emit('join-room', cleanRoom);
           }
         });
 
-        socket.current.on('connect_error', (error: any) => {
+        localSocket.on('connect_error', (error: any) => {
           console.error("Socket connection error:", error);
         });
 
-        socket.current.on('all-users', (users: string[]) => {
+        localSocket.on('all-users', (users: string[]) => {
+          if (!mounted) return;
           console.log("Joined room. Users already in room:", users);
           if (users.length > 0) {
             // Initiate connection to the first user found
-            createPeer(users[0], socket.current.id, currentStream);
+            createPeer(users[0], localSocket.id, currentStream);
           }
         });
 
-        socket.current.on('user-joined', (payload: any) => {
+        localSocket.on('user-joined', (payload: any) => {
+          if (!mounted) return;
           console.log("New user joined the room. Signaling...");
           addPeer(payload.signal, payload.callerID, currentStream);
         });
 
-        socket.current.on('receiving-returned-signal', (payload: any) => {
+        localSocket.on('receiving-returned-signal', (payload: any) => {
+          if (!mounted) return;
           console.log("Received returned signal. Peer connection completing...");
           if (peerRef.current && !peerRef.current.destroyed) {
             peerRef.current.signal(payload.signal);
           }
         });
 
-        socket.current.on('new-message', (msg: any) => {
+        localSocket.on('new-message', (msg: any) => {
+          if (!mounted) return;
           setMessages(prev => [...prev, msg]);
         });
 
-        socket.current.on('scratchpad-updated', (newCode: string) => {
+        localSocket.on('scratchpad-updated', (newCode: string) => {
+          if (!mounted) return;
           setCode(newCode);
+        });
+
+        // Handle when the other user disconnects
+        localSocket.on('user-disconnected', (disconnectedId: string) => {
+          if (!mounted) return;
+          console.log("Remote user disconnected:", disconnectedId);
+          if (peerRef.current) {
+            peerRef.current.destroy();
+            peerRef.current = null;
+          }
+          peerCallerID.current = null;
+          setPeerConnected(false);
+          setRemoteStream(null);
         });
       })
       .catch(err => {
@@ -134,9 +189,18 @@ export default function InterviewRoom() {
       });
 
     return () => {
-      stream?.getTracks().forEach(track => track.stop());
-      socket.current?.disconnect();
-      // ... same listeners cleanup ...
+      mounted = false;
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+      if (peerRef.current) {
+        peerRef.current.destroy();
+        peerRef.current = null;
+      }
+      peerCallerID.current = null;
+      if (localSocket) {
+        localSocket.disconnect();
+      }
       window.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleVisibilityChange);
       document.removeEventListener('fullscreenchange', handleFullScreenChange);
@@ -193,28 +257,26 @@ export default function InterviewRoom() {
     setRemoteStream(null);
     if (peerRef.current) {
         peerRef.current.destroy();
+        peerRef.current = null;
     }
+    peerCallerID.current = null;
     if (socket.current && stream && roomId) {
         socket.current.emit('join-room', roomId.toLowerCase());
     }
   };
 
   const createPeer = (userToSignal: string, callerID: string, stream: MediaStream) => {
-    console.log("Initiating P2P connection as initiator...");
+    // Destroy any existing peer before creating a new one
+    if (peerRef.current) {
+      peerRef.current.destroy();
+      peerRef.current = null;
+    }
+    console.log("Initiating P2P connection as initiator to:", userToSignal);
     const peer = new Peer({
       initiator: true,
       trickle: true,
       stream,
-      config: { 
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' },
-          { urls: 'stun:stun2.l.google.com:19302' },
-          { urls: 'stun:stun3.l.google.com:19302' },
-          { urls: 'stun:stun4.l.google.com:19302' },
-          { urls: 'stun:global.stun.twilio.com:3478' }
-        ] 
-      }
+      config: iceConfig
     });
 
     peer.on('signal', (signal) => {
@@ -233,37 +295,41 @@ export default function InterviewRoom() {
 
     peer.on('error', (err) => {
       console.error(">>> Peer Error (Initiator):", err.message);
-      if (err.message.includes('supported')) {
-         alert("Your browser might be blocking WebRTC. Please disable any 'Shields' or strict privacy blockers.");
-      }
+    });
+
+    peer.on('close', () => {
+      console.log("Peer connection closed (Initiator)");
+      setPeerConnected(false);
     });
 
     peerRef.current = peer;
+    peerCallerID.current = userToSignal;
   };
 
   const addPeer = (incomingSignal: any, callerID: string, stream: MediaStream) => {
-    console.log("Responding to P2P connection request...");
-    
-    // If we already have a peer and it's from the same person, just signal it (trickle)
-    if (peerRef.current && !peerRef.current.destroyed) {
-        peerRef.current.signal(incomingSignal);
+    // If we already have a peer for trickle ICE candidates, just forward the signal
+    if (peerRef.current && !peerRef.current.destroyed && peerCallerID.current === callerID) {
+        console.log("Forwarding trickle ICE signal to existing peer...");
+        try {
+          peerRef.current.signal(incomingSignal);
+        } catch (e) {
+          console.error("Error forwarding signal:", e);
+        }
         return;
     }
 
+    // If there's an old peer from a different caller, destroy it
+    if (peerRef.current) {
+      peerRef.current.destroy();
+      peerRef.current = null;
+    }
+
+    console.log("Creating new peer as receiver for caller:", callerID);
     const peer = new Peer({
       initiator: false,
       trickle: true,
       stream,
-      config: { 
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' },
-          { urls: 'stun:stun2.l.google.com:19302' },
-          { urls: 'stun:stun3.l.google.com:19302' },
-          { urls: 'stun:stun4.l.google.com:19302' },
-          { urls: 'stun:global.stun.twilio.com:3478' }
-        ] 
-      }
+      config: iceConfig
     });
 
     peer.on('signal', (signal) => {
@@ -284,8 +350,14 @@ export default function InterviewRoom() {
         console.error(">>> Peer Error (Receiver):", err.message);
     });
 
+    peer.on('close', () => {
+      console.log("Peer connection closed (Receiver)");
+      setPeerConnected(false);
+    });
+
     peer.signal(incomingSignal);
     peerRef.current = peer;
+    peerCallerID.current = callerID;
   };
 
   const sendMessage = (e: React.FormEvent) => {
