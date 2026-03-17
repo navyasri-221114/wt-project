@@ -19,11 +19,6 @@ export default function AdminDashboard() {
     fetchStats();
     fetchKeys();
     fetchCompetitions();
-    const interval = setInterval(() => {
-      fetchStats();
-      fetchKeys(true);
-    }, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   const fetchStats = async () => {
