@@ -140,10 +140,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/competitions", competitionRoutes);
 
-// Root route for Render health check
-app.get("/", (req, res) => {
-  res.send("<h1>Campus Placement API is Live</h1><p>Status: Running</p>");
-});
+
 
 
 // Vite Setup

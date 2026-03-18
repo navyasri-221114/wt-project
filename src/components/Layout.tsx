@@ -43,7 +43,6 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
       { label: 'Companies', icon: Building2, path: '/companies' },
       { label: 'Job Profiles', icon: Briefcase, path: '/jobs' },
       { label: 'Interviews', icon: Users, path: '/interviews' },
-      { label: 'Competitions', icon: PieChart, path: '/competitions' },
       { label: 'Resume Builder', icon: User, path: '/resume-builder' },
       { label: 'Help', icon: Bell, path: '/help' }
     );

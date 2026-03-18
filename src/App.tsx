@@ -15,7 +15,7 @@ import InterviewRoom from './pages/InterviewRoom';
 
 import JobProfiles from './pages/jobprofiles';
 import InterviewsPage from './pages/interviewpage';
-import CompetitionsPage from './pages/CompetitionsPage';
+
 import ResumeBuilder from './pages/resumebuilder';
 import HelpPage from './pages/HelpPage';
 
@@ -88,7 +88,7 @@ export default function App() {
 
         <Route path="/interviews" element={<InterviewsPage />} />
 
-        <Route path="/competitions" element={<CompetitionsPage />} />
+
 
         <Route path="/resume-builder" element={<ResumeBuilder />} />
 
