@@ -12,6 +12,7 @@ import ExploreCompanies from './pages/ExploreCompanies';
 import StudentProfileView from './pages/StudentProfileView';
 import ProfilePage from './pages/ProfilePage';
 import InterviewRoom from './pages/InterviewRoom';
+import DocsPage from './pages/DocsPage';
 
 import JobProfiles from './pages/jobprofiles';
 import InterviewsPage from './pages/interviewpage';
@@ -93,6 +94,7 @@ export default function App() {
         <Route path="/resume-builder" element={<ResumeBuilder />} />
 
         <Route path="/help" element={<HelpPage />} />
+        <Route path="/docs" element={<DocsPage />} />
 
         {/* COMPANY MODULE ROUTES */}
 

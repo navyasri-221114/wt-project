@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Search, ChevronDown, MessageCircle, Mail, Phone, ExternalLink, FileText, Shield, Lightbulb, Briefcase, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
@@ -119,9 +120,12 @@ export default function HelpPage() {
                     <p className="text-slate-500 text-lg font-medium leading-relaxed">
                       {faq.answer}
                     </p>
-                    <button className="mt-6 flex items-center gap-2 text-indigo-600 font-bold text-sm hover:gap-3 transition-all">
+                    <Link 
+                      to="/docs"
+                      className="mt-6 flex items-center gap-2 text-indigo-600 font-bold text-sm hover:gap-3 transition-all"
+                    >
                       Learn more in documentation <ExternalLink size={16} />
-                    </button>
+                    </Link>
                   </div>
                 </motion.div>
               )}
