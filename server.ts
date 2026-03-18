@@ -140,10 +140,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/competitions", competitionRoutes);
 
-// Root route for Render health check
-app.get("/", (req, res) => {
-  res.send("<h1>Campus Placement API is Live</h1><p>Status: Running</p>");
-});
+// Root route for Render health check (only in production/API-only mode)
+// In development, Vite middleware handles the root route and serves the React app
 
 
 // Vite Setup
@@ -179,6 +177,11 @@ async function startServer() {
          if (!req.path.startsWith('/api')) {
            res.sendFile(path.join(distPath, "index.html"));
          }
+      });
+    } else {
+      // No dist folder — API-only mode (e.g. Render deployment without frontend build)
+      app.get("/", (req, res) => {
+        res.send("<h1>Campus Placement API is Live</h1><p>Status: Running</p>");
       });
     }
   }

@@ -71,6 +71,7 @@ export const api = {
     getKeys: () => api.request("/admin/keys"),
     generateKey: () => api.request("/admin/keys", { method: "POST" }),
     updateKeyStatus: (id: string, status: string) => api.request(`/admin/keys/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),
+    getStudentAnalytics: () => api.request("/admin/analytics"),
   },
 
   students: {

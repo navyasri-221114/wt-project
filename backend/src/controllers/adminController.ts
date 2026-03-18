@@ -5,6 +5,7 @@ import { UserModel } from "../models/User.js";
 import { JobModel } from "../models/Job.js";
 import { ApplicationModel } from "../models/Application.js";
 import { InterviewModel } from "../models/Interview.js";
+import { StudentModel } from "../models/Student.js";
 
 export const adminController = {
   getKeys: async (req: AuthRequest, res: Response) => {
@@ -63,6 +64,49 @@ export const adminController = {
       });
     } catch (err: any) {
       res.status(500).json({ error: "Failed to fetch stats", details: err.message });
+    }
+  },
+
+  getStudentAnalytics: async (req: AuthRequest, res: Response) => {
+    if (req.user?.role !== 'admin') return res.status(403).json({ error: "Forbidden" });
+    try {
+      // Fetch all student profiles populated with user data
+      const students = await StudentModel.find().populate('user_id', 'name email created_at');
+
+      const analytics = await Promise.all(students.map(async (s) => {
+        const user = s.user_id as any;
+        const userId = s.user_id?._id || s.user_id;
+
+        // Count applications and selected ones for this student
+        const totalApps = await ApplicationModel.countDocuments({ student_id: userId });
+        const selected = await ApplicationModel.countDocuments({ student_id: userId, status: 'selected' });
+        const interviews = await InterviewModel.countDocuments({ student_id: userId });
+
+        const cgpa = s.cgpa ?? 0;
+        let performance = 'Average';
+        if (cgpa >= 8.5 && selected > 0) performance = 'Excellent';
+        else if (cgpa >= 7.5 || selected > 0) performance = 'Good';
+        else if (cgpa < 6.0 && totalApps === 0) performance = 'Needs Improvement';
+
+        return {
+          name: user?.name ?? 'Unknown',
+          email: user?.email ?? '—',
+          department: s.department ?? '—',
+          college: s.college ?? '—',
+          year: s.year ?? '—',
+          cgpa: cgpa > 0 ? cgpa.toFixed(2) : '—',
+          skills: s.skills ?? '—',
+          applications: totalApps,
+          interviews: interviews,
+          selected: selected,
+          performance,
+          joinedAt: user?.created_at ? new Date(user.created_at).toLocaleDateString('en-IN') : '—',
+        };
+      }));
+
+      res.json({ students: analytics, total: analytics.length, generatedAt: new Date().toISOString() });
+    } catch (err: any) {
+      res.status(500).json({ error: 'Failed to fetch student analytics', details: err.message });
     }
   }
 };
