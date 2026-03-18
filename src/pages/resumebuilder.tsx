@@ -2,9 +2,11 @@ import { useState, useRef } from "react";
 import { User, Mail, Phone, Link as LinkIcon, Github, Briefcase, GraduationCap, Award, Languages, Sparkles, Download, Eye, Edit3, Trash2, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
+import { exportResumePDF } from "../services/exportUtils";
 
 export default function ResumeBuilder() {
   const [activeStep, setActiveStep] = useState(0);
+  const [exporting, setExporting] = useState(false);
   const [form, setForm] = useState({
     name: "Alex Johnson",
     phone: "+91 98765 43210",
@@ -52,8 +54,17 @@ export default function ResumeBuilder() {
               <button className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-indigo-600 shadow-sm transition-all">
                 <Trash2 size={20} />
               </button>
-              <button className="px-6 py-3 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-100 flex items-center gap-2 hover:bg-indigo-700 transition-all">
-                <Download size={20} /> Export PDF
+              <button
+                disabled={exporting}
+                onClick={async () => {
+                  setExporting(true);
+                  try { exportResumePDF(form); }
+                  finally { setExporting(false); }
+                }}
+                className="px-6 py-3 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-100 flex items-center gap-2 hover:bg-indigo-700 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                <Download size={20} />
+                {exporting ? "Generating..." : "Export PDF"}
               </button>
             </div>
           </div>

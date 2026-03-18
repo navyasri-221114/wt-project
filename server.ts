@@ -38,7 +38,7 @@ app.use(cors({
 }));
 
 const io = new SocketServer(httpServer, {
-  cors: { 
+  cors: {
     origin: process.env.FRONTEND_URL || "*",
     methods: ["GET", "POST"],
     credentials: true
@@ -60,9 +60,9 @@ io.on("connection", (socket) => {
   socket.on("join-room", (roomId) => {
     if (!roomId) return;
     console.log(`Socket ${socket.id} joining room: ${roomId}`);
-    
+
     socket.join(roomId);
-    
+
     if (roomToUsers[roomId]) {
       if (!roomToUsers[roomId].includes(socket.id)) {
         roomToUsers[roomId].push(socket.id);
@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
       roomToUsers[roomId] = [socket.id];
     }
     socketToRoom[socket.id] = roomId;
-    
+
     const usersInThisRoom = roomToUsers[roomId].filter(id => id !== socket.id);
     console.log(`User ${socket.id} joined ${roomId}. Current peers:`, usersInThisRoom);
     socket.emit("all-users", usersInThisRoom);
@@ -86,7 +86,7 @@ io.on("connection", (socket) => {
     console.log(`Returning signal from socket to ${payload.callerID}`);
     io.to(payload.callerID).emit('receiving-returned-signal', { signal: payload.signal, id: socket.id });
   });
-  
+
   socket.on("send-message", (payload) => {
     const roomId = socketToRoom[socket.id];
     io.to(roomId).emit("new-message", {
@@ -140,7 +140,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/competitions", competitionRoutes);
 
-
+// Root route for Render health check (only in production/API-only mode)
+// In development, Vite middleware handles the root route and serves the React app
 
 
 // Vite Setup
@@ -172,10 +173,15 @@ async function startServer() {
     if (fs.existsSync(distPath)) {
       app.use(express.static(distPath));
       app.get("*", (req, res) => {
-         // Fallback to index.html for SPA if it's not an /api route
-         if (!req.path.startsWith('/api')) {
-           res.sendFile(path.join(distPath, "index.html"));
-         }
+        // Fallback to index.html for SPA if it's not an /api route
+        if (!req.path.startsWith('/api')) {
+          res.sendFile(path.join(distPath, "index.html"));
+        }
+      });
+    } else {
+      // No dist folder — API-only mode (e.g. Render deployment without frontend build)
+      app.get("/", (req, res) => {
+        res.send("<h1>Campus Placement API is Live</h1><p>Status: Running</p>");
       });
     }
   }

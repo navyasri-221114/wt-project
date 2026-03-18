@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Building2, Briefcase, TrendingUp, Download, CheckCircle2, Video, Key, Plus, Trash2, ShieldCheck, X } from 'lucide-react';
+import { Users, Building2, Briefcase, TrendingUp, Download, CheckCircle2, Video, Key, Plus, Trash2, ShieldCheck, X, FileText, Table2, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { api } from '../services/api';
 import { cn } from '../lib/utils';
+import { exportAnalyticsPDF, exportAnalyticsCSV } from '../services/exportUtils';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [keys, setKeys] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [exportingPDF, setExportingPDF] = useState(false);
+  const [exportingCSV, setExportingCSV] = useState(false);
   const [competitions, setCompetitions] = useState<any[]>([]);
   const [showCompModal, setShowCompModal] = useState(false);
   const [newComp, setNewComp] = useState({
@@ -93,6 +96,35 @@ export default function AdminDashboard() {
       fetchCompetitions();
     } catch (err) {
       alert("Failed to delete");
+    }
+  };
+
+  const handleExportPDF = async () => {
+    setExportingPDF(true);
+    try {
+      const res = await api.admin.getStudentAnalytics();
+      exportAnalyticsPDF(res.students, {
+        totalStudents: stats?.totalStudents ?? res.total,
+        placementRate: stats?.placementRate ?? 0,
+      });
+    } catch (err) {
+      alert('Failed to generate analytics PDF. Please try again.');
+      console.error(err);
+    } finally {
+      setExportingPDF(false);
+    }
+  };
+
+  const handleExportCSV = async () => {
+    setExportingCSV(true);
+    try {
+      const res = await api.admin.getStudentAnalytics();
+      exportAnalyticsCSV(res.students);
+    } catch (err) {
+      alert('Failed to export CSV. Please try again.');
+      console.error(err);
+    } finally {
+      setExportingCSV(false);
     }
   };
 
@@ -191,13 +223,23 @@ export default function AdminDashboard() {
           <p className="text-slate-400">Download detailed analytics and student data for the current academic year.</p>
         </div>
         <div className="flex gap-4">
-          <button className="px-6 py-3 bg-white text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-all flex items-center gap-2">
-            <Download size={20} />
-            Export PDF
+          <button
+            onClick={handleExportPDF}
+            disabled={exportingPDF}
+            className="px-6 py-3 bg-white text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {exportingPDF
+              ? <><Loader2 size={18} className="animate-spin" /> Generating PDF...</>
+              : <><FileText size={18} /> Export PDF</>}
           </button>
-          <button className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all flex items-center gap-2">
-            <Download size={20} />
-            Export CSV
+          <button
+            onClick={handleExportCSV}
+            disabled={exportingCSV}
+            className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {exportingCSV
+              ? <><Loader2 size={18} className="animate-spin" /> Exporting CSV...</>
+              : <><Table2 size={18} /> Export CSV</>}
           </button>
         </div>
       </div>

@@ -8,5 +8,6 @@ router.get("/keys", authenticate, adminController.getKeys);
 router.post("/keys", authenticate, adminController.generateKey);
 router.put("/keys/:id/status", authenticate, adminController.updateKeyStatus);
 router.get("/stats", authenticate, adminController.getStats);
+router.get("/analytics", authenticate, adminController.getStudentAnalytics);
 
 export default router;
