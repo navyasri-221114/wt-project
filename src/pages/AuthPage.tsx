@@ -43,8 +43,8 @@ export default function AuthPage({ setUser }: { setUser: any }) {
           <span>Back to Home</span>
         </Link>
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-200 mb-4">
-            <Briefcase className="text-white" size={32} />
+          <div className="flex justify-center mb-4">
+            <img src="/logo.jpg" alt="Campus Placement Portal" className="h-24 w-auto object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-slate-900">
             {isSignup ? 'Create account' : 'Welcome back'}
