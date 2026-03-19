@@ -11,10 +11,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <Briefcase className="text-white" size={20} />
-              </div>
-              <span className="text-xl font-bold text-slate-900">CampusPortal</span>
+              <img src="/logo.jpg" alt="Campus Placement Portal" className="h-10 w-auto object-contain" />
             </div>
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Features</a>
@@ -162,10 +159,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12">
           <div className="col-span-2">
             <div className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <Briefcase className="text-white" size={20} />
-              </div>
-              <span className="text-xl font-bold">CampusPortal</span>
+              <img src="/logo.jpg" alt="Campus Placement Portal" className="h-14 w-auto object-contain brightness-0 invert" />
             </div>
             <p className="text-slate-400 max-w-sm">
               Empowering the next generation of professionals through technology-driven campus placements.

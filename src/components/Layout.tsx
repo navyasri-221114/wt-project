@@ -75,8 +75,8 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
       {/* MOBILE HEADER */}
       {!isAdmin && (
         <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white border-b border-slate-100 sticky top-0 z-50">
-           <Link to="/" className="text-xl font-black tracking-tight text-gradient">
-             CAMPUS<span className="text-slate-900">PRO</span>
+           <Link to="/" className="flex items-center">
+             <img src="/logo.jpg" alt="Campus Placement Portal" className="h-10 w-auto object-contain" />
            </Link>
            <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-600">
              <Menu size={24} />
@@ -88,8 +88,8 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
       {isAdmin && (
         <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/60 z-50 px-8 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-8">
-            <Link to="/" className="text-2xl font-black tracking-tight text-gradient">
-              CAMPUS<span className="text-slate-900">PRO</span>
+            <Link to="/" className="flex items-center">
+              <img src="/logo.jpg" alt="Campus Placement Portal" className="h-10 w-auto object-contain" />
             </Link>
             <nav className="flex items-center gap-1">
               {navItems.map((item) => (
@@ -140,9 +140,8 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           )}>
             <div className="p-8 flex items-center justify-between">
-              <Link to="/" className="text-3xl font-black tracking-tighter text-gradient flex items-center gap-2">
-                <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl shadow-xl shadow-indigo-200">C</div>
-                CAMPUS<span className="text-slate-900">PRO</span>
+              <Link to="/" className="flex items-center">
+                <img src="/logo.jpg" alt="Campus Placement Portal" className="h-12 w-auto object-contain" />
               </Link>
               <button 
                 onClick={() => setIsSidebarOpen(false)}
