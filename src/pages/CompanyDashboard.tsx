@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, Users, Briefcase, ChevronRight, Star, Check, X, 
+import {
+  Plus, Users, Briefcase, ChevronRight, Star, Check, X,
   Video, Clock, Sparkles, Filter, Search, MoreHorizontal,
   Mail, Phone, FileText, LayoutDashboard, Send, Target,
   Zap, ShieldCheck, BarChart3, TrendingUp, UserCheck, Calendar, MapPin
@@ -19,9 +19,9 @@ export default function CompanyDashboard() {
   const [schedulingApp, setSchedulingApp] = useState<any>(null);
   const [interviewDate, setInterviewDate] = useState('');
   const selectedJobRef = React.useRef<any>(null);
-  
-  useEffect(() => { 
-     selectedJobRef.current = selectedJob; 
+
+  useEffect(() => {
+    selectedJobRef.current = selectedJob;
   }, [selectedJob]);
   const [newJob, setNewJob] = useState({
     title: '',
@@ -40,7 +40,7 @@ export default function CompanyDashboard() {
       fetchJobs(true);
       fetchInterviews();
       if (selectedJobRef.current) {
-        api.applications.getByJob(selectedJobRef.current.id).then(setApplicants).catch(() => {});
+        api.applications.getByJob(selectedJobRef.current.id).then(setApplicants).catch(() => { });
       }
     }, 5000);
     return () => clearInterval(interval);
@@ -73,7 +73,7 @@ export default function CompanyDashboard() {
       const res = await api.applications.getByJob(job.id);
       setApplicants(res);
     } catch (err) {
-       console.error("Error fetching applicants:", err);
+      console.error("Error fetching applicants:", err);
     }
   };
 
@@ -123,7 +123,7 @@ export default function CompanyDashboard() {
           <p className="text-slate-500 font-medium mt-1">Acquire and manage top-tier talent for your organization.</p>
         </div>
         <div className="flex bg-white p-1.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
-          <button 
+          <button
             onClick={() => setShowPostModal(true)}
             className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-black text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all transition-transform active:scale-95"
           >
@@ -141,7 +141,7 @@ export default function CompanyDashboard() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
-        
+
         {/* Left Side: Job Postings Control */}
         <div className="xl:col-span-4 space-y-6">
           <div className="flex items-center justify-between px-2">
@@ -151,7 +151,7 @@ export default function CompanyDashboard() {
               <button className="p-2 text-slate-400 hover:text-indigo-600"><Search size={18} /></button>
             </div>
           </div>
-          
+
           <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
             {jobs.map((job) => (
               <motion.button
@@ -160,15 +160,15 @@ export default function CompanyDashboard() {
                 onClick={() => handleSelectJob(job)}
                 className={cn(
                   "w-full p-6 text-left rounded-[2rem] border transition-all relative overflow-hidden group",
-                  selectedJob?.id === job.id 
-                    ? "bg-slate-900 border-slate-900 text-white shadow-2xl shadow-indigo-500/10" 
+                  selectedJob?.id === job.id
+                    ? "bg-slate-900 border-slate-900 text-white shadow-2xl shadow-indigo-500/10"
                     : "bg-white border-slate-100 hover:border-indigo-100 shadow-sm"
                 )}
               >
                 {selectedJob?.id === job.id && (
                   <motion.div layoutId="job-glow" className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/20 blur-3xl -mr-16 -mt-16" />
                 )}
-                
+
                 <div className="flex justify-between items-start mb-4">
                   <div className={cn(
                     "w-12 h-12 rounded-2xl flex items-center justify-center font-black transition-colors",
@@ -183,10 +183,10 @@ export default function CompanyDashboard() {
                     {job.vacancies} Left
                   </div>
                 </div>
-                
+
                 <h3 className="text-xl font-black mb-1 truncate leading-tight">{job.title}</h3>
                 <div className="flex items-center gap-4 text-xs font-bold opacity-60">
-                   <span className="flex items-center gap-1.5"><MapPin size={12} className="text-indigo-400" /> {job.location || 'Remote'}</span>
+                  <span className="flex items-center gap-1.5"><MapPin size={12} className="text-indigo-400" /> {job.location || 'Remote'}</span>
                   <span className="flex items-center gap-1 underline decoration-indigo-500/50">{job.application_count || 0} Applicants</span>
                 </div>
               </motion.button>
@@ -208,27 +208,27 @@ export default function CompanyDashboard() {
                 {/* Insights HUD */}
                 <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
 
-                   
-                   <h2 className="text-3xl font-black text-slate-900 mb-6">{selectedJob.title}</h2>
-                   
-                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                     <div className="space-y-1">
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Sourced</p>
-                       <p className="text-2xl font-black text-slate-900">{applicants.length}</p>
-                     </div>
-                     <div className="space-y-1">
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Status</p>
-                       <p className="text-2xl font-black text-indigo-600">Priority</p>
-                     </div>
-                     <div className="space-y-1">
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Requirements</p>
-                       <p className="text-xs font-bold text-slate-500">{selectedJob.requirements}</p>
-                     </div>
-                     <div className="space-y-1">
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</p>
-                       <span className="px-2.5 py-1 bg-green-100 text-green-700 text-[10px] font-black rounded-lg uppercase">Active</span>
-                     </div>
-                   </div>
+
+                  <h2 className="text-3xl font-black text-slate-900 mb-6">{selectedJob.title}</h2>
+
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Sourced</p>
+                      <p className="text-2xl font-black text-slate-900">{applicants.length}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Status</p>
+                      <p className="text-2xl font-black text-indigo-600">Priority</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Requirements</p>
+                      <p className="text-xs font-bold text-slate-500">{selectedJob.requirements}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</p>
+                      <span className="px-2.5 py-1 bg-green-100 text-green-700 text-[10px] font-black rounded-lg uppercase">Active</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Applicants List */}
@@ -239,7 +239,7 @@ export default function CompanyDashboard() {
                       Applicant Pipeline
                     </h3>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 gap-4">
                     {applicants.length > 0 ? (
                       applicants.map((app) => (
@@ -253,61 +253,61 @@ export default function CompanyDashboard() {
                               {app.student_name ? app.student_name[0] : 'U'}
                             </div>
                             <div>
-                               <h4 className="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight mb-1">{app.student_name}</h4>
-                               <div className="flex gap-4 text-xs font-bold text-slate-500">
-                                  <span className="flex items-center gap-1.5"><Mail size={12} className="text-indigo-400" /> {app.student_email || 'N/A'}</span>
-                                  <span className="flex items-center gap-1.5"><Check size={12} className="text-green-500" /> CGPA: {app.student_cgpa || '8.5'}</span>
-                               </div>
+                              <h4 className="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight mb-1">{app.student_name}</h4>
+                              <div className="flex gap-4 text-xs font-bold text-slate-500">
+                                <span className="flex items-center gap-1.5"><Mail size={12} className="text-indigo-400" /> {app.student_email || 'N/A'}</span>
+                                <span className="flex items-center gap-1.5"><Check size={12} className="text-green-500" /> CGPA: {app.student_cgpa || '8.5'}</span>
+                              </div>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center gap-10 w-full md:w-auto">
-                             <div className="h-10 w-px bg-slate-100 hidden md:block"></div>
-                             
-                             <div className="flex items-center gap-3">
-                                {app.status === 'applied' ? (
-                                  <>
-                                    <button 
-                                      onClick={() => handleUpdateStatus(app.id, 'shortlisted')}
-                                      className="p-3 bg-green-50 text-green-600 rounded-2xl border border-green-100 hover:bg-green-600 hover:text-white transition-all shadow-lg shadow-green-100"
-                                    >
-                                      <Check size={20} />
-                                    </button>
-                                    <button 
-                                      onClick={() => handleUpdateStatus(app.id, 'rejected')}
-                                      className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-lg shadow-red-100"
-                                    >
-                                      <X size={20} />
-                                    </button>
-                                  </>
-                                ) : app.status === 'shortlisted' ? (
-                                  <button 
-                                    onClick={() => setSchedulingApp(app)}
-                                    className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
+                            <div className="h-10 w-px bg-slate-100 hidden md:block"></div>
+
+                            <div className="flex items-center gap-3">
+                              {app.status === 'applied' ? (
+                                <>
+                                  <button
+                                    onClick={() => handleUpdateStatus(app.id, 'shortlisted')}
+                                    className="p-3 bg-green-50 text-green-600 rounded-2xl border border-green-100 hover:bg-green-600 hover:text-white transition-all shadow-lg shadow-green-100"
                                   >
-                                    <Calendar size={16} /> Arrange Interview
+                                    <Check size={20} />
                                   </button>
-                                ) : app.status === 'interview_scheduled' ? (
-                                  <div className="flex items-center gap-2">
-                                    <Link 
-                                      to={`/interview/${app.room_id}`}
-                                      className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center gap-2"
-                                    >
-                                      <Video size={16} /> Conduct Interview
-                                    </Link>
-                                    <button 
-                                      onClick={() => handleUpdateStatus(app.id, 'interviewed')}
-                                      className="px-6 py-3 bg-green-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-600 transition-all shadow-xl shadow-green-100 flex items-center gap-2"
-                                    >
-                                      <Check size={16} /> Mark Done
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <span className="px-6 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                    {app.status}
-                                  </span>
-                                )}
-                             </div>
+                                  <button
+                                    onClick={() => handleUpdateStatus(app.id, 'rejected')}
+                                    className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-lg shadow-red-100"
+                                  >
+                                    <X size={20} />
+                                  </button>
+                                </>
+                              ) : app.status === 'shortlisted' ? (
+                                <button
+                                  onClick={() => setSchedulingApp(app)}
+                                  className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
+                                >
+                                  <Calendar size={16} /> Arrange Interview
+                                </button>
+                              ) : app.status === 'interview_scheduled' ? (
+                                <div className="flex items-center gap-2">
+                                  <Link
+                                    to={`/interview/${app.room_id}`}
+                                    className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center gap-2"
+                                  >
+                                    <Video size={16} /> Conduct Interview
+                                  </Link>
+                                  <button
+                                    onClick={() => handleUpdateStatus(app.id, 'interviewed')}
+                                    className="px-6 py-3 bg-green-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-600 transition-all shadow-xl shadow-green-100 flex items-center gap-2"
+                                  >
+                                    <Check size={16} /> Mark Done
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="px-6 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                  {app.status}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </motion.div>
                       ))
@@ -336,7 +336,7 @@ export default function CompanyDashboard() {
       <AnimatePresence>
         {showPostModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -351,13 +351,13 @@ export default function CompanyDashboard() {
               className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-12 overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
-              
+
               <div className="relative mb-10 flex items-center justify-between">
                 <div>
                   <h2 className="text-3xl font-black text-slate-900 tracking-tight">New <span className="text-gradient">Opportunity</span></h2>
                   <p className="text-slate-500 font-medium">Define your next great hire.</p>
                 </div>
-                <button 
+                <button
                   onClick={() => setShowPostModal(false)}
                   className="p-3 bg-slate-50 border border-slate-100 rounded-2xl text-slate-400 hover:text-slate-900 transition-all"
                 >
@@ -367,17 +367,17 @@ export default function CompanyDashboard() {
 
               <form onSubmit={handlePostJob} className="relative grid grid-cols-2 gap-6">
                 <div className="col-span-2">
-                  <InputGroup label="Job Title" name="title" value={newJob.title} onChange={(e: any) => setNewJob({...newJob, title: e.target.value})} icon={Briefcase} placeholder="e.g. Lead Product Architect" />
+                  <InputGroup label="Job Title" name="title" value={newJob.title} onChange={(e: any) => setNewJob({ ...newJob, title: e.target.value })} icon={Briefcase} placeholder="e.g. Lead Product Architect" />
                 </div>
                 <div className="col-span-2">
-                  <TextAreaGroup label="Detailed Description" name="description" value={newJob.description} onChange={(e: any) => setNewJob({...newJob, description: e.target.value})} icon={FileText} placeholder="Describe the mission and daily impact..." rows={4} />
+                  <TextAreaGroup label="Detailed Description" name="description" value={newJob.description} onChange={(e: any) => setNewJob({ ...newJob, description: e.target.value })} icon={FileText} placeholder="Describe the mission and daily impact..." rows={4} />
                 </div>
-                <InputGroup label="Expertise Required" name="requirements" value={newJob.requirements} onChange={(e: any) => setNewJob({...newJob, requirements: e.target.value})} icon={Sparkles} placeholder="React, Node.js, AI..." />
-                <InputGroup label="Budget / Salary" name="salary" value={newJob.salary} onChange={(e: any) => setNewJob({...newJob, salary: e.target.value})} icon={Target} placeholder="e.g. ₹18L - ₹24L PA" />
-                <InputGroup label="Preferred HQ" name="location" value={newJob.location} onChange={(e: any) => setNewJob({...newJob, location: e.target.value})} icon={MapPin} placeholder="Global / Bengaluru..." />
-                <InputGroup label="Min. CGPA" name="min_cgpa" type="number" value={newJob.min_cgpa} onChange={(e: any) => setNewJob({...newJob, min_cgpa: parseFloat(e.target.value)})} icon={ShieldCheck} placeholder="e.g. 7.5" />
-                <InputGroup label="Vacancies" name="vacancies" type="number" value={newJob.vacancies} onChange={(e: any) => setNewJob({...newJob, vacancies: parseInt(e.target.value)})} icon={Users} placeholder="e.g. 1" />
-                
+                <InputGroup label="Expertise Required" name="requirements" value={newJob.requirements} onChange={(e: any) => setNewJob({ ...newJob, requirements: e.target.value })} icon={Sparkles} placeholder="React, Node.js, AI..." />
+                <InputGroup label="Budget / Salary" name="salary" value={newJob.salary} onChange={(e: any) => setNewJob({ ...newJob, salary: e.target.value })} icon={Target} placeholder="e.g. ₹18L - ₹24L PA" />
+                <InputGroup label="Preferred HQ" name="location" value={newJob.location} onChange={(e: any) => setNewJob({ ...newJob, location: e.target.value })} icon={MapPin} placeholder="Global / Bengaluru..." />
+                <InputGroup label="Min. CGPA" name="min_cgpa" type="number" value={newJob.min_cgpa} onChange={(e: any) => setNewJob({ ...newJob, min_cgpa: parseFloat(e.target.value) })} icon={ShieldCheck} placeholder="e.g. 7.5" />
+                <InputGroup label="Vacancies" name="vacancies" type="number" value={newJob.vacancies} onChange={(e: any) => setNewJob({ ...newJob, vacancies: parseInt(e.target.value) })} icon={Users} placeholder="e.g. 1" />
+
                 <div className="col-span-2 pt-6">
                   <button type="submit" className="w-full py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-2xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98]">
                     Launch Posting <Send size={20} />
@@ -393,34 +393,34 @@ export default function CompanyDashboard() {
       <AnimatePresence>
         {schedulingApp && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-               onClick={() => setSchedulingApp(null)}
-               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setSchedulingApp(null)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
             />
             <motion.div
-               initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
-               className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-10 overflow-hidden"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-10 overflow-hidden"
             >
-               <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50 rounded-full blur-3xl -mr-24 -mt-24"></div>
-               <div className="relative mb-8 flex items-center justify-between">
-                 <div>
-                   <h2 className="text-2xl font-black text-slate-900">Arrange <span className="text-gradient">Interview</span></h2>
-                   <p className="text-slate-500 font-bold text-sm mt-1">{schedulingApp.student_name}</p>
-                 </div>
-                 <button onClick={() => setSchedulingApp(null)} className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 transition-colors">
-                   <X size={20} />
-                 </button>
-               </div>
-               <form onSubmit={handleArrangeSubmit} className="relative space-y-6">
-                 <div>
-                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Date & Time</label>
-                   <input type="datetime-local" required value={interviewDate} onChange={e => setInterviewDate(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-5 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700" />
-                 </div>
-                 <button type="submit" className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95">
-                   Confirm Schedule
-                 </button>
-               </form>
+              <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50 rounded-full blur-3xl -mr-24 -mt-24"></div>
+              <div className="relative mb-8 flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-black text-slate-900">Arrange <span className="text-gradient">Interview</span></h2>
+                  <p className="text-slate-500 font-bold text-sm mt-1">{schedulingApp.student_name}</p>
+                </div>
+                <button onClick={() => setSchedulingApp(null)} className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              <form onSubmit={handleArrangeSubmit} className="relative space-y-6">
+                <div>
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Date & Time</label>
+                  <input type="datetime-local" required value={interviewDate} onChange={e => setInterviewDate(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-5 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700" />
+                </div>
+                <button type="submit" className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95">
+                  Confirm Schedule
+                </button>
+              </form>
             </motion.div>
           </div>
         )}
@@ -436,7 +436,6 @@ function StatCard({ label, value, color, icon: Icon, trend }: any) {
     blue: "bg-blue-50 text-blue-600",
     green: "bg-green-50 text-green-600"
   };
-
   return (
     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:border-indigo-200 transition-all">
       <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110", colors[color])}>
