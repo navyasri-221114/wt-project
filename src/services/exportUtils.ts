@@ -172,172 +172,180 @@ function addFooter(doc: jsPDF, label: string) {
 // 1. RESUME PDF
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function exportResumePDF(data: ResumeData) {
+export function exportResumePDF(data: any) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
-  const MARGIN = 14;
+  const MARGIN = 16;
   const CONTENT_W = W - MARGIN * 2;
+  let y = 18;
+
+  // Helpers
+  const drawLine = (yPos: number) => {
+    doc.setDrawColor(200, 200, 210);
+    doc.setLineWidth(0.2);
+    doc.line(MARGIN, yPos, W - MARGIN, yPos);
+    return yPos + 6;
+  };
+
+  const sectionHeader = (title: string, yPos: number) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 60);
+    doc.text(title.toUpperCase(), MARGIN, yPos);
+    return yPos + 5;
+  };
 
   // ── Header ──────────────────────────────────────────────────────────────────
-  doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
-  doc.rect(0, 0, W, 52, "F");
-
-  // Decorative circles
-  doc.setFillColor(255, 255, 255);
-  doc.setGState(new (doc as any).GState({ opacity: 0.06 }));
-  doc.circle(W - 20, -5, 42, "F");
-  doc.circle(W - 8, 36, 26, "F");
-  doc.setGState(new (doc as any).GState({ opacity: 1 }));
-
-  // Name
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
-  doc.setTextColor(255, 255, 255);
-  doc.text(data.name || "Your Name", MARGIN, 22);
+  doc.setTextColor(20, 20, 30);
+  doc.text(data.name || "YOUR NAME", W / 2, y, { align: "center" });
+  y += 7;
 
-  // Contact line
-  const contactParts = [data.email, data.phone, data.linkedin, data.github].filter(Boolean);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(210, 210, 245);
-  doc.text(contactParts.join("  •  "), MARGIN, 33);
+  doc.setFontSize(9);
+  doc.setTextColor(80, 80, 90);
+  const contactInfo = [data.location, data.phone, data.email].filter(Boolean).join("  |  ");
+  doc.text(contactInfo, W / 2, y, { align: "center" });
+  y += 5;
 
-  // Objective teaser inside header
+  const socialInfo = [`LinkedIn: ${data.linkedin}`, `GitHub: ${data.portfolio}`].filter((s) => !s.endsWith("undefined")).join("  |  ");
+  doc.setFontSize(8);
+  doc.setTextColor(79, 70, 229); // Indigo
+  doc.text(socialInfo, W / 2, y, { align: "center" });
+  y += 6;
+
+  y = drawLine(y);
+
+  // ── Summary ──────────────────────────────────────────────────────────────────
   if (data.objective) {
-    const objLines = doc.splitTextToSize(data.objective, CONTENT_W);
-    doc.setFontSize(8);
-    doc.setTextColor(200, 200, 240);
-    doc.text(objLines.slice(0, 2).join(" "), MARGIN, 43, { maxWidth: CONTENT_W });
+    y = sectionHeader("Summary / Objective", y);
+    doc.setFont("helvetica", "oblique");
+    doc.setFontSize(9);
+    doc.setTextColor(60, 60, 70);
+    const lines = doc.splitTextToSize(data.objective, CONTENT_W);
+    doc.text(lines, MARGIN, y);
+    y += lines.length * 5 + 4;
+    y = drawLine(y);
   }
 
-  doc.setTextColor(30, 30, 30);
-  let y = 60;
+  // ── Education ─────────────────────────────────────────────────────────────
+  y = sectionHeader("Education", y);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(40, 40, 50);
+  doc.text(data.degree, MARGIN, y);
+  doc.text(data.year, W - MARGIN, y, { align: "right" });
+  y += 5;
+  
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text(data.college, MARGIN, y);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(79, 70, 229);
+  doc.text(`CGPA: ${data.cgpa}`, W - MARGIN, y, { align: "right" });
+  y += 8;
+  y = drawLine(y);
 
-  // ── Professional Summary ──────────────────────────────────────────────────
-  if (data.objective) {
-    sectionTitle(doc, "Professional Summary", y, W);
-    y += 5;
-    y = richText(doc, data.objective, MARGIN, y, CONTENT_W) + 4;
-  }
+  // ── Skills ────────────────────────────────────────────────────────────────
+  y = sectionHeader("Skills", y);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(60, 60, 70);
 
-  // ── Education ────────────────────────────────────────────────────────────
-  if (data.education) {
-    sectionTitle(doc, "Education", y, W);
-    y += 5;
-    y = richText(doc, data.education, MARGIN, y, CONTENT_W) + 4;
-  }
+  const skills = [
+    { label: "Programming Languages", val: data.languages },
+    { label: "Web Technologies", val: data.web_tech },
+    { label: "Tools & Technologies", val: data.tools },
+  ];
 
-  // ── Experience / Internships ──────────────────────────────────────────────
-  if (data.internships) {
-    sectionTitle(doc, "Experience & Internships", y, W);
-    y += 5;
-    const items = data.internships.split("\n").filter(Boolean);
-    items.forEach((item) => {
-      // Bullet point
-      doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
-      doc.circle(MARGIN + 1, y - 1.5, 1, "F");
+  skills.forEach(s => {
+    if (s.val) {
+      doc.setFont("helvetica", "bold");
+      doc.text(`${s.label}: `, MARGIN, y);
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(60, 60, 60);
-      const ll = doc.splitTextToSize(item.trim(), CONTENT_W - 6);
-      doc.text(ll, MARGIN + 5, y);
-      y += ll.length * 5.5;
-    });
-    y += 4;
-  }
+      doc.text(s.val, MARGIN + doc.getTextWidth(`${s.label}: `), y);
+      y += 5;
+    }
+  });
+  y += 3;
+  y = drawLine(y);
 
   // ── Projects ─────────────────────────────────────────────────────────────
-  if (data.projects) {
-    if (y > 230) { doc.addPage(); y = 20; }
-    sectionTitle(doc, "Projects", y, W);
+  y = sectionHeader("Projects", y);
+  
+  const drawProject = (title: string, tech: string, desc: string) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 50);
+    doc.text(title, MARGIN, y);
+    doc.setFontSize(8);
+    doc.setTextColor(79, 70, 229);
+    doc.text(tech, W - MARGIN, y, { align: "right" });
     y += 5;
-    const items = data.projects.split("\n").filter(Boolean);
-    items.forEach((item) => {
-      doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
-      doc.circle(MARGIN + 1, y - 1.5, 1, "F");
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(60, 60, 60);
-      const ll = doc.splitTextToSize(item.trim(), CONTENT_W - 6);
-      doc.text(ll, MARGIN + 5, y);
-      y += ll.length * 5.5;
-    });
-    y += 4;
-  }
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(80, 80, 90);
+    const lines = doc.splitTextToSize(`• ${desc}`, CONTENT_W);
+    doc.text(lines, MARGIN, y);
+    y += lines.length * 5 + 4;
+  };
 
-  // ── Two-column: Technical + Soft Skills ──────────────────────────────────
-  if (data.technicalSkills || data.softSkills) {
-    if (y > 220) { doc.addPage(); y = 20; }
-    sectionTitle(doc, "Skills", y, W);
+  if (data.project1_title) drawProject(data.project1_title, data.project1_tech, data.project1_desc);
+  if (data.project2_title) drawProject(data.project2_title, data.project2_tech, data.project2_desc);
+  
+  y = drawLine(y);
+
+  // ── Experience ────────────────────────────────────────────────────────────
+  if (data.company) {
+    y = sectionHeader("Experience", y);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 50);
+    doc.text(data.role, MARGIN, y);
+    doc.text(data.duration, W - MARGIN, y, { align: "right" });
     y += 5;
-    const halfW = (CONTENT_W - 8) / 2;
-
-    if (data.technicalSkills) {
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8);
-      doc.setTextColor(80, 80, 90);
-      doc.text("TECHNICAL", MARGIN, y);
-      y += 4;
-      skillBadges(doc, data.technicalSkills, MARGIN, y, halfW);
-    }
-    if (data.softSkills) {
-      const rx = MARGIN + halfW + 8;
-      const ry = y - 4;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8);
-      doc.setTextColor(80, 80, 90);
-      doc.text("SOFT SKILLS", rx, ry);
-      skillBadges(doc, data.softSkills, rx, ry + 4, halfW);
-    }
-    y += 20;
-  }
-
-  // ── Certifications ───────────────────────────────────────────────────────
-  if (data.certifications) {
-    if (y > 230) { doc.addPage(); y = 20; }
-    sectionTitle(doc, "Certifications", y, W);
+    doc.setFont("helvetica", "oblique");
+    doc.setFontSize(9);
+    doc.text(data.company, MARGIN, y);
     y += 5;
-    y = richText(doc, data.certifications, MARGIN, y, CONTENT_W) + 4;
+    doc.setFont("helvetica", "normal");
+    const lines = doc.splitTextToSize(`• ${data.work}`, CONTENT_W);
+    doc.text(lines, MARGIN, y);
+    y += lines.length * 5 + 4;
+    y = drawLine(y);
   }
 
   // ── Achievements ─────────────────────────────────────────────────────────
-  if (data.achievements) {
-    if (y > 230) { doc.addPage(); y = 20; }
-    sectionTitle(doc, "Achievements", y, W);
-    y += 5;
-    y = richText(doc, data.achievements, MARGIN, y, CONTENT_W) + 4;
-  }
+  y = sectionHeader("Achievements", y);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  [data.achievement1, data.achievement2].forEach(ach => {
+    if (ach) {
+      doc.text(`• ${ach}`, MARGIN, y);
+      y += 5;
+    }
+  });
+  y += 3;
+  y = drawLine(y);
 
-  // ── Languages ────────────────────────────────────────────────────────────
-  if (data.languages) {
-    if (y > 240) { doc.addPage(); y = 20; }
-    sectionTitle(doc, "Languages", y, W);
-    y += 5;
-    y = richText(doc, data.languages, MARGIN, y, CONTENT_W) + 4;
-  }
+  // ── Strengths & Extra ────────────────────────────────────────────────────
+  const splitY = y;
+  y = sectionHeader("Strengths", y);
+  [data.strength1, data.strength2].forEach(s => {
+    if (s) {
+      doc.text(`• ${s}`, MARGIN, y);
+      y += 5;
+    }
+  });
 
-  // ── Declaration ──────────────────────────────────────────────────────────
-  if (data.declaration) {
-    if (y > 240) { doc.addPage(); y = 20; }
-    y += 2;
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(8.5);
-    doc.setTextColor(110, 110, 120);
-    const dl = doc.splitTextToSize(data.declaration, CONTENT_W);
-    doc.text(dl, MARGIN, y);
-    y += dl.length * 5 + 6;
-    // Signature line
-    doc.setDrawColor(180, 180, 190);
-    doc.setLineWidth(0.3);
-    doc.line(MARGIN, y, MARGIN + 45, y);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(130, 130, 140);
-    doc.text("Signature", MARGIN, y + 4);
-  }
+  doc.text("", W / 2, splitY); // Move to column 2
+  y = sectionHeader("Languages Known", splitY);
+  doc.setFont("helvetica", "oblique");
+  doc.text(data.spoken_languages, W / 2 + 10, y);
 
   addFooter(doc, `Resume — ${data.name} — Generated on ${new Date().toLocaleDateString("en-IN")}`);
-  doc.save(`Resume_${(data.name || "export").replace(/\s+/g, "_")}.pdf`);
+  doc.save(`Resume_${(data.name || "Professional").replace(/\s+/g, "_")}.pdf`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
