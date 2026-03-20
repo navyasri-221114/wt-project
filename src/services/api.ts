@@ -72,6 +72,10 @@ export const api = {
     generateKey: () => api.request("/admin/keys", { method: "POST" }),
     updateKeyStatus: (id: string, status: string) => api.request(`/admin/keys/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),
     getStudentAnalytics: () => api.request("/admin/analytics"),
+    getPlacementAnalytics: (year?: number) => {
+      const query = year ? `?year=${year}` : "";
+      return api.request(`/admin/placements/years${query}`);
+    },
   },
 
   students: {

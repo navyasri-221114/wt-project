@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { 
   Briefcase, MapPin, IndianRupee, Clock, CheckCircle2, 
   AlertCircle, Video, Users, Sparkles, Target, TrendingUp,
-  ChevronRight, ArrowUpRight, Search, Filter
+  ChevronRight, ArrowUpRight, Search, Filter, PieChart as PieChartIcon
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart } from 'recharts';
 import { api } from '../services/api';
 import { formatCurrency, cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -15,9 +16,12 @@ export default function StudentDashboard() {
   const [interviews, setInterviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState<string | null>(null);
+  const [yearlyStats, setYearlyStats] = useState<any[]>([]);
+  const [selectedYearIndex, setSelectedYearIndex] = useState(0);
 
   useEffect(() => {
     fetchData();
+    fetchYearlyAnalytics();
     const interval = setInterval(() => {
       fetchData(true);
     }, 5000);
@@ -40,6 +44,17 @@ export default function StudentDashboard() {
       if (!isPolling) setLoading(false);
     }
   };
+
+  const fetchYearlyAnalytics = async () => {
+    try {
+      const res = await api.admin.getPlacementAnalytics();
+      setYearlyStats(res);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const currentYearData = yearlyStats[selectedYearIndex] || null;
 
   const handleApply = async (jobId: string) => {
     setApplying(jobId);
@@ -84,7 +99,7 @@ export default function StudentDashboard() {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-10"
+      className="space-y-16 pb-20"
     >
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -124,7 +139,7 @@ export default function StudentDashboard() {
 
           <div className="space-y-6">
             <AnimatePresence>
-              {jobs.map((job) => {
+              {jobs.slice(0, 3).map((job) => {
                 const jobId = job._id || job.id;
                 const app = getAppStatus(jobId);
                 return (
@@ -181,10 +196,6 @@ export default function StudentDashboard() {
                        <Metric icon={Users} label="Total Capacity" value={`${job.vacancies || 1} Seats`} />
                        <Metric icon={Clock} label="Closing Date" value="4 Days Left" />
                     </div>
-
-                    <div className="mt-4 p-5 bg-slate-50 rounded-[2rem] border border-slate-100">
-                      <p className="text-sm text-slate-500 font-medium leading-relaxed line-clamp-2">{job.description}</p>
-                    </div>
                   </motion.div>
                 );
               })}
@@ -194,7 +205,6 @@ export default function StudentDashboard() {
 
         {/* Right Aspect: Operational Intelligence */}
         <div className="xl:col-span-4 space-y-10">
-          {/* Upcoming Sessions */}
           <section className="space-y-6">
             <div className="flex items-center justify-between px-2">
               <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Live Engagements</h2>
@@ -221,10 +231,6 @@ export default function StudentDashboard() {
                         <h3 className="text-xl font-black mb-1">{interview.title}</h3>
                         <p className="text-indigo-400 font-bold text-sm">{interview.company_name}</p>
                       </div>
-                      <div className="flex items-center gap-2 text-white/50 text-xs font-bold bg-white/5 p-3 rounded-xl border border-white/5">
-                        <Clock size={14} />
-                        {new Date(interview.scheduled_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                      </div>
                       <Link
                         to={`/interview/${interview.room_id}`}
                         className="flex items-center justify-center gap-2 w-full py-4 bg-white text-slate-900 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-xl"
@@ -235,15 +241,14 @@ export default function StudentDashboard() {
                   </motion.div>
                 ))
               ) : (
-                <div className="p-10 border-2 border-dashed border-slate-100 rounded-[2.5rem] text-center">
-                   <Video size={40} className="mx-auto text-slate-100 mb-4" />
-                   <p className="text-xs font-black text-slate-300 uppercase tracking-widest">No Active Sessions</p>
+                <div className="p-10 border-2 border-dashed border-slate-100 rounded-[2.5rem] text-center text-slate-300">
+                   <Video size={40} className="mx-auto mb-4 opacity-20" />
+                   <p className="text-[10px] font-black uppercase tracking-widest">No Active Sessions</p>
                 </div>
               )}
             </div>
           </section>
 
-          {/* Activity Log */}
           <section className="space-y-6">
              <div className="flex items-center justify-between px-2">
               <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Activity Stream</h2>
@@ -261,18 +266,7 @@ export default function StudentDashboard() {
                         {new Date(app.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                       </span>
                     </div>
-                    <p className="text-xs font-bold text-slate-400 mb-4">{app.company_name}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 px-2.5 py-1 bg-slate-50 border border-slate-100 rounded-lg">
-                        <div className={cn(
-                          "w-1.5 h-1.5 rounded-full",
-                          app.status === 'shortlisted' ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" :
-                          app.status === 'rejected' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" :
-                          "bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
-                        )} />
-                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{app.status}</span>
-                      </div>
-                    </div>
+                    <p className="text-xs font-bold text-slate-400">{app.company_name}</p>
                   </div>
                 ))
               )}
@@ -280,6 +274,95 @@ export default function StudentDashboard() {
           </section>
         </div>
       </div>
+
+      {/* NEW ANALYTICS SECTION FOR STUDENTS */}
+      <motion.div 
+        variants={item}
+        className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden"
+      >
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
+          <div className="flex items-center gap-4">
+            <div className="p-4 bg-indigo-600 rounded-3xl text-white shadow-xl shadow-indigo-100">
+               <TrendingUp size={32} />
+            </div>
+            <div>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">Placement <span className="text-indigo-600">Power Trends</span></h3>
+              <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-1">Discover which companies are hiring the most from your college</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-100">
+            {yearlyStats.map((item, i) => (
+              <button
+                key={item.year}
+                onClick={() => setSelectedYearIndex(i)}
+                className={cn(
+                  "px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+                  selectedYearIndex === i 
+                    ? "bg-white text-indigo-600 shadow-xl scale-105 border border-slate-100" 
+                    : "text-slate-400 hover:text-slate-900"
+                )}
+              >
+                {item.year}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {currentYearData ? (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div className="lg:col-span-5 space-y-6">
+                <div className="p-8 bg-slate-900 rounded-[2.5rem] text-white overflow-hidden relative group">
+                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-125 transition-transform duration-700">
+                      <Target size={120} />
+                   </div>
+                   <p className="text-indigo-400 font-black text-[10px] uppercase tracking-widest mb-2">Success Highlights ({currentYearData.year})</p>
+                   <h4 className="text-5xl font-black mb-4 tracking-tighter">{currentYearData.totalStudents} <span className="text-lg text-slate-400 uppercase tracking-widest ml-2">Total Hires</span></h4>
+                   <p className="text-slate-400 text-sm font-medium leading-relaxed">Across <span className="text-white font-bold">{currentYearData.totalCompanies} recruitment partners</span>, the Class of {currentYearData.year} reached record-breaking milestones.</p>
+                </div>
+                
+                <div className="space-y-4">
+                   <h5 className="text-[10px] font-black text-slate-300 uppercase tracking-widest px-2">Top Hiring Partners</h5>
+                   <div className="grid gap-4">
+                      {currentYearData.companyBreakdown.slice(0, 3).map((comp: any, i: number) => (
+                        <div key={i} className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                           <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center font-black text-indigo-600">{comp.name[0]}</div>
+                              <span className="font-bold text-slate-800">{comp.name}</span>
+                           </div>
+                           <span className="px-3 py-1 bg-indigo-600 text-white text-[10px] font-black rounded-lg">{comp.count} HIRES</span>
+                        </div>
+                      ))}
+                   </div>
+                </div>
+            </div>
+
+            <div className="lg:col-span-7 bg-slate-50/30 rounded-[2.5rem] border border-slate-100 p-8">
+               <div className="h-[400px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={currentYearData.companyBreakdown}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                      <Tooltip 
+                        contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '20px' }}
+                        cursor={{ fill: '#f8fafc' }}
+                      />
+                      <Bar dataKey="count" name="Total Placed" fill="#4f46e5" radius={[12, 12, 12, 12]} barSize={50} />
+                    </BarChart>
+                  </ResponsiveContainer>
+               </div>
+            </div>
+          </div>
+        ) : (
+          <div className="py-24 text-center">
+             <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <PieChartIcon size={32} className="text-slate-300" />
+             </div>
+             <p className="text-slate-400 font-bold">Trend data for this period is still being calculated.</p>
+          </div>
+        )}
+      </motion.div>
     </motion.div>
   );
 }
