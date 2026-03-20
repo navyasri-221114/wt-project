@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Briefcase, MapPin, IndianRupee, Clock, CheckCircle2, 
+import {
+  Briefcase, MapPin, IndianRupee, Clock, CheckCircle2,
   AlertCircle, Video, Users, Sparkles, Target, TrendingUp,
   ChevronRight, ArrowUpRight, Search, Filter, Send, X
 } from 'lucide-react';
@@ -58,7 +58,7 @@ export default function StudentDashboard() {
   const handleApplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedJob) return;
-    
+
     setSubmitting(true);
     try {
       await api.applications.apply((selectedJob._id || selectedJob.id) as any, formData);
@@ -100,7 +100,7 @@ export default function StudentDashboard() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       variants={container}
       initial="hidden"
       animate="show"
@@ -113,9 +113,9 @@ export default function StudentDashboard() {
           <p className="text-slate-500 font-medium mt-1">Discover opportunities personalized for your growth.</p>
         </div>
         <div className="flex bg-white p-1.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
-           <Link to="/jobs" className="px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all">
-             Explore All Positions <ArrowUpRight size={14} />
-           </Link>
+          <Link to="/jobs" className="px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all">
+            Explore All Positions <ArrowUpRight size={14} />
+          </Link>
         </div>
       </div>
 
@@ -129,7 +129,7 @@ export default function StudentDashboard() {
 
       {/* Primary Content Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
-        
+
         {/* Left Aspect: Recommended Experiences */}
         <div className="xl:col-span-8 space-y-8">
           <div className="flex items-center justify-between">
@@ -148,34 +148,34 @@ export default function StudentDashboard() {
                 const jobId = job._id || job.id;
                 const app = getAppStatus(jobId);
                 return (
-                  <motion.div 
+                  <motion.div
                     layout
-                    key={jobId} 
+                    key={jobId}
                     variants={item}
                     className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:border-indigo-100 transition-all group"
                   >
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
                       <div className="flex items-center gap-6">
                         <div className="w-16 h-16 rounded-3xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-xl border-4 border-slate-50 shadow-2xl shadow-indigo-100 overflow-hidden">
-                           {job.company_name ? job.company_name[0] : 'J'}
+                          {job.company_name ? job.company_name[0] : 'J'}
                         </div>
                         <div>
                           <h3 className="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">{job.title}</h3>
                           <div className="flex items-center gap-2 mt-1">
-                             <p className="text-indigo-600 font-bold text-sm tracking-tight">{job.company_name}</p>
-                             <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                             <p className="text-slate-400 text-xs font-bold">{job.location || 'Remote'}</p>
+                            <p className="text-indigo-600 font-bold text-sm tracking-tight">{job.company_name}</p>
+                            <div className="w-1 h-1 bg-slate-300 rounded-full" />
+                            <p className="text-slate-400 text-xs font-bold">{job.location || 'Remote'}</p>
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="w-full md:w-auto">
                         {app ? (
                           <div className={cn(
                             "px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest text-center border",
                             app.status === 'shortlisted' ? "bg-green-50 text-green-700 border-green-100" :
-                            app.status === 'rejected' ? "bg-red-50 text-red-700 border-red-100" :
-                            "bg-indigo-50 text-indigo-700 border-indigo-100"
+                              app.status === 'rejected' ? "bg-red-50 text-red-700 border-red-100" :
+                                "bg-indigo-50 text-indigo-700 border-indigo-100"
                           )}>
                             {app.status}
                           </div>
@@ -191,10 +191,10 @@ export default function StudentDashboard() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-6 border-t border-slate-50">
-                       <Metric icon={IndianRupee} label="Expected Package" value={job.salary} />
-                       <Metric icon={AlertCircle} label="Eligibility" value={`${job.min_cgpa}+ CGPA`} />
-                       <Metric icon={Users} label="Total Capacity" value={`${job.vacancies || 1} Seats`} />
-                       <Metric icon={Clock} label="Closing Date" value="4 Days Left" />
+                      <Metric icon={IndianRupee} label="Expected Package" value={job.salary} />
+                      <Metric icon={AlertCircle} label="Eligibility" value={`${job.min_cgpa}+ CGPA`} />
+                      <Metric icon={Users} label="Total Capacity" value={`${job.vacancies || 1} Seats`} />
+                      <Metric icon={Clock} label="Closing Date" value="4 Days Left" />
                     </div>
 
                     <div className="mt-4 p-5 bg-slate-50 rounded-[2rem] border border-slate-100">
@@ -215,12 +215,12 @@ export default function StudentDashboard() {
               <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Live Engagements</h2>
               {interviews.length > 0 && <span className="w-2 h-2 bg-indigo-500 rounded-full animate-ping" />}
             </div>
-            
+
             <div className="space-y-4">
               {interviews.filter(i => i.status === 'scheduled').length > 0 ? (
                 interviews.filter(i => i.status === 'scheduled').map((interview) => (
-                  <motion.div 
-                    key={interview.id} 
+                  <motion.div
+                    key={interview.id}
                     whileHover={{ scale: 1.02 }}
                     className="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white"
                   >
@@ -251,8 +251,8 @@ export default function StudentDashboard() {
                 ))
               ) : (
                 <div className="p-10 border-2 border-dashed border-slate-100 rounded-[2.5rem] text-center">
-                   <Video size={40} className="mx-auto text-slate-100 mb-4" />
-                   <p className="text-xs font-black text-slate-300 uppercase tracking-widest">No Active Sessions</p>
+                  <Video size={40} className="mx-auto text-slate-100 mb-4" />
+                  <p className="text-xs font-black text-slate-300 uppercase tracking-widest">No Active Sessions</p>
                 </div>
               )}
             </div>
@@ -260,10 +260,10 @@ export default function StudentDashboard() {
 
           {/* Activity Log */}
           <section className="space-y-6">
-             <div className="flex items-center justify-between px-2">
+            <div className="flex items-center justify-between px-2">
               <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Activity Stream</h2>
             </div>
-            
+
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
               {applications.length === 0 ? (
                 <div className="p-12 text-center text-slate-300 italic font-medium">No movement yet.</div>
@@ -282,8 +282,8 @@ export default function StudentDashboard() {
                         <div className={cn(
                           "w-1.5 h-1.5 rounded-full",
                           app.status === 'shortlisted' ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" :
-                          app.status === 'rejected' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" :
-                          "bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
+                            app.status === 'rejected' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" :
+                              "bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
                         )} />
                         <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{app.status}</span>
                       </div>
@@ -300,7 +300,7 @@ export default function StudentDashboard() {
       <AnimatePresence>
         {showApplyModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 text-left">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowApplyModal(false)}
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
@@ -310,7 +310,7 @@ export default function StudentDashboard() {
               className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-10 overflow-hidden text-left"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
-              
+
               <div className="relative mb-8 flex items-center justify-between">
                 <div>
                   <h2 className="text-3xl font-black text-slate-900 tracking-tight">Job <span className="text-gradient">Application</span></h2>
@@ -326,17 +326,17 @@ export default function StudentDashboard() {
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Professional Introduction</label>
                   <textarea
                     required value={formData.bio}
-                    onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                     placeholder="Briefly introduce yourself..."
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 h-32 resize-none"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Relevant Experience & Skills</label>
                   <textarea
                     required value={formData.experience}
-                    onChange={(e) => setFormData({...formData, experience: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
                     placeholder="List your key skills..."
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 h-32 resize-none"
                   />
@@ -346,7 +346,7 @@ export default function StudentDashboard() {
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Motivation</label>
                   <textarea
                     required value={formData.why_us}
-                    onChange={(e) => setFormData({...formData, why_us: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, why_us: e.target.value })}
                     placeholder="Why this company?"
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 h-32 resize-none"
                   />
@@ -356,14 +356,14 @@ export default function StudentDashboard() {
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Links</label>
                   <input
                     type="text" value={formData.links}
-                    onChange={(e) => setFormData({...formData, links: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, links: e.target.value })}
                     placeholder="Portfolio/GitHub/LinkedIn"
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700"
                   />
                 </div>
 
                 <div className="pt-4">
-                  <button 
+                  <button
                     type="submit" disabled={submitting}
                     className="w-full py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-2xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50"
                   >
@@ -388,7 +388,7 @@ function StatCard({ label, value, color, icon: Icon, trend }: any) {
   };
 
   return (
-    <motion.div 
+    <motion.div
       whileHover={{ y: -5 }}
       className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:border-indigo-100"
     >
@@ -407,11 +407,11 @@ function StatCard({ label, value, color, icon: Icon, trend }: any) {
 function Metric({ icon: Icon, label, value }: any) {
   return (
     <div className="space-y-1.5">
-       <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-         <Icon size={12} />
-         {label}
-       </div>
-       <p className="text-sm font-black text-slate-800">{value}</p>
+      <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+        <Icon size={12} />
+        {label}
+      </div>
+      <p className="text-sm font-black text-slate-800">{value}</p>
     </div>
   );
 }
