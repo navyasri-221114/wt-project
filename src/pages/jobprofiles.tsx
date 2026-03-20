@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, MapPin, Briefcase, IndianRupee, Star, Filter, ArrowUpRight, ShieldCheck, Clock, CheckCircle2, Building } from "lucide-react";
+import { Search, MapPin, Briefcase, IndianRupee, Star, Filter, ArrowUpRight, ShieldCheck, Clock, CheckCircle2, Building, X, Send } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import { api } from "../services/api";
@@ -11,6 +11,12 @@ export default function JobProfiles() {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState<string | null>(null);
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [formData, setFormData] = useState({
+    bio: '', experience: '', why_us: '', links: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
 
   const [search, setSearch] = useState(searchParams.get("q") || "");
   const [locationFilter, setLocationFilter] = useState("");
@@ -59,17 +65,29 @@ export default function JobProfiles() {
     }
   };
 
-  const handleApply = async (jobId: string) => {
-    setApplying(jobId);
+  const handleApply = async (job: any) => {
+    setSelectedJob(job);
+    setShowApplyModal(true);
+  };
+
+  const handleApplySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedJob) return;
+    
+    setSubmitting(true);
     try {
-      await api.applications.apply(jobId as any);
-      fetchData();
+      await api.applications.apply((selectedJob._id || selectedJob.id) as any, formData);
+      setShowApplyModal(false);
+      setFormData({ bio: '', experience: '', why_us: '', links: '' });
+      fetchData(true);
+      alert("Application submitted successfully!");
     } catch (err: any) {
-      alert(err.message || "Something went wrong while applying");
+      alert(err.message || "Failed to submit application");
     } finally {
-      setApplying(null);
+      setSubmitting(false);
     }
   };
+
 
   const getAppStatus = (jobId: string) => {
     return applications.find(app => (app.job_id?.id || app.job_id?._id || app.job_id) === jobId || app.job_id === jobId);
@@ -361,15 +379,10 @@ export default function JobProfiles() {
                               </div>
                             ) : (
                               <button 
-                                onClick={() => handleApply(jobId)}
-                                disabled={applying === jobId}
-                                className="flex-1 btn-gradient py-2.5 text-sm flex items-center justify-center gap-2 group/btn disabled:opacity-50"
+                                onClick={() => handleApply(job)}
+                                className="flex-1 btn-gradient py-2.5 text-sm flex items-center justify-center gap-2 group/btn"
                               >
-                                {applying === jobId ? (
-                                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                                ) : (
-                                  <>Apply Now <ArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" /></>
-                                )}
+                                Apply Now <ArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                               </button>
                             )}
                             <button className="px-3.5 border border-slate-200/80 text-slate-400 rounded-xl hover:bg-slate-50 hover:text-amber-500 hover:border-amber-200 transition-all">
@@ -397,6 +410,86 @@ export default function JobProfiles() {
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* Application Form Modal */}
+      <AnimatePresence>
+        {showApplyModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 text-left">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowApplyModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-10 overflow-hidden no-scrollbar"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-sky-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
+              
+              <div className="relative mb-8 flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-black text-slate-900 tracking-tight">Job <span className="text-gradient">Application</span></h2>
+                  <p className="text-slate-500 font-medium">{selectedJob?.title} at {selectedJob?.company_name}</p>
+                </div>
+                <button onClick={() => setShowApplyModal(false)} className="p-3 bg-slate-50 border border-slate-100 rounded-2xl text-slate-400 hover:text-slate-900 transition-all">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <form onSubmit={handleApplySubmit} className="relative space-y-6 max-h-[60vh] overflow-y-auto pr-4 no-scrollbar">
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Professional Introduction</label>
+                  <textarea
+                    required value={formData.bio}
+                    onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                    placeholder="Briefly introduce yourself..."
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Relevant Experience & Skills</label>
+                  <textarea
+                    required value={formData.experience}
+                    onChange={(e) => setFormData({...formData, experience: e.target.value})}
+                    placeholder="List your key skills..."
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Motivation</label>
+                  <textarea
+                    required value={formData.why_us}
+                    onChange={(e) => setFormData({...formData, why_us: e.target.value})}
+                    placeholder="Why this company?"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Links</label>
+                  <input
+                    type="text" value={formData.links}
+                    onChange={(e) => setFormData({...formData, links: e.target.value})}
+                    placeholder="Portfolio/GitHub/LinkedIn"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
+                  />
+                </div>
+
+                <div className="pt-4">
+                  <button 
+                    type="submit" disabled={submitting}
+                    className="w-full py-5 bg-sky-600 text-white font-black rounded-3xl shadow-2xl shadow-sky-100 hover:bg-sky-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50"
+                  >
+                    {submitting ? "Submitting..." : "Submit Application"} <Send size={20} />
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

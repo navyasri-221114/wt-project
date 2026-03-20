@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 export default function ExploreCompanies() {
   const [companies, setCompanies] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [applyingJob, setApplyingJob] = useState<any>(null);
@@ -29,12 +30,14 @@ export default function ExploreCompanies() {
 
   const fetchData = async (isPolling = false) => {
     try {
-      const [companiesRes, jobsRes] = await Promise.all([
+      const [companiesRes, jobsRes, appsRes] = await Promise.all([
         api.companies.getAll(),
-        api.jobs.getAll()
+        api.jobs.getAll(),
+        api.applications.getMy().catch(() => [])
       ]);
       setCompanies(companiesRes);
       setJobs(jobsRes);
+      setApplications(appsRes);
       if (companiesRes.length > 0 && !isPolling) setSelectedCompany(companiesRes[0]);
     } catch (err) {
       console.error(err);
@@ -49,6 +52,10 @@ export default function ExploreCompanies() {
     return compId && selectedId && compId.toString() === selectedId.toString();
   });
 
+  const getAppStatus = (jobId: string) => {
+    return applications.find(app => (app.job_id?._id || app.job_id?.id || app.job_id) === jobId || app.job_id === jobId);
+  };
+
   const handleApplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!applyingJob) return;
@@ -58,6 +65,7 @@ export default function ExploreCompanies() {
       await api.applications.apply(applyingJob.id, formData);
       setShowApplyModal(false);
       setFormData({ bio: '', experience: '', why_us: '', links: '' });
+      fetchData(true);
       alert("Application submitted successfully!");
     } catch (err: any) {
       alert(err.message || "Failed to submit application");
@@ -74,7 +82,7 @@ export default function ExploreCompanies() {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 text-left">
       <div>
         <h1 className="text-4xl font-black text-slate-900 tracking-tight">Partner <span className="text-gradient">Companies</span></h1>
         <p className="text-slate-500 mt-2 font-medium max-w-2xl">
@@ -198,38 +206,53 @@ export default function ExploreCompanies() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {companyJobs.length > 0 ? (
-                      companyJobs.map((job) => (
-                        <motion.div 
-                          key={job.id} 
-                          whileHover={{ y: -5 }}
-                          className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-sky-500/5 transition-all group"
-                        >
-                          <div className="flex justify-between items-start mb-6">
-                            <h4 className="text-xl font-black text-slate-900 group-hover:text-sky-600 transition-colors leading-tight">{job.title}</h4>
-                            <div className="px-3 py-1 bg-sky-50 text-sky-600 text-[10px] font-black rounded-lg uppercase tracking-tight">
-                              {job.salary}
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap gap-4 mb-8">
-                            <p className="text-xs font-bold text-slate-500 flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
-                              <MapPin size={14} className="text-sky-400" /> {job.location}
-                            </p>
-                            <p className="text-xs font-bold text-slate-500 flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
-                              <Users size={14} className="text-sky-400" /> {job.vacancies} Positions
-                            </p>
-                          </div>
-                          <button 
-                            onClick={() => {
-                              setApplyingJob(job);
-                              setShowApplyModal(true);
-                            }}
-                            className="w-full py-4 bg-sky-600 text-white text-sm font-black rounded-2xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 flex items-center justify-center gap-2 group/btn"
+                      companyJobs.map((job) => {
+                        const jobId = job._id || job.id;
+                        const app = getAppStatus(jobId);
+                        return (
+                          <motion.div 
+                            key={jobId} 
+                            whileHover={{ y: -5 }}
+                            className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-sky-500/5 transition-all group"
                           >
-                            Apply for Role
-                            <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                          </button>
-                        </motion.div>
-                      ))
+                            <div className="flex justify-between items-start mb-6">
+                              <h4 className="text-xl font-black text-slate-900 group-hover:text-sky-600 transition-colors leading-tight">{job.title}</h4>
+                              <div className="px-3 py-1 bg-sky-50 text-sky-600 text-[10px] font-black rounded-lg uppercase tracking-tight">
+                                {job.salary}
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-4 mb-8">
+                              <p className="text-xs font-bold text-slate-500 flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                                <MapPin size={14} className="text-sky-400" /> {job.location}
+                              </p>
+                              <p className="text-xs font-bold text-slate-500 flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                                <Users size={14} className="text-sky-400" /> {job.vacancies} Positions
+                              </p>
+                            </div>
+                            {app ? (
+                              <div className={cn(
+                                "w-full py-4 text-center rounded-2xl text-xs font-black uppercase tracking-widest border",
+                                app.status === 'shortlisted' ? "bg-green-50 text-green-700 border-green-100" :
+                                app.status === 'rejected' ? "bg-red-50 text-red-700 border-red-100" :
+                                "bg-sky-50 text-sky-700 border-sky-100"
+                              )}>
+                                {app.status}
+                              </div>
+                            ) : (
+                              <button 
+                                onClick={() => {
+                                  setApplyingJob(job);
+                                  setShowApplyModal(true);
+                                }}
+                                className="w-full py-4 bg-sky-600 text-white text-sm font-black rounded-2xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 flex items-center justify-center gap-2 group/btn"
+                              >
+                                Apply for Role
+                                <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                              </button>
+                            )}
+                          </motion.div>
+                        );
+                      })
                     ) : (
                       <div className="col-span-full bg-slate-50/50 p-16 rounded-[3rem] text-center border-2 border-dashed border-slate-200">
                         <Briefcase size={48} className="mx-auto mb-4 text-slate-300 opacity-50" />
@@ -268,7 +291,7 @@ export default function ExploreCompanies() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-10 overflow-hidden"
+              className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-10 overflow-hidden no-scrollbar"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-sky-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
               
@@ -286,7 +309,7 @@ export default function ExploreCompanies() {
               </div>
 
               <form onSubmit={handleApplySubmit} className="relative space-y-6 max-h-[60vh] overflow-y-auto pr-4 no-scrollbar">
-                <div className="space-y-2">
+                <div className="space-y-2 text-left">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Professional Introduction</label>
                   <textarea
                     required
@@ -297,7 +320,7 @@ export default function ExploreCompanies() {
                   />
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-2 text-left">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Relevant Experience & Skills</label>
                   <textarea
                     required
@@ -308,7 +331,7 @@ export default function ExploreCompanies() {
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 text-left">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Why do you want to join {selectedCompany?.name}?</label>
                   <textarea
                     required
@@ -319,7 +342,7 @@ export default function ExploreCompanies() {
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 text-left">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Portfolio & Project Links</label>
                   <input
                     type="text"
