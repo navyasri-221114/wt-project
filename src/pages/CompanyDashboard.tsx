@@ -297,12 +297,20 @@ export default function CompanyDashboard() {
                                     <Calendar size={16} /> Arrange Interview
                                   </button>
                                 ) : app.status === 'interview_scheduled' ? (
-                                  <Link 
-                                    to={`/interview/${app.room_id}`}
-                                    className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center gap-2"
-                                  >
-                                    <Video size={16} /> Conduct Interview
-                                  </Link>
+                                  <div className="flex items-center gap-2">
+                                    <Link 
+                                      to={`/interview/${app.room_id}`}
+                                      className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center gap-2"
+                                    >
+                                      <Video size={16} /> Conduct Interview
+                                    </Link>
+                                    <button 
+                                      onClick={() => handleUpdateStatus(app.id, 'interviewed')}
+                                      className="px-6 py-3 bg-green-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-600 transition-all shadow-xl shadow-green-100 flex items-center gap-2"
+                                    >
+                                      <Check size={16} /> Mark Done
+                                    </button>
+                                  </div>
                                 ) : (
                                   <span className="px-6 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400">
                                     {app.status}
@@ -377,6 +385,7 @@ export default function CompanyDashboard() {
                 <InputGroup label="Budget / Salary" name="salary" value={newJob.salary} onChange={(e: any) => setNewJob({...newJob, salary: e.target.value})} icon={Target} placeholder="e.g. ₹18L - ₹24L PA" />
                 <InputGroup label="Preferred HQ" name="location" value={newJob.location} onChange={(e: any) => setNewJob({...newJob, location: e.target.value})} icon={MapPin} placeholder="Global / Bengaluru..." />
                 <InputGroup label="Min. CGPA" name="min_cgpa" type="number" value={newJob.min_cgpa} onChange={(e: any) => setNewJob({...newJob, min_cgpa: parseFloat(e.target.value)})} icon={ShieldCheck} placeholder="e.g. 7.5" />
+                <InputGroup label="Vacancies" name="vacancies" type="number" value={newJob.vacancies} onChange={(e: any) => setNewJob({...newJob, vacancies: parseInt(e.target.value)})} icon={Users} placeholder="e.g. 1" />
                 
                 <div className="col-span-2 pt-6">
                   <button type="submit" className="w-full py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-2xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98]">
