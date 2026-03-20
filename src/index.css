@@ -134,3 +134,13 @@
 .dark-scrollbar::-webkit-scrollbar-track {
   @apply bg-transparent;
 }
+
+/* ─── Hide Scrollbar but allow scrolling ─── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}

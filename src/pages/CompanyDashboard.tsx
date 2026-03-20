@@ -124,12 +124,7 @@ export default function CompanyDashboard() {
           <p className="text-slate-500 font-medium mt-1">Acquire and manage top-tier talent for your organization.</p>
         </div>
         <div className="flex bg-white p-1.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
-          <button 
-            onClick={() => setShowPostModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-black text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all transition-transform active:scale-95"
-          >
-            <Plus size={18} /> New Posting
-          </button>
+          {/* New Posting button removed as per user request */}
         </div>
       </div>
 
@@ -459,7 +454,7 @@ export default function CompanyDashboard() {
                  </button>
                </div>
                
-               <div className="relative space-y-8 max-h-[60vh] overflow-y-auto pr-4 custom-scrollbar">
+               <div className="relative space-y-8 max-h-[60vh] overflow-y-auto pr-4 no-scrollbar">
                  {viewingResponses.responses ? (
                    <>
                      <ResponseItem label="Professional Introduction" value={viewingResponses.responses.bio} />
