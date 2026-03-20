@@ -256,4 +256,4 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
       </main>
     </div>
   );
-}
+}
