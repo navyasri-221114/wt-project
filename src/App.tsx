@@ -77,9 +77,11 @@ export default function App() {
 
         <Route path="/profile" element={<ProfilePage user={user} />} />
 
-        <Route path="/search" element={<StudentSearch user={user} />} />
-
-        <Route path="/students/:id" element={<StudentProfileView />} />
+        {/* RECRUITER & ADMIN FEATURES */}
+        <Route element={user?.role === 'admin' || user?.role === 'company' ? <Outlet /> : <Navigate to="/dashboard" />}>
+          <Route path="/search" element={<StudentSearch user={user} />} />
+          <Route path="/students/:id" element={<StudentProfileView />} />
+        </Route>
 
         <Route path="/companies" element={<ExploreCompanies />} />
 
