@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 import LandingPage from './pages/LandingPage';
@@ -98,7 +98,7 @@ export default function App() {
 
         {/* COMPANY MODULE ROUTES */}
         <Route path="/company/*" element={
-            user?.role === 'company' || user?.role === 'admin' ? null : <Navigate to="/dashboard" />
+            user?.role === 'company' || user?.role === 'admin' ? <Outlet /> : <Navigate to="/dashboard" />
         }>
           <Route path="dashboard" element={<CompanyDashboard />} />
           <Route path="profile" element={<CompanyProfile />} />
