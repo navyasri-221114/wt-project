@@ -51,7 +51,6 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
   /* COMPANY NAVIGATION */
   if (user?.role === 'company') {
     navItems.push(
-      { label: 'Dashboard', icon: LayoutDashboard, path: '/company/dashboard' },
       { label: 'Company Profile', icon: Building2, path: '/company/profile' },
       { label: 'Post Jobs', icon: Briefcase, path: '/company/jobs' },
       { label: 'Applicants', icon: Users, path: '/company/applicants' },
