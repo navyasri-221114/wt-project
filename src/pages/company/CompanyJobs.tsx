@@ -173,6 +173,17 @@ export default function CompanyJobs() {
                       <InputGroup label="HQ / Node" name="location" value={newJob.location} onChange={(e: any) => setNewJob({...newJob, location: e.target.value})} placeholder="Global / Bengaluru" icon={MapPin} />
                    </div>
                    <InputGroup label="Tech Stack" name="requirements" value={newJob.requirements} onChange={(e: any) => setNewJob({...newJob, requirements: e.target.value})} placeholder="React, Three.js, AI" icon={Sparkles} />
+                   <div className="space-y-2">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Detailed Description</label>
+                     <textarea 
+                       name="description" 
+                       value={newJob.description} 
+                       onChange={(e: any) => setNewJob({...newJob, description: e.target.value})} 
+                       placeholder="Describe the mission and daily impact..."
+                       rows={4}
+                       className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all font-bold text-slate-700 resize-none"
+                     />
+                   </div>
                    
                    <button 
                      type="submit"

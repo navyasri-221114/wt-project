@@ -112,6 +112,10 @@ export const appController = {
       const app = await ApplicationModel.findByIdAndUpdate(id, { status }, { new: true });
       if (!app) return res.status(404).json({ error: "Application not found" });
 
+      if (status === 'interviewed' || status === 'rejected') {
+         await InterviewModel.updateMany({ application_id: id }, { status: 'completed' });
+      }
+
       // Notify student
       await NotificationModel.create({
         user_id: app.student_id,
