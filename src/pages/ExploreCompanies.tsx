@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Globe, MapPin, Briefcase, ExternalLink, ChevronRight, Users, Star, ShieldCheck, Mail, Phone } from 'lucide-react';
+import { Building2, Globe, MapPin, Briefcase, ExternalLink, ChevronRight, Users, Star, ShieldCheck, Mail, Phone, X, Send } from 'lucide-react';
 import { api } from '../services/api';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -9,6 +9,15 @@ export default function ExploreCompanies() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [applyingJob, setApplyingJob] = useState<any>(null);
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [formData, setFormData] = useState({
+    bio: '',
+    experience: '',
+    why_us: '',
+    links: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -39,6 +48,23 @@ export default function ExploreCompanies() {
     const selectedId = selectedCompany?.id || selectedCompany?._id;
     return compId && selectedId && compId.toString() === selectedId.toString();
   });
+
+  const handleApplySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!applyingJob) return;
+    
+    setSubmitting(true);
+    try {
+      await api.applications.apply(applyingJob.id, formData);
+      setShowApplyModal(false);
+      setFormData({ bio: '', experience: '', why_us: '', links: '' });
+      alert("Application submitted successfully!");
+    } catch (err: any) {
+      alert(err.message || "Failed to submit application");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -192,7 +218,13 @@ export default function ExploreCompanies() {
                               <Users size={14} className="text-indigo-400" /> {job.vacancies} Positions
                             </p>
                           </div>
-                          <button className="w-full py-4 bg-indigo-600 text-white text-sm font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 group/btn">
+                          <button 
+                            onClick={() => {
+                              setApplyingJob(job);
+                              setShowApplyModal(true);
+                            }}
+                            className="w-full py-4 bg-indigo-600 text-white text-sm font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 group/btn"
+                          >
                             Apply for Role
                             <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                           </button>
@@ -220,6 +252,98 @@ export default function ExploreCompanies() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Application Form Modal */}
+      <AnimatePresence>
+        {showApplyModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowApplyModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-10 overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
+              
+              <div className="relative mb-8 flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-black text-slate-900 tracking-tight">Job <span className="text-gradient">Application</span></h2>
+                  <p className="text-slate-500 font-medium">{applyingJob?.title} at {selectedCompany?.name}</p>
+                </div>
+                <button 
+                  onClick={() => setShowApplyModal(false)}
+                  className="p-3 bg-slate-50 border border-slate-100 rounded-2xl text-slate-400 hover:text-slate-900 transition-all"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <form onSubmit={handleApplySubmit} className="relative space-y-6 max-h-[60vh] overflow-y-auto pr-4 no-scrollbar">
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Professional Introduction</label>
+                  <textarea
+                    required
+                    value={formData.bio}
+                    onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                    placeholder="Briefly introduce yourself and your professional background..."
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Relevant Experience & Skills</label>
+                  <textarea
+                    required
+                    value={formData.experience}
+                    onChange={(e) => setFormData({...formData, experience: e.target.value})}
+                    placeholder="List your key skills and relevant experience for this specific role..."
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Why do you want to join {selectedCompany?.name}?</label>
+                  <textarea
+                    required
+                    value={formData.why_us}
+                    onChange={(e) => setFormData({...formData, why_us: e.target.value})}
+                    placeholder="Explain your motivation for applying to this company..."
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Portfolio & Project Links</label>
+                  <input
+                    type="text"
+                    value={formData.links}
+                    onChange={(e) => setFormData({...formData, links: e.target.value})}
+                    placeholder="GitHub, Portfolio, LinkedIn, etc."
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700"
+                  />
+                </div>
+
+                <div className="pt-4">
+                  <button 
+                    type="submit" 
+                    disabled={submitting}
+                    className="w-full py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-2xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50"
+                  >
+                    {submitting ? "Submitting Application..." : "Submit Application"} <Send size={20} className={submitting ? "animate-pulse" : ""} />
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

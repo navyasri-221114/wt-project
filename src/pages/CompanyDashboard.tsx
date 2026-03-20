@@ -3,7 +3,7 @@ import {
   Plus, Users, Briefcase, ChevronRight, Star, Check, X,
   Video, Clock, Sparkles, Filter, Search, MoreHorizontal,
   Mail, Phone, FileText, LayoutDashboard, Send, Target,
-  Zap, ShieldCheck, BarChart3, TrendingUp, UserCheck, Calendar, MapPin
+  Zap, ShieldCheck, BarChart3, TrendingUp, UserCheck, Calendar, MapPin, ArrowUpRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
@@ -17,6 +17,7 @@ export default function CompanyDashboard() {
   const [interviews, setInterviews] = useState<any[]>([]);
   const [showPostModal, setShowPostModal] = useState(false);
   const [schedulingApp, setSchedulingApp] = useState<any>(null);
+  const [viewingResponses, setViewingResponses] = useState<any>(null);
   const [interviewDate, setInterviewDate] = useState('');
   const selectedJobRef = React.useRef<any>(null);
 
@@ -123,12 +124,7 @@ export default function CompanyDashboard() {
           <p className="text-slate-500 font-medium mt-1">Acquire and manage top-tier talent for your organization.</p>
         </div>
         <div className="flex bg-white p-1.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
-          <button
-            onClick={() => setShowPostModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-black text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all transition-transform active:scale-95"
-          >
-            <Plus size={18} /> New Posting
-          </button>
+          {/* New Posting button removed as per user request */}
         </div>
       </div>
 
@@ -258,6 +254,14 @@ export default function CompanyDashboard() {
                                 <span className="flex items-center gap-1.5"><Mail size={12} className="text-indigo-400" /> {app.student_email || 'N/A'}</span>
                                 <span className="flex items-center gap-1.5"><Check size={12} className="text-green-500" /> CGPA: {app.student_cgpa || '8.5'}</span>
                               </div>
+                              {app.responses && (
+                                <button
+                                  onClick={() => setViewingResponses(app)}
+                                  className="mt-3 flex items-center gap-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 transition-colors"
+                                >
+                                  <FileText size={14} /> View Form Responses
+                                </button>
+                              )}
                             </div>
                           </div>
 
@@ -425,6 +429,63 @@ export default function CompanyDashboard() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* View Responses Modal */}
+      <AnimatePresence>
+        {viewingResponses && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+               onClick={() => setViewingResponses(null)}
+               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div
+               initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+               className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl p-10 overflow-hidden"
+            >
+               <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
+               <div className="relative mb-8 flex items-center justify-between">
+                 <div>
+                   <h2 className="text-2xl font-black text-slate-900">Application <span className="text-gradient">Responses</span></h2>
+                   <p className="text-slate-500 font-bold text-sm mt-1">{viewingResponses.student_name} for {selectedJob?.title}</p>
+                 </div>
+                 <button onClick={() => setViewingResponses(null)} className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 transition-colors">
+                   <X size={20} />
+                 </button>
+               </div>
+               
+               <div className="relative space-y-8 max-h-[60vh] overflow-y-auto pr-4 no-scrollbar">
+                 {viewingResponses.responses ? (
+                   <>
+                     <ResponseItem label="Professional Introduction" value={viewingResponses.responses.bio} />
+                     <ResponseItem label="Relevant Experience & Skills" value={viewingResponses.responses.experience} />
+                     <ResponseItem label="Motivation for Joining" value={viewingResponses.responses.why_us} />
+                     <ResponseItem label="Links & Portfolio" value={viewingResponses.responses.links} isLink />
+                   </>
+                 ) : (
+                   <p className="text-slate-500 italic">No detailed responses provided for this application.</p>
+                 )}
+               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function ResponseItem({ label, value, isLink }: { label: string, value: string, isLink?: boolean }) {
+  if (!value) return null;
+  return (
+    <div className="space-y-2">
+      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</h4>
+      {isLink ? (
+        <a href={value.startsWith('http') ? value : `https://${value}`} target="_blank" rel="noreferrer" className="text-indigo-600 font-bold hover:underline flex items-center gap-2">
+          {value} <ArrowUpRight size={14} />
+        </a>
+      ) : (
+        <p className="text-slate-700 font-medium bg-slate-50 p-6 rounded-2xl border border-slate-100 leading-relaxed whitespace-pre-wrap">{value}</p>
+      )}
     </div>
   );
 }

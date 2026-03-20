@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Briefcase, MapPin, IndianRupee, Clock, Search, Filter, MoreHorizontal, Edit3, Trash2, Globe, Send, Sparkles } from 'lucide-react';
+import { Plus, Briefcase, MapPin, IndianRupee, Clock, Search, Filter, MoreHorizontal, Edit3, Trash2, Globe, Send, Sparkles, X } from 'lucide-react';
 import { api } from '../../services/api';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -8,6 +8,7 @@ export default function CompanyJobs() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [analysisJob, setAnalysisJob] = useState<any>(null);
   const [newJob, setNewJob] = useState({
     title: '',
     location: '',
@@ -135,7 +136,10 @@ export default function CompanyJobs() {
                     <button className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all">
                        <Trash2 size={18} />
                     </button>
-                    <button className="ml-2 px-6 py-3 bg-indigo-50 text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all">
+                    <button 
+                       onClick={() => setAnalysisJob(job)}
+                       className="ml-2 px-6 py-3 bg-indigo-50 text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all"
+                    >
                        Analysis
                     </button>
                  </div>
@@ -144,6 +148,67 @@ export default function CompanyJobs() {
           ))}
         </motion.div>
       )}
+
+      {/* Analysis Modal */}
+      <AnimatePresence>
+        {analysisJob && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setAnalysisJob(null)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-12 overflow-hidden"
+            >
+               <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
+               
+               <div className="relative mb-8 flex items-center justify-between">
+                 <div>
+                   <h2 className="text-3xl font-black text-slate-900 tracking-tight">Job <span className="text-gradient">Analysis</span></h2>
+                   <p className="text-slate-500 font-medium">{analysisJob.title}</p>
+                 </div>
+                 <button onClick={() => setAnalysisJob(null)} className="p-3 bg-slate-50 border border-slate-100 rounded-2xl text-slate-400 hover:text-slate-900 transition-all">
+                   <X size={24} />
+                 </button>
+               </div>
+
+               <div className="relative space-y-8 max-h-[60vh] overflow-y-auto pr-4 no-scrollbar">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100/50">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Compensation</p>
+                      <p className="text-xl font-black text-slate-900">{analysisJob.salary}</p>
+                    </div>
+                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100/50">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Location</p>
+                      <p className="text-xl font-black text-slate-900">{analysisJob.location || 'Remote'}</p>
+                    </div>
+                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100/50">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Applicants</p>
+                      <p className="text-xl font-black text-slate-900 font-mono tracking-tighter">{analysisJob.application_count || 0}</p>
+                    </div>
+                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100/50">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Vacancies</p>
+                      <p className="text-xl font-black text-slate-900 font-mono tracking-tighter">{analysisJob.vacancies}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-2">Tech Stack / Requirements</h4>
+                      <p className="text-slate-700 font-bold bg-indigo-50/30 p-5 rounded-2xl border border-indigo-100/50">{analysisJob.requirements}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-2">Full Description</h4>
+                      <p className="text-slate-600 font-medium bg-slate-50 p-6 rounded-2xl border border-slate-100 whitespace-pre-wrap leading-relaxed">{analysisJob.description}</p>
+                    </div>
+                  </div>
+               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Modal for New Posting */}
       <AnimatePresence>
@@ -166,7 +231,7 @@ export default function CompanyJobs() {
                 <h2 className="text-3xl font-black text-slate-900 mb-2 relative">New <span className="text-gradient">Posting</span></h2>
                 <p className="text-slate-500 font-medium mb-10 relative">Define the perfect candidate for your mission.</p>
                 
-                <form onSubmit={handlePost} className="relative space-y-6">
+                <form onSubmit={handlePost} className="relative space-y-6 max-h-[70vh] overflow-y-auto pr-2 no-scrollbar">
                    <InputGroup label="Expertise Title" name="title" value={newJob.title} onChange={(e: any) => setNewJob({...newJob, title: e.target.value})} placeholder="e.g. Strategic Frontend Lead" icon={Briefcase} />
                    <div className="grid grid-cols-2 gap-6">
                       <InputGroup label="Compensation" name="salary" value={newJob.salary} onChange={(e: any) => setNewJob({...newJob, salary: e.target.value})} placeholder="e.g. ₹20L - ₹28L" icon={IndianRupee} />

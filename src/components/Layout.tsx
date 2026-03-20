@@ -216,7 +216,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
         <div className="fixed bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-violet-100/30 rounded-full blur-[100px] pointer-events-none -z-10"></div>
 
         {!isAdmin && (
-          <header className="hidden md:flex h-20 bg-white/40 backdrop-blur-md border-b border-white/40 items-center justify-between px-10 sticky top-0 z-30">
+          <header className="hidden md:flex h-20 bg-white/80 backdrop-blur-md border-b border-slate-200/60 items-center justify-between px-10 fixed top-0 right-0 left-0 md:left-72 z-30 shadow-sm">
             <div>
               <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                 <ChevronRight size={20} className="text-indigo-600" />
@@ -241,7 +241,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
           </header>
         )}
 
-        <div className="p-6 md:p-12 relative z-10 overflow-x-hidden">
+        <div className="p-6 md:p-12 md:pt-32 relative z-10 overflow-x-hidden">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}

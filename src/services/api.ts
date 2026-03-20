@@ -53,7 +53,7 @@ export const api = {
   },
 
   applications: {
-    apply: (jobId: string) => api.request("/applications", { method: "POST", body: JSON.stringify({ job_id: jobId }) }),
+    apply: (jobId: string, responses?: any) => api.request("/applications", { method: "POST", body: JSON.stringify({ job_id: jobId, responses }) }),
     getMy: () => api.request("/applications/my"),
     getByJob: (jobId: string) => api.request(`/applications/job/${jobId}`),
     updateStatus: (id: string, status: string) => api.request(`/applications/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),
