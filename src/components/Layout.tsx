@@ -54,8 +54,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
       { label: 'Company Profile', icon: Building2, path: '/company/profile' },
       { label: 'Post Jobs', icon: Briefcase, path: '/company/jobs' },
       { label: 'Applicants', icon: Users, path: '/company/applicants' },
-      { label: 'Branch Locations', icon: MapPin, path: '/company/branches' },
-      { label: 'Search Students', icon: Search, path: '/search' }
+      { label: 'Branch Locations', icon: MapPin, path: '/company/branches' }
     );
   }
 
