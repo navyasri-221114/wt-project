@@ -84,14 +84,11 @@ export default function App() {
         <Route path="/companies" element={<ExploreCompanies />} />
 
         {/* STUDENT FEATURES */}
-
-        <Route path="/jobs" element={<JobProfiles />} />
-
-        <Route path="/interviews" element={<InterviewsPage />} />
-
-
-
-        <Route path="/resume-builder" element={<ResumeBuilder />} />
+        <Route element={user?.role === 'student' ? <Outlet /> : <Navigate to="/dashboard" />}>
+          <Route path="/jobs" element={<JobProfiles />} />
+          <Route path="/interviews" element={<InterviewsPage />} />
+          <Route path="/resume-builder" element={<ResumeBuilder />} />
+        </Route>
 
         <Route path="/help" element={<HelpPage />} />
         <Route path="/docs" element={<DocsPage />} />
