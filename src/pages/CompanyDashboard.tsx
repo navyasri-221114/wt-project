@@ -15,6 +15,9 @@ export default function CompanyDashboard() {
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [applicants, setApplicants] = useState<any[]>([]);
   const [interviews, setInterviews] = useState<any[]>([]);
+  const [jobSearch, setJobSearch] = useState('');
+  const [applicantSearch, setApplicantSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [showPostModal, setShowPostModal] = useState(false);
   const [schedulingApp, setSchedulingApp] = useState<any>(null);
   const [viewingResponses, setViewingResponses] = useState<any>(null);
@@ -112,8 +115,17 @@ export default function CompanyDashboard() {
       alert('Failed to arrange interview');
     }
   };
+  const filteredJobs = jobs.filter(j => 
+    j.title.toLowerCase().includes(jobSearch.toLowerCase()) ||
+    (j.location && j.location.toLowerCase().includes(jobSearch.toLowerCase()))
+  );
 
-
+  const filteredApplicants = applicants.filter(a => {
+    const matchesSearch = a.student_name.toLowerCase().includes(applicantSearch.toLowerCase()) ||
+      (a.student_email && a.student_email.toLowerCase().includes(applicantSearch.toLowerCase()));
+    const matchesStatus = statusFilter === 'all' || a.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="space-y-10">
@@ -140,16 +152,24 @@ export default function CompanyDashboard() {
 
         {/* Left Side: Job Postings Control */}
         <div className="xl:col-span-4 space-y-6">
-          <div className="flex items-center justify-between px-2">
-            <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Postings Repository</h2>
-            <div className="flex gap-2">
-              <button className="p-2 text-slate-400 hover:text-indigo-600"><Filter size={18} /></button>
-              <button className="p-2 text-slate-400 hover:text-indigo-600"><Search size={18} /></button>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-2">
+              <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Postings Repository ({filteredJobs.length})</h2>
+            </div>
+            <div className="relative group px-2">
+              <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input 
+                type="text"
+                placeholder="Search postings..."
+                value={jobSearch}
+                onChange={(e) => setJobSearch(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-2xl shadow-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 text-sm"
+              />
             </div>
           </div>
 
           <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
-            {jobs.map((job) => (
+            {filteredJobs.map((job) => (
               <motion.button
                 layout
                 key={job.id}
@@ -229,16 +249,39 @@ export default function CompanyDashboard() {
 
                 {/* Applicants List */}
                 <div className="space-y-6">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h3 className="text-xl font-black text-slate-900 flex items-center gap-3">
                       <Users size={24} className="text-indigo-600" />
-                      Applicant Pipeline
+                      Applicant Pipeline ({filteredApplicants.length})
                     </h3>
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                      <select 
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs font-bold text-slate-600 outline-none focus:ring-4 focus:ring-indigo-500/10"
+                      >
+                        <option value="all">All Status</option>
+                        <option value="applied">Applied</option>
+                        <option value="shortlisted">Shortlisted</option>
+                        <option value="interview_scheduled">Interviewing</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                      <div className="relative group w-full md:w-64">
+                        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                        <input 
+                          type="text"
+                          placeholder="Filter talent..."
+                          value={applicantSearch}
+                          onChange={(e) => setApplicantSearch(e.target.value)}
+                          className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-600 text-xs"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-4">
-                    {applicants.length > 0 ? (
-                      applicants.map((app) => (
+                    {filteredApplicants.length > 0 ? (
+                      filteredApplicants.map((app) => (
                         <motion.div
                           key={app.id}
                           layout

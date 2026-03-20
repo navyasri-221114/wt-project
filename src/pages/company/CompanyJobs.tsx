@@ -8,6 +8,8 @@ export default function CompanyJobs() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [onlyRemote, setOnlyRemote] = useState(false);
   const [analysisJob, setAnalysisJob] = useState<any>(null);
   const [jobToDelete, setJobToDelete] = useState<any>(null);
   const [newJob, setNewJob] = useState({
@@ -57,6 +59,16 @@ export default function CompanyJobs() {
     }
   };
 
+  const filteredJobs = jobs.filter(j => {
+    const matchesSearch = j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (j.location && j.location.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (j.requirements && j.requirements.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    const matchesRemote = !onlyRemote || (j.location && j.location.toLowerCase().includes('remote'));
+    
+    return matchesSearch && matchesRemote;
+  });
+
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -92,12 +104,22 @@ export default function CompanyJobs() {
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
           <input 
             type="text" 
-            placeholder="Search by title, location or keywords..." 
+            placeholder="Search your postings..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-[1.5rem] shadow-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700"
           />
         </div>
-        <button className="px-6 py-4 bg-white border border-slate-100 rounded-[1.5rem] shadow-sm flex items-center gap-2 font-black text-xs uppercase tracking-widest text-slate-500 hover:text-indigo-600 transition-all">
-          <Filter size={18} /> Filters
+        <button 
+          onClick={() => setOnlyRemote(!onlyRemote)}
+          className={cn(
+            "px-6 py-4 rounded-[1.5rem] shadow-sm flex items-center gap-2 font-black text-xs uppercase tracking-widest transition-all border",
+            onlyRemote 
+              ? "bg-indigo-600 text-white border-indigo-600 shadow-indigo-100" 
+              : "bg-white border-slate-100 text-slate-500 hover:text-indigo-600"
+          )}
+        >
+          <Filter size={18} /> {onlyRemote ? "Remote Only" : "All Locations"}
         </button>
       </div>
 
@@ -113,7 +135,7 @@ export default function CompanyJobs() {
           animate="show"
           className="grid grid-cols-1 gap-6"
         >
-          {jobs.map((job) => (
+          {filteredJobs.map((job) => (
             <motion.div 
               key={job.id} 
               variants={item}

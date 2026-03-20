@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Building2, Briefcase, TrendingUp, Download, CheckCircle2, Video, Key, Plus, Trash2, ShieldCheck, X, FileText, Table2, Loader2 } from 'lucide-react';
+import { Users, Building2, Briefcase, TrendingUp, Download, CheckCircle2, Video, Key, Plus, Trash2, ShieldCheck, X, FileText, Table2, Loader2, Search } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { api } from '../services/api';
 import { cn } from '../lib/utils';
@@ -17,6 +17,8 @@ export default function AdminDashboard() {
   const [newComp, setNewComp] = useState({
     name: '', organizer: '', date: '', prize: '', category: 'Coding', difficulty: 'Medium', tags: ''
   });
+  const [keySearch, setKeySearch] = useState('');
+  const [compSearch, setCompSearch] = useState('');
 
   useEffect(() => {
     fetchStats();
@@ -127,6 +129,16 @@ export default function AdminDashboard() {
       setExportingCSV(false);
     }
   };
+
+  const filteredKeys = keys.filter(k => 
+    k.key.toLowerCase().includes(keySearch.toLowerCase()) ||
+    (k.assigned_to && k.assigned_to.toLowerCase().includes(keySearch.toLowerCase()))
+  );
+
+  const filteredComps = competitions.filter(c => 
+    c.name.toLowerCase().includes(compSearch.toLowerCase()) ||
+    c.organizer.toLowerCase().includes(compSearch.toLowerCase())
+  );
 
   if (loading || !stats) return <div>Loading...</div>;
 
@@ -251,14 +263,26 @@ export default function AdminDashboard() {
             <h3 className="text-xl font-bold text-slate-900">Company Activation Keys</h3>
             <p className="text-sm text-slate-500 mt-1">Generate and manage keys for company registration</p>
           </div>
-          <button
-            onClick={handleGenerateKey}
-            disabled={generating}
-            className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center gap-2 disabled:opacity-50"
-          >
-            <Plus size={20} />
-            {generating ? 'Generating...' : 'Generate New Key'}
-          </button>
+          <div className="flex items-center gap-4">
+            <div className="relative group">
+              <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+              <input 
+                type="text"
+                placeholder="Search keys..."
+                value={keySearch}
+                onChange={(e) => setKeySearch(e.target.value)}
+                className="pl-11 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-slate-600 text-xs w-48"
+              />
+            </div>
+            <button
+              onClick={handleGenerateKey}
+              disabled={generating}
+              className="px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center gap-2 disabled:opacity-50 text-sm"
+            >
+              <Plus size={18} />
+              {generating ? 'Generating...' : 'New Key'}
+            </button>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -273,7 +297,7 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {keys.map((key) => (
+              {filteredKeys.map((key) => (
                 <tr key={key.id} className="group hover:bg-slate-50 transition-colors">
                   <td className="py-4">
                     <div className="flex items-center gap-2">
@@ -339,13 +363,25 @@ export default function AdminDashboard() {
             <h3 className="text-xl font-bold text-slate-900">Student Competitions</h3>
             <p className="text-sm text-slate-500 mt-1">Add hackathons and coding challenges for students</p>
           </div>
-          <button
-            onClick={() => setShowCompModal(true)}
-            className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 flex items-center gap-2"
-          >
-            <Plus size={20} />
-            Post New Arena
-          </button>
+          <div className="flex items-center gap-4">
+            <div className="relative group">
+              <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+              <input 
+                type="text"
+                placeholder="Search comps..."
+                value={compSearch}
+                onChange={(e) => setCompSearch(e.target.value)}
+                className="pl-11 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-slate-600 text-xs w-48"
+              />
+            </div>
+            <button
+              onClick={() => setShowCompModal(true)}
+              className="px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 flex items-center gap-2 text-sm"
+            >
+              <Plus size={18} />
+              Post Arena
+            </button>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -360,7 +396,7 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {competitions.map((comp) => (
+              {filteredComps.map((comp) => (
                 <tr key={comp._id} className="group hover:bg-slate-50 transition-colors">
                   <td className="py-4 font-bold text-slate-700">{comp.name}</td>
                   <td className="py-4 text-sm text-slate-500">{comp.organizer}</td>

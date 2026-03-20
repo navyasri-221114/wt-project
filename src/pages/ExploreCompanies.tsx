@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Globe, MapPin, Briefcase, ExternalLink, ChevronRight, Users, Star, ShieldCheck, Mail, Phone, X, Send } from 'lucide-react';
+import { Building2, Globe, MapPin, Briefcase, ExternalLink, ChevronRight, Users, Star, ShieldCheck, Mail, Phone, X, Send, Search } from 'lucide-react';
 import { api } from '../services/api';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -10,6 +10,7 @@ export default function ExploreCompanies() {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [applyingJob, setApplyingJob] = useState<any>(null);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -38,13 +39,19 @@ export default function ExploreCompanies() {
       setCompanies(companiesRes);
       setJobs(jobsRes);
       setApplications(appsRes);
-      if (companiesRes.length > 0 && !isPolling) setSelectedCompany(companiesRes[0]);
+      if (companiesRes.length > 0 && !isPolling && !selectedCompany) setSelectedCompany(companiesRes[0]);
     } catch (err) {
       console.error(err);
     } finally {
       if (!isPolling) setLoading(false);
     }
   };
+
+  const filteredCompanies = companies.filter(c => 
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (c.location && c.location.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (c.description && c.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const companyJobs = jobs.filter(j => {
     const compId = j.company_id?._id || j.company_id?.id || j.company_id;
@@ -93,11 +100,31 @@ export default function ExploreCompanies() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
         {/* Company List - Left Side */}
         <div className="xl:col-span-4 space-y-4 max-h-[calc(100vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
-          <div className="flex items-center justify-between mb-4 sticky top-0 bg-slate-50/50 backdrop-blur-sm py-2">
-            <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Directory ({companies.length})</h2>
+          <div className="space-y-4 sticky top-0 bg-slate-50/50 backdrop-blur-sm z-10 pb-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Directory ({filteredCompanies.length})</h2>
+            </div>
+            <div className="relative group">
+              <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input 
+                type="text"
+                placeholder="Search companies..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-2xl shadow-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 text-sm"
+              />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-900 transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
           </div>
           <div className="space-y-3">
-            {companies.map((company) => (
+            {filteredCompanies.map((company) => (
               <motion.button
                 layout
                 key={company.id}

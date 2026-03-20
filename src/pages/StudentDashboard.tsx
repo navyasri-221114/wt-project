@@ -16,6 +16,7 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [formData, setFormData] = useState({
     bio: '',
@@ -77,6 +78,12 @@ export default function StudentDashboard() {
     return applications.find(app => (app.job_id?._id || app.job_id?.id || app.job_id) === jobId || app.job_id === jobId);
   };
 
+  const filteredJobs = jobs.filter(j => 
+    j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    j.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (j.location && j.location.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <div className="w-12 h-12 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -137,14 +144,24 @@ export default function StudentDashboard() {
               <Sparkles size={24} className="text-indigo-600" />
               Tailored Openings
             </h2>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-4">
+              <div className="relative group">
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                <input 
+                  type="text"
+                  placeholder="Search openings..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-11 pr-4 py-2 bg-white border border-slate-100 rounded-xl shadow-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 text-sm w-64"
+                />
+              </div>
               <button className="p-2 text-slate-400 hover:text-indigo-600 transition-colors"><Filter size={20} /></button>
             </div>
           </div>
 
           <div className="space-y-6">
             <AnimatePresence>
-              {jobs.map((job) => {
+              {filteredJobs.map((job) => {
                 const jobId = job._id || job.id;
                 const app = getAppStatus(jobId);
                 return (
