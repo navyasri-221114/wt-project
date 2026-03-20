@@ -9,6 +9,7 @@ export default function CompanyJobs() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [analysisJob, setAnalysisJob] = useState<any>(null);
+  const [jobToDelete, setJobToDelete] = useState<any>(null);
   const [newJob, setNewJob] = useState({
     title: '',
     location: '',
@@ -42,6 +43,17 @@ export default function CompanyJobs() {
       fetchJobs();
     } catch (err) {
       alert("Failed to post job");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!jobToDelete) return;
+    try {
+      await api.jobs.delete(jobToDelete.id);
+      setJobToDelete(null);
+      fetchJobs();
+    } catch (err: any) {
+      alert(err.message || "Failed to delete job");
     }
   };
 
@@ -133,7 +145,10 @@ export default function CompanyJobs() {
                     <button className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:bg-slate-900 hover:text-white transition-all">
                        <Edit3 size={18} />
                     </button>
-                    <button className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all">
+                    <button 
+                      onClick={() => setJobToDelete(job)}
+                      className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all"
+                    >
                        <Trash2 size={18} />
                     </button>
                     <button 
@@ -258,6 +273,45 @@ export default function CompanyJobs() {
                    </button>
                 </form>
              </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirmation Modal */}
+      <AnimatePresence>
+        {jobToDelete && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setJobToDelete(null)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="relative bg-white rounded-[2rem] shadow-2xl p-8 max-w-sm w-full text-center"
+            >
+              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Trash2 size={32} />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 mb-2">Delete Posting?</h3>
+              <p className="text-slate-500 font-medium text-sm mb-8">
+                Are you sure you want to delete <span className="text-slate-900 font-bold">"{jobToDelete.title}"</span>? This action is irreversible.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <button 
+                  onClick={() => setJobToDelete(null)}
+                  className="py-4 bg-slate-50 text-slate-600 font-black rounded-2xl hover:bg-slate-100 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleDelete}
+                  className="py-4 bg-red-500 text-white font-black rounded-2xl hover:bg-red-600 transition-all shadow-lg shadow-red-200"
+                >
+                  Confirm
+                </button>
+              </div>
+            </motion.div>
           </div>
         )}
       </AnimatePresence>

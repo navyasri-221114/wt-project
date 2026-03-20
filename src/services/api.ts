@@ -50,6 +50,7 @@ export const api = {
     getAll: () => api.request("/jobs"),
     getMy: () => api.request("/jobs/my"),
     create: (data: any) => api.request("/jobs", { method: "POST", body: JSON.stringify(data) }),
+    delete: (id: string) => api.request(`/jobs/${id}`, { method: "DELETE" }),
   },
 
   applications: {
