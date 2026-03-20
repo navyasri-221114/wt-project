@@ -35,7 +35,7 @@ export default function InterviewsPage() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="w-12 h-12 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
+      <div className="w-12 h-12 border-4 border-sky-600/20 border-t-sky-600 rounded-full animate-spin"></div>
       <p className="text-slate-400 font-black text-sm uppercase tracking-widest">Loading Schedule...</p>
     </div>
   );
@@ -57,7 +57,7 @@ export default function InterviewsPage() {
               onClick={() => setFilter(f)}
               className={cn(
                 "px-6 py-2.5 rounded-xl text-sm font-bold transition-all capitalize",
-                filter === f ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100" : "text-slate-500 hover:bg-slate-50"
+                filter === f ? "bg-sky-600 text-white shadow-lg shadow-sky-100" : "text-slate-500 hover:bg-slate-50"
               )}
             >
               {f}
@@ -68,8 +68,8 @@ export default function InterviewsPage() {
 
       {/* Stats Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-xl shadow-indigo-100">
-          <p className="text-indigo-100 text-xs font-black uppercase tracking-widest mb-1">Total Booked</p>
+        <div className="bg-sky-600 p-8 rounded-[2.5rem] text-white shadow-xl shadow-sky-100">
+          <p className="text-sky-100 text-xs font-black uppercase tracking-widest mb-1">Total Booked</p>
           <p className="text-4xl font-black">{interviews.length}</p>
         </div>
         <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
@@ -103,14 +103,14 @@ export default function InterviewsPage() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all group"
+                className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-sky-100 transition-all group"
               >
                 <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:gap-8">
                   {/* Left Section: Role & Company */}
                   <div className="flex items-start gap-4 lg:gap-6 w-full lg:flex-1 min-w-0">
                     <div className={cn(
                       "w-14 h-14 lg:w-16 lg:h-16 shrink-0 rounded-2xl lg:rounded-3xl flex items-center justify-center border transition-colors",
-                      interview.status === 'scheduled' ? "bg-indigo-50 border-indigo-100 text-indigo-600" :
+                      interview.status === 'scheduled' ? "bg-sky-50 border-sky-100 text-sky-600" :
                       interview.status === 'completed' ? "bg-green-50 border-green-100 text-green-600" :
                       "bg-slate-50 border-slate-100 text-slate-400"
                     )}>
@@ -124,13 +124,13 @@ export default function InterviewsPage() {
                           {interview.title || "Interview Session"}
                         </h3>
                         {interview.status === 'scheduled' && (
-                          <span className="inline-flex shrink-0 items-center gap-1.5 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-full">
+                          <span className="inline-flex shrink-0 items-center gap-1.5 px-2 py-0.5 bg-sky-600 text-white text-[9px] font-black uppercase tracking-widest rounded-full">
                             <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
                             Live Now
                           </span>
                         )}
                       </div>
-                      <p className="flex items-center gap-1.5 text-indigo-600 font-bold text-sm">
+                      <p className="flex items-center gap-1.5 text-sky-600 font-bold text-sm">
                         <Building2 size={14} className="shrink-0" /> <span className="truncate">{interview.company_name || interview.application_id?.job_id?.company_id?.name || "Company"}</span>
                       </p>
                     </div>
@@ -142,11 +142,11 @@ export default function InterviewsPage() {
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Schedule</p>
                       <div className="space-y-1">
                         <p className="font-bold text-slate-700 text-sm flex items-center gap-2">
-                          <Calendar size={14} className="text-indigo-400 shrink-0" /> 
+                          <Calendar size={14} className="text-sky-400 shrink-0" /> 
                           <span className="truncate">{new Date(interview.scheduled_at).toLocaleDateString()}</span>
                         </p>
                         <p className="text-xs font-semibold text-slate-500 flex items-center gap-2">
-                          <Clock size={14} className="text-indigo-400 shrink-0" /> 
+                          <Clock size={14} className="text-sky-400 shrink-0" /> 
                           <span className="truncate">{new Date(interview.scheduled_at).toLocaleTimeString([], {timeStyle: 'short'})}</span>
                         </p>
                       </div>
@@ -156,17 +156,17 @@ export default function InterviewsPage() {
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Session</p>
                       <div className="space-y-1">
                         <p className="font-bold text-slate-700 text-sm flex items-center gap-2">
-                          <User size={14} className="text-indigo-400 shrink-0" /> <span className="truncate">Recruiting Team</span>
+                          <User size={14} className="text-sky-400 shrink-0" /> <span className="truncate">Recruiting Team</span>
                         </p>
                         <p className="text-xs font-semibold text-slate-500 flex items-center gap-2">
-                          <MapPin size={14} className="text-indigo-400 shrink-0" /> <span className="truncate">Virtual</span>
+                          <MapPin size={14} className="text-sky-400 shrink-0" /> <span className="truncate">Virtual</span>
                         </p>
                       </div>
                     </div>
 
                     <div className="col-span-2 md:col-span-1 flex items-center md:justify-end lg:pl-4">
                       {interview.status === 'scheduled' ? (
-                        <Link to={`/interview/${interview.room_id}`} className="w-full md:w-auto px-6 lg:px-8 py-3 bg-indigo-600 text-white text-sm font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 group/btn shrink-0">
+                        <Link to={`/interview/${interview.room_id}`} className="w-full md:w-auto px-6 lg:px-8 py-3 bg-sky-600 text-white text-sm font-black rounded-2xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 flex items-center justify-center gap-2 group/btn shrink-0">
                           Join <span className="hidden sm:inline">Meeting</span>
                           <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </Link>

@@ -144,7 +144,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {[
           { label: 'Students', value: stats.totalStudents, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Companies', value: stats.totalCompanies, icon: Building2, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+          { label: 'Companies', value: stats.totalCompanies, icon: Building2, color: 'text-sky-600', bg: 'bg-sky-50' },
           { label: 'Jobs', value: stats.totalJobs, icon: Briefcase, color: 'text-violet-600', bg: 'bg-violet-50' },
           { label: 'Interviews', value: stats.totalInterviews, icon: Video, color: 'text-orange-600', bg: 'bg-orange-50' },
           { label: 'Placement Rate', value: `${stats.placementRate.toFixed(1)}%`, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
               </div>
             ))}
           </div>
-          <button className="w-full mt-8 py-3 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors">
+          <button className="w-full mt-8 py-3 text-sm font-bold text-sky-600 bg-sky-50 rounded-xl hover:bg-sky-100 transition-colors">
             View All Activity
           </button>
         </div>
@@ -235,7 +235,7 @@ export default function AdminDashboard() {
           <button
             onClick={handleExportCSV}
             disabled={exportingCSV}
-            className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-sky-600 text-white font-bold rounded-xl hover:bg-sky-700 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {exportingCSV
               ? <><Loader2 size={18} className="animate-spin" /> Exporting CSV...</>
@@ -254,7 +254,7 @@ export default function AdminDashboard() {
           <button
             onClick={handleGenerateKey}
             disabled={generating}
-            className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center gap-2 disabled:opacity-50"
+            className="px-6 py-3 bg-sky-600 text-white font-bold rounded-xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 flex items-center gap-2 disabled:opacity-50"
           >
             <Plus size={20} />
             {generating ? 'Generating...' : 'Generate New Key'}
@@ -277,7 +277,7 @@ export default function AdminDashboard() {
                 <tr key={key.id} className="group hover:bg-slate-50 transition-colors">
                   <td className="py-4">
                     <div className="flex items-center gap-2">
-                      <Key size={16} className="text-indigo-600" />
+                      <Key size={16} className="text-sky-600" />
                       <code className="text-sm font-mono font-bold text-slate-700">{key.key}</code>
                     </div>
                   </td>
@@ -397,26 +397,26 @@ export default function AdminDashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white rounded-[2rem] w-full max-w-xl p-10 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-black text-slate-900">Add <span className="text-indigo-600">Competition</span></h2>
+              <h2 className="text-2xl font-black text-slate-900">Add <span className="text-sky-600">Competition</span></h2>
               <button onClick={() => setShowCompModal(false)} className="text-slate-400 hover:text-slate-900"><X size={24} /></button>
             </div>
             <form onSubmit={handleCreateCompetition} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Competition Name</label>
-                  <input required value={newComp.name} onChange={e => setNewComp({...newComp, name: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500" placeholder="e.g. SIH 2026" />
+                  <input required value={newComp.name} onChange={e => setNewComp({...newComp, name: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-sky-500" placeholder="e.g. SIH 2026" />
                 </div>
                 <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Organizer</label>
-                  <input required value={newComp.organizer} onChange={e => setNewComp({...newComp, organizer: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Google" />
+                  <input required value={newComp.organizer} onChange={e => setNewComp({...newComp, organizer: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-sky-500" placeholder="e.g. Google" />
                 </div>
                 <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Date</label>
-                  <input required value={newComp.date} onChange={e => setNewComp({...newComp, date: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Aug 15" />
+                  <input required value={newComp.date} onChange={e => setNewComp({...newComp, date: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-sky-500" placeholder="e.g. Aug 15" />
                 </div>
                 <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Category</label>
-                  <select value={newComp.category} onChange={e => setNewComp({...newComp, category: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500">
+                  <select value={newComp.category} onChange={e => setNewComp({...newComp, category: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-sky-500">
                     <option value="Coding">Coding</option>
                     <option value="Hackathon">Hackathon</option>
                     <option value="Cloud">Cloud</option>
@@ -425,7 +425,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Difficulty</label>
-                  <select value={newComp.difficulty} onChange={e => setNewComp({...newComp, difficulty: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500">
+                  <select value={newComp.difficulty} onChange={e => setNewComp({...newComp, difficulty: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-sky-500">
                     <option value="Easy">Easy</option>
                     <option value="Medium">Medium</option>
                     <option value="Hard">Hard</option>
@@ -435,16 +435,16 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Prize</label>
-                  <input required value={newComp.prize} onChange={e => setNewComp({...newComp, prize: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500" placeholder="e.g. ₹50,000" />
+                  <input required value={newComp.prize} onChange={e => setNewComp({...newComp, prize: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-sky-500" placeholder="e.g. ₹50,000" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Tags (comma separated)</label>
-                  <input value={newComp.tags} onChange={e => setNewComp({...newComp, tags: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-indigo-500" placeholder="Algorithms, Cloud" />
+                  <input value={newComp.tags} onChange={e => setNewComp({...newComp, tags: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-sky-500" placeholder="Algorithms, Cloud" />
                 </div>
               </div>
               <div className="flex gap-4 mt-6">
                 <button type="button" onClick={() => setShowCompModal(false)} className="flex-1 py-4 bg-slate-100 text-slate-500 font-black rounded-xl hover:bg-slate-200 transition-all">Cancel</button>
-                <button type="submit" className="flex-[2] py-4 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100">Post Competition</button>
+                <button type="submit" className="flex-[2] py-4 bg-sky-600 text-white font-black rounded-xl hover:bg-sky-700 transition-all shadow-xl shadow-sky-100">Post Competition</button>
               </div>
             </form>
           </div>

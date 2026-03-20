@@ -45,7 +45,7 @@ export default function StudentSearch({ user }: { user: any }) {
             <input
               type="text"
               placeholder="Search by name..."
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
               value={filters.q}
               onChange={(e) => setFilters({ ...filters, q: e.target.value })}
             />
@@ -53,14 +53,14 @@ export default function StudentSearch({ user }: { user: any }) {
           <input
             type="text"
             placeholder="Branch..."
-            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
             value={filters.branch}
             onChange={(e) => setFilters({ ...filters, branch: e.target.value })}
           />
           <input
             type="text"
             placeholder="College..."
-            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
             value={filters.college}
             onChange={(e) => setFilters({ ...filters, college: e.target.value })}
           />
@@ -68,13 +68,13 @@ export default function StudentSearch({ user }: { user: any }) {
             type="number"
             step="0.1"
             placeholder="Min CGPA..."
-            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
             value={filters.min_cgpa}
             onChange={(e) => setFilters({ ...filters, min_cgpa: e.target.value })}
           />
           <button
             type="submit"
-            className="w-full py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+            className="w-full py-2.5 bg-sky-600 text-white font-bold rounded-xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100"
           >
             Search
           </button>
@@ -100,13 +100,13 @@ export default function StudentSearch({ user }: { user: any }) {
                   {student.avatar_url ? (
                     <img src={student.avatar_url} alt={student.name} className="w-full h-full object-cover rounded-xl" />
                   ) : (
-                    <div className="w-full h-full rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-2xl font-bold">
+                    <div className="w-full h-full rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 text-2xl font-bold">
                       {student.name[0]}
                     </div>
                   )}
                 </div>
                 
-                <h3 className="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                <h3 className="text-lg font-bold text-slate-900 group-hover:text-sky-600 transition-colors">
                   {student.name}
                 </h3>
                 <p className="text-sm text-slate-500 mb-4 flex items-center gap-1">
@@ -132,7 +132,7 @@ export default function StudentSearch({ user }: { user: any }) {
                 <div className="flex gap-2">
                   <button 
                     onClick={() => navigate(`/students/${student.id}`)}
-                    className="flex-1 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-2 bg-sky-600 text-white text-xs font-bold rounded-xl hover:bg-sky-700 transition-all flex items-center justify-center gap-2"
                   >
                     <User size={14} />
                     View Profile

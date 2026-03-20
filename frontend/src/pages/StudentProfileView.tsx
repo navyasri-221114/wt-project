@@ -34,20 +34,20 @@ export default function StudentProfileView() {
     <div className="max-w-4xl mx-auto space-y-8">
       <button
         onClick={() => navigate(-1)}
-        className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-sky-600 transition-colors"
       >
         <ArrowLeft size={20} />
         Back to Search
       </button>
 
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="h-32 bg-gradient-to-r from-indigo-600 to-violet-600" />
+        <div className="h-32 bg-gradient-to-r from-sky-600 to-violet-600" />
         <div className="px-8 pb-8 relative">
           <div className="w-32 h-32 rounded-3xl bg-white p-1 shadow-xl -mt-16 mb-6 overflow-hidden border-4 border-white">
             {student.avatar_url ? (
               <img src={student.avatar_url} alt={student.name} className="w-full h-full object-cover rounded-2xl" />
             ) : (
-              <div className="w-full h-full rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-4xl font-bold">
+              <div className="w-full h-full rounded-2xl bg-sky-50 flex items-center justify-center text-sky-600 text-4xl font-bold">
                 {student.name[0]}
               </div>
             )}
@@ -72,7 +72,7 @@ export default function StudentProfileView() {
               </div>
             </div>
             <div className="flex gap-3">
-              <button className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center gap-2">
+              <button className="px-6 py-3 bg-sky-600 text-white font-bold rounded-xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 flex items-center gap-2">
                 <Download size={20} />
                 Download Resume
               </button>
@@ -92,7 +92,7 @@ export default function StudentProfileView() {
           {/* Skills */}
           <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
             <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <Code size={20} className="text-indigo-600" />
+              <Code size={20} className="text-sky-600" />
               Technical Skills
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -107,7 +107,7 @@ export default function StudentProfileView() {
           {/* Projects */}
           <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
             <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <Briefcase size={20} className="text-indigo-600" />
+              <Briefcase size={20} className="text-sky-600" />
               Projects
             </h3>
             <div className="space-y-6">
@@ -122,7 +122,7 @@ export default function StudentProfileView() {
           {/* Certifications */}
           <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
             <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <Award size={20} className="text-indigo-600" />
+              <Award size={20} className="text-sky-600" />
               Certifications
             </h3>
             <div className="space-y-6">
@@ -141,7 +141,7 @@ export default function StudentProfileView() {
             <h3 className="text-lg font-bold text-slate-900 mb-6">Contact Information</h3>
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-sm text-slate-600">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+                <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600">
                   <Mail size={16} />
                 </div>
                 <span className="truncate">{student.email}</span>
@@ -157,7 +157,7 @@ export default function StudentProfileView() {
 
           {/* Resume Preview Placeholder */}
           <div className="bg-slate-900 rounded-3xl p-8 text-white">
-            <FileText size={48} className="text-indigo-400 mb-6" />
+            <FileText size={48} className="text-sky-400 mb-6" />
             <h3 className="text-xl font-bold mb-2">Resume Preview</h3>
             <p className="text-sm text-slate-400 mb-6">View the full professional resume of {student.name}.</p>
             <button className="w-full py-3 bg-white text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-all">

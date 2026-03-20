@@ -110,7 +110,7 @@ export default function JobProfiles() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="w-10 h-10 border-[3px] border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
+      <div className="w-10 h-10 border-[3px] border-sky-600/20 border-t-sky-600 rounded-full animate-spin"></div>
       <p className="text-slate-400 font-semibold text-xs uppercase tracking-[0.2em]">Loading Opportunities...</p>
     </div>
   );
@@ -140,7 +140,7 @@ export default function JobProfiles() {
               className={cn(
                 "px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300",
                 activeTab === tab 
-                  ? "bg-white text-indigo-600 shadow-sm" 
+                  ? "bg-white text-sky-600 shadow-sm" 
                   : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
               )}
             >
@@ -153,12 +153,12 @@ export default function JobProfiles() {
       {/* ─── Search + Filters ─── */}
       <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
         <div className="md:col-span-2 relative group focus-within:z-50" ref={searchContainerRef}>
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-600 transition-colors" size={20} />
           <input
             type="text"
             placeholder="Search roles or companies (e.g. Developer, TCS)..."
             className={cn(
-              "w-full bg-white/90 backdrop-blur-sm border border-slate-200/80 py-3.5 pl-12 pr-4 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 transition-all font-medium shadow-sm hover:bg-white",
+              "w-full bg-white/90 backdrop-blur-sm border border-slate-200/80 py-3.5 pl-12 pr-4 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500/50 transition-all font-medium shadow-sm hover:bg-white",
               isSearchFocused && search.trim() !== "" && filteredJobs.length > 0 ? "rounded-t-2xl rounded-b-none border-b-0" : "rounded-2xl"
             )}
             value={search}
@@ -171,10 +171,10 @@ export default function JobProfiles() {
             {isSearchFocused && search.trim() !== "" && filteredJobs.length > 0 && (
               <motion.div 
                 initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5, transition: { duration: 0.15 } }}
-                className="absolute top-full left-0 right-0 bg-white border border-t-0 border-indigo-500/50 outline outline-4 outline-indigo-500/10 rounded-b-2xl shadow-2xl overflow-hidden z-50 max-h-80 overflow-y-auto custom-scrollbar"
+                className="absolute top-full left-0 right-0 bg-white border border-t-0 border-sky-500/50 outline outline-4 outline-sky-500/10 rounded-b-2xl shadow-2xl overflow-hidden z-50 max-h-80 overflow-y-auto custom-scrollbar"
               >
-                <div className="px-3 py-2 bg-indigo-50/50 border-b border-indigo-100/50 flex items-center justify-between sticky top-0 backdrop-blur-md">
-                  <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-1.5">
+                <div className="px-3 py-2 bg-sky-50/50 border-b border-sky-100/50 flex items-center justify-between sticky top-0 backdrop-blur-md">
+                  <span className="text-[10px] font-bold text-sky-600 uppercase tracking-widest flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                     Live Matches
                   </span>
@@ -192,7 +192,7 @@ export default function JobProfiles() {
                     >
                       <div>
                         <p className="text-sm font-bold text-slate-900 leading-tight">{job.title}</p>
-                        <p className="text-xs font-semibold text-indigo-600 mt-0.5">{job.company_name}</p>
+                        <p className="text-xs font-semibold text-sky-600 mt-0.5">{job.company_name}</p>
                       </div>
                       <div className="text-right shrink-0">
                         <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-md text-[10px] font-black uppercase tracking-wider border border-green-100/50">
@@ -213,11 +213,11 @@ export default function JobProfiles() {
         </div>
 
         <div className="relative group focus-within:z-10">
-          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
+          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-600 transition-colors" size={20} />
           <input
             type="text"
             placeholder="Location..."
-            className="w-full bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 transition-all font-medium shadow-sm hover:bg-white"
+            className="w-full bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500/50 transition-all font-medium shadow-sm hover:bg-white"
             value={locationFilter}
             onChange={(e) => setLocationFilter(e.target.value)}
           />
@@ -246,7 +246,7 @@ export default function JobProfiles() {
                   {/* Company Header */}
                   <div className="flex items-center justify-between border-b-2 border-slate-200/60 pb-3">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-200/50">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-600 to-violet-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-sky-200/50">
                         {company[0]}
                       </div>
                       <div>
@@ -294,7 +294,7 @@ export default function JobProfiles() {
                           <div>
                             {/* Job Title */}
                             <div className="mb-5 pr-8">
-                              <h3 className="text-lg font-black text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors line-clamp-2">
+                              <h3 className="text-lg font-black text-slate-900 leading-tight group-hover:text-sky-600 transition-colors line-clamp-2">
                                 {job.title}
                               </h3>
                             </div>
@@ -334,13 +334,13 @@ export default function JobProfiles() {
                               {job.requirements?.split(',').slice(0,3).map((skill: string, index: number) => (
                                 <span
                                   key={index}
-                                  className="text-[10px] font-bold bg-slate-100/50 text-slate-600 px-2.5 py-1.5 rounded-lg border border-slate-200/50 group-hover:bg-indigo-50/50 group-hover:border-indigo-100/50 group-hover:text-indigo-700 transition-colors truncate max-w-[100px]"
+                                  className="text-[10px] font-bold bg-slate-100/50 text-slate-600 px-2.5 py-1.5 rounded-lg border border-slate-200/50 group-hover:bg-sky-50/50 group-hover:border-sky-100/50 group-hover:text-sky-700 transition-colors truncate max-w-[100px]"
                                 >
                                   {skill.trim()}
                                 </span>
                               ))}
                               {job.min_cgpa && (
-                                <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2.5 py-1.5 rounded-lg border border-indigo-100 truncate max-w-[100px]">
+                                <span className="text-[10px] font-bold bg-sky-50 text-sky-700 px-2.5 py-1.5 rounded-lg border border-sky-100 truncate max-w-[100px]">
                                   {job.min_cgpa}+ CGPA
                                 </span>
                               )}
@@ -354,7 +354,7 @@ export default function JobProfiles() {
                                 "flex-1 px-4 py-2.5 font-bold rounded-xl flex items-center justify-center gap-2 text-[11px] uppercase tracking-wider border",
                                 app.status === 'shortlisted' ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
                                 app.status === 'rejected' ? "bg-red-50 text-red-700 border-red-100" :
-                                "bg-indigo-50 text-indigo-700 border-indigo-100"
+                                "bg-sky-50 text-sky-700 border-sky-100"
                               )}>
                                 {app.status === 'shortlisted' && <CheckCircle2 size={14} />}
                                 {app.status}

@@ -12,7 +12,7 @@ export default function CompanyBranches() {
       </div>
 
       <div className="py-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center">
-         <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-400 mb-6">
+         <div className="w-20 h-20 bg-sky-50 rounded-full flex items-center justify-center text-sky-400 mb-6">
             <MapPin size={40} />
          </div>
          <h3 className="text-2xl font-black text-slate-900 mb-2">Distributed Access Coming Soon</h3>
@@ -20,7 +20,7 @@ export default function CompanyBranches() {
             The capability to dispatch nodes to multiple locations, track distinct applicant pipelines per-branch, and isolate regional campus managers will be available in the next feature rollout.
          </p>
          
-         <button className="mt-8 px-8 py-3.5 bg-indigo-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">
+         <button className="mt-8 px-8 py-3.5 bg-sky-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl shadow-sky-100 hover:bg-sky-700 transition-all">
             Notify Development Team
          </button>
       </div>

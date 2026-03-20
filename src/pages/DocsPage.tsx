@@ -43,7 +43,7 @@ export default function DocsPage() {
     <div className="max-w-5xl mx-auto pb-24">
       {/* Header */}
       <div className="mb-16 space-y-4">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-xs font-black uppercase tracking-widest">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-sky-50 text-sky-600 rounded-full text-xs font-black uppercase tracking-widest">
           <BookOpen size={14} /> Knowledge Base
         </div>
         <h1 className="text-5xl font-black text-slate-900 tracking-tight">Platform <span className="text-gradient">Documentation</span></h1>
@@ -61,7 +61,7 @@ export default function DocsPage() {
               <a 
                 key={section.id}
                 href={`#${section.id}`}
-                className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all group"
+                className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-xl transition-all group"
               >
                 <section.icon size={18} className="group-hover:scale-110 transition-transform" />
                 {section.title}
@@ -95,7 +95,7 @@ export default function DocsPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                    <div className="flex items-center gap-3 text-indigo-600 font-black text-xs uppercase tracking-widest mb-3">
+                    <div className="flex items-center gap-3 text-sky-600 font-black text-xs uppercase tracking-widest mb-3">
                       <CheckCircle2 size={16} /> Best Practice
                     </div>
                     <p className="text-sm text-slate-500 font-bold leading-relaxed">
@@ -116,7 +116,7 @@ export default function DocsPage() {
                   <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Related Knowledge</h4>
                   <div className="flex flex-wrap gap-2">
                     {["Application Flow", "Resume Tips", "Technical Interviews", "Data Safety"].map(tag => (
-                      <span key={tag} className="px-3 py-1.5 bg-white border border-slate-200 text-slate-500 text-[10px] font-black rounded-lg uppercase tracking-wider hover:border-indigo-200 hover:text-indigo-600 cursor-default transition-colors">
+                      <span key={tag} className="px-3 py-1.5 bg-white border border-slate-200 text-slate-500 text-[10px] font-black rounded-lg uppercase tracking-wider hover:border-sky-200 hover:text-sky-600 cursor-default transition-colors">
                         {tag}
                       </span>
                     ))}
@@ -127,19 +127,19 @@ export default function DocsPage() {
           ))}
           
           {/* Support CTA */}
-          <div className="bg-indigo-600 p-12 rounded-[3rem] text-center space-y-6 shadow-2xl shadow-indigo-200 relative overflow-hidden">
+          <div className="bg-sky-600 p-12 rounded-[3rem] text-center space-y-6 shadow-2xl shadow-sky-200 relative overflow-hidden">
              <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-32 -mt-32 blur-3xl" />
-             <div className="absolute bottom-0 right-0 w-64 h-64 bg-indigo-400/20 rounded-full -mr-32 -mb-32 blur-3xl" />
+             <div className="absolute bottom-0 right-0 w-64 h-64 bg-sky-400/20 rounded-full -mr-32 -mb-32 blur-3xl" />
              
              <h3 className="text-3xl font-black text-white relative z-10">Still have questions?</h3>
-             <p className="text-indigo-100 font-medium max-w-md mx-auto relative z-10">
+             <p className="text-sky-100 font-medium max-w-md mx-auto relative z-10">
                Our support team is available 24/7 to assist you with any platform-related issues.
              </p>
              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 relative z-10">
-                <button className="px-8 py-4 bg-white text-indigo-600 font-black rounded-2xl shadow-xl hover:bg-slate-50 transition-all active:scale-95">
+                <button className="px-8 py-4 bg-white text-sky-600 font-black rounded-2xl shadow-xl hover:bg-slate-50 transition-all active:scale-95">
                   Contact Support
                 </button>
-                <button className="px-8 py-4 bg-indigo-500 text-white font-black rounded-2xl hover:bg-indigo-400 transition-all">
+                <button className="px-8 py-4 bg-sky-500 text-white font-black rounded-2xl hover:bg-sky-400 transition-all">
                   Join Community
                 </button>
              </div>

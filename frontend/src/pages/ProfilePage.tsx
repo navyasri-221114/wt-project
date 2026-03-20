@@ -62,7 +62,7 @@ export default function ProfilePage({ user }: { user: any }) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="h-32 bg-gradient-to-r from-indigo-600 to-violet-600" />
+        <div className="h-32 bg-gradient-to-r from-sky-600 to-violet-600" />
         <div className="px-8 pb-8">
           <div className="relative -mt-12 mb-8 flex items-end gap-6">
             <div className="relative group">
@@ -70,7 +70,7 @@ export default function ProfilePage({ user }: { user: any }) {
                 {avatarPreview ? (
                   <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover rounded-2xl" />
                 ) : (
-                  <div className="w-full h-full rounded-2xl bg-indigo-100 flex items-center justify-center text-indigo-600 text-3xl font-bold">
+                  <div className="w-full h-full rounded-2xl bg-sky-100 flex items-center justify-center text-sky-600 text-3xl font-bold">
                     {user?.name?.[0]}
                   </div>
                 )}
@@ -90,7 +90,7 @@ export default function ProfilePage({ user }: { user: any }) {
             {/* Basic Info */}
             <section>
               <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <User size={20} className="text-indigo-600" />
+                <User size={20} className="text-sky-600" />
                 Basic Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -98,7 +98,7 @@ export default function ProfilePage({ user }: { user: any }) {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                     value={formData.name || ''}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
@@ -118,7 +118,7 @@ export default function ProfilePage({ user }: { user: any }) {
               <>
                 <section>
                   <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <GraduationCap size={20} className="text-indigo-600" />
+                    <GraduationCap size={20} className="text-sky-600" />
                     Academic Details
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -127,7 +127,7 @@ export default function ProfilePage({ user }: { user: any }) {
                       <input
                         type="text"
                         placeholder="e.g. IIT Bombay"
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                         value={formData.college || ''}
                         onChange={(e) => setFormData({ ...formData, college: e.target.value })}
                       />
@@ -137,7 +137,7 @@ export default function ProfilePage({ user }: { user: any }) {
                       <input
                         type="text"
                         placeholder="e.g. Computer Science"
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                         value={formData.branch || ''}
                         onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
                       />
@@ -149,7 +149,7 @@ export default function ProfilePage({ user }: { user: any }) {
                       <input
                         type="text"
                         placeholder="e.g. Engineering"
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                         value={formData.department || ''}
                         onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                       />
@@ -158,7 +158,7 @@ export default function ProfilePage({ user }: { user: any }) {
                       <label className="block text-sm font-medium text-slate-700 mb-1">Year of Study</label>
                       <input
                         type="number"
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                         value={formData.year || ''}
                         onChange={(e) => setFormData({ ...formData, year: e.target.value })}
                       />
@@ -167,7 +167,7 @@ export default function ProfilePage({ user }: { user: any }) {
                       <label className="block text-sm font-medium text-slate-700 mb-1">Current CGPA</label>
                       <input
                         type="number" step="0.01"
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                         value={formData.cgpa || ''}
                         onChange={(e) => setFormData({ ...formData, cgpa: e.target.value })}
                       />
@@ -177,7 +177,7 @@ export default function ProfilePage({ user }: { user: any }) {
 
                 <section>
                   <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <Code size={20} className="text-indigo-600" />
+                    <Code size={20} className="text-sky-600" />
                     Skills & Projects
                   </h3>
                   <div className="space-y-6">
@@ -186,7 +186,7 @@ export default function ProfilePage({ user }: { user: any }) {
                       <textarea
                         rows={2}
                         placeholder="React, Node.js, Python, SQL..."
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                         value={formData.skills || ''}
                         onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
                       />
@@ -196,7 +196,7 @@ export default function ProfilePage({ user }: { user: any }) {
                       <textarea
                         rows={3}
                         placeholder="Describe your major projects..."
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                         value={formData.projects || ''}
                         onChange={(e) => setFormData({ ...formData, projects: e.target.value })}
                       />
@@ -206,7 +206,7 @@ export default function ProfilePage({ user }: { user: any }) {
 
                 <section>
                   <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <LinkIcon size={20} className="text-indigo-600" />
+                    <LinkIcon size={20} className="text-sky-600" />
                     Links
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -214,7 +214,7 @@ export default function ProfilePage({ user }: { user: any }) {
                       <label className="block text-sm font-medium text-slate-700 mb-1">LinkedIn URL</label>
                       <input
                         type="url"
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                         value={formData.linkedin_url || ''}
                         onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
                       />
@@ -223,7 +223,7 @@ export default function ProfilePage({ user }: { user: any }) {
                       <label className="block text-sm font-medium text-slate-700 mb-1">GitHub URL</label>
                       <input
                         type="url"
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                         value={formData.github_url || ''}
                         onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
                       />
@@ -232,7 +232,7 @@ export default function ProfilePage({ user }: { user: any }) {
                 </section>
                 <section>
                   <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <ShieldCheck size={20} className="text-indigo-600" />
+                    <ShieldCheck size={20} className="text-sky-600" />
                     Privacy Settings
                   </h3>
                   <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
@@ -261,7 +261,7 @@ export default function ProfilePage({ user }: { user: any }) {
             {user?.role === 'company' && (
               <section>
                 <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                  <Building2 size={20} className="text-indigo-600" />
+                  <Building2 size={20} className="text-sky-600" />
                   Company Details
                 </h3>
                 <div className="space-y-6">
@@ -269,7 +269,7 @@ export default function ProfilePage({ user }: { user: any }) {
                     <label className="block text-sm font-medium text-slate-700 mb-1">Company Description</label>
                     <textarea
                       rows={4}
-                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                       value={formData.description || ''}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     />
@@ -279,7 +279,7 @@ export default function ProfilePage({ user }: { user: any }) {
                       <label className="block text-sm font-medium text-slate-700 mb-1">Website</label>
                       <input
                         type="url"
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                         value={formData.website || ''}
                         onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                       />
@@ -288,7 +288,7 @@ export default function ProfilePage({ user }: { user: any }) {
                       <label className="block text-sm font-medium text-slate-700 mb-1">Headquarters</label>
                       <input
                         type="text"
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                         value={formData.location || ''}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       />
@@ -302,7 +302,7 @@ export default function ProfilePage({ user }: { user: any }) {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center gap-2 disabled:opacity-50"
+                className="px-8 py-3 bg-sky-600 text-white font-bold rounded-xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 flex items-center gap-2 disabled:opacity-50"
               >
                 <Save size={20} />
                 {saving ? 'Saving...' : 'Save Changes'}

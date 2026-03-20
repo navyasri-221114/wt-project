@@ -11,17 +11,17 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-sky-600 rounded-lg flex items-center justify-center">
                 <Briefcase className="text-white" size={20} />
               </div>
               <span className="text-xl font-bold text-slate-900">CampusPortal</span>
             </div>
             <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Features</a>
-              <a href="#stats" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Success Stories</a>
-              <Link to="/admin/login" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Admin</Link>
-              <Link to="/auth" className="text-sm font-medium text-slate-900 hover:text-indigo-600 transition-colors">Login</Link>
-              <Link to="/auth?signup=true" className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-full hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+              <a href="#features" className="text-sm font-medium text-slate-600 hover:text-sky-600 transition-colors">Features</a>
+              <a href="#stats" className="text-sm font-medium text-slate-600 hover:text-sky-600 transition-colors">Success Stories</a>
+              <Link to="/admin/login" className="text-sm font-medium text-slate-600 hover:text-sky-600 transition-colors">Admin</Link>
+              <Link to="/auth" className="text-sm font-medium text-slate-900 hover:text-sky-600 transition-colors">Login</Link>
+              <Link to="/auth?signup=true" className="px-5 py-2.5 bg-sky-600 text-white text-sm font-medium rounded-full hover:bg-sky-700 transition-all shadow-lg shadow-sky-200">
                 Get Started
               </Link>
             </div>
@@ -37,18 +37,18 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded-full uppercase tracking-wider">
+            <span className="px-4 py-1.5 bg-sky-50 text-sky-600 text-xs font-semibold rounded-full uppercase tracking-wider">
               The Future of Campus Recruitment
             </span>
             <h1 className="mt-8 text-5xl md:text-7xl font-bold text-slate-900 tracking-tight">
               Bridge the gap between <br />
-              <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Talent and Opportunity</span>
+              <span className="bg-gradient-to-r from-sky-600 to-violet-600 bg-clip-text text-transparent">Talent and Opportunity</span>
             </h1>
             <p className="mt-6 text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
               A comprehensive platform designed for students, recruiters, and placement officers to streamline the entire campus hiring process with AI-powered insights.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/auth?signup=true" className="w-full sm:w-auto px-8 py-4 bg-indigo-600 text-white font-semibold rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 flex items-center justify-center gap-2">
+              <Link to="/auth?signup=true" className="w-full sm:w-auto px-8 py-4 bg-sky-600 text-white font-semibold rounded-2xl hover:bg-sky-700 transition-all shadow-xl shadow-sky-200 flex items-center justify-center gap-2">
                 Start Your Journey <ArrowRight size={20} />
               </Link>
               <a href="#features" className="w-full sm:w-auto px-8 py-4 bg-white text-slate-900 font-semibold rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
@@ -129,7 +129,7 @@ export default function LandingPage() {
                 title: 'For Recruiters',
                 icon: Briefcase,
                 features: ['Smart Candidate Ranking', 'Automated Shortlisting', 'Bulk Communication', 'Analytics Dashboard'],
-                color: 'bg-indigo-50 text-indigo-600'
+                color: 'bg-sky-50 text-sky-600'
               },
               {
                 title: 'For Admin/TPO',
@@ -162,7 +162,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12">
           <div className="col-span-2">
             <div className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-sky-600 rounded-lg flex items-center justify-center">
                 <Briefcase className="text-white" size={20} />
               </div>
               <span className="text-xl font-bold">CampusPortal</span>

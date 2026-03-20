@@ -95,7 +95,7 @@ export default function CompanyDashboard() {
       {interviews.length > 0 && (
         <div className="lg:col-span-4 bg-slate-900 rounded-3xl p-8 text-white mb-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-sky-500/20 text-sky-400 rounded-xl flex items-center justify-center">
               <Video size={20} />
             </div>
             <h2 className="text-xl font-bold">Upcoming Interviews</h2>
@@ -113,7 +113,7 @@ export default function CompanyDashboard() {
                 </div>
                 <Link
                   to={`/interview/${interview.room_id}`}
-                  className="w-full py-2 bg-indigo-600 text-white text-center text-xs font-bold rounded-xl hover:bg-indigo-700 transition-all"
+                  className="w-full py-2 bg-sky-600 text-white text-center text-xs font-bold rounded-xl hover:bg-sky-700 transition-all"
                 >
                   Join Room
                 </Link>
@@ -129,7 +129,7 @@ export default function CompanyDashboard() {
           <h2 className="text-xl font-bold text-slate-900">Your Jobs</h2>
           <button
             onClick={() => setShowPostModal(true)}
-            className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all"
+            className="p-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-all"
           >
             <Plus size={20} />
           </button>
@@ -143,12 +143,12 @@ export default function CompanyDashboard() {
               className={cn(
                 "w-full p-4 rounded-2xl border text-left transition-all",
                 selectedJob?.id === job.id
-                  ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100"
-                  : "bg-white border-slate-100 text-slate-600 hover:border-indigo-200"
+                  ? "bg-sky-600 border-sky-600 text-white shadow-lg shadow-sky-100"
+                  : "bg-white border-slate-100 text-slate-600 hover:border-sky-200"
               )}
             >
               <h3 className="font-bold truncate">{job.title}</h3>
-              <p className={cn("text-xs mt-1", selectedJob?.id === job.id ? "text-indigo-100" : "text-slate-400")}>
+              <p className={cn("text-xs mt-1", selectedJob?.id === job.id ? "text-sky-100" : "text-slate-400")}>
                 {job.location} • {job.salary}
               </p>
             </button>
@@ -169,7 +169,7 @@ export default function CompanyDashboard() {
                 <div className="flex gap-4">
                   <button
                     onClick={handleAIShortlist}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-all text-xs font-bold"
+                    className="flex items-center gap-2 px-4 py-2 bg-sky-50 text-sky-600 rounded-xl hover:bg-sky-100 transition-all text-xs font-bold"
                   >
                     <Star size={14} />
                     AI Shortlist Mode
@@ -230,7 +230,7 @@ export default function CompanyDashboard() {
                             "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
                             app.status === 'shortlisted' ? "bg-green-100 text-green-700" :
                             app.status === 'rejected' ? "bg-red-100 text-red-700" :
-                            "bg-indigo-100 text-indigo-700"
+                            "bg-sky-100 text-sky-700"
                           )}>
                             {app.status}
                           </span>
@@ -258,7 +258,7 @@ export default function CompanyDashboard() {
                             {app.status === 'shortlisted' && (
                               <button
                                 onClick={() => handleScheduleInterview(app.id)}
-                                className="p-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100"
+                                className="p-2 bg-sky-50 text-sky-600 rounded-lg hover:bg-sky-100"
                                 title="Schedule Interview"
                               >
                                 <Video size={16} />
@@ -315,7 +315,7 @@ export default function CompanyDashboard() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Job Title</label>
                   <input
                     type="text" required
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                     value={newJob.title}
                     onChange={(e) => setNewJob({ ...newJob, title: e.target.value })}
                   />
@@ -324,7 +324,7 @@ export default function CompanyDashboard() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Salary Package</label>
                   <input
                     type="text" required placeholder="e.g. 12 LPA"
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                     value={newJob.salary}
                     onChange={(e) => setNewJob({ ...newJob, salary: e.target.value })}
                   />
@@ -333,7 +333,7 @@ export default function CompanyDashboard() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Min CGPA</label>
                   <input
                     type="number" step="0.1" required
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                     value={newJob.min_cgpa}
                     onChange={(e) => setNewJob({ ...newJob, min_cgpa: parseFloat(e.target.value) })}
                   />
@@ -342,7 +342,7 @@ export default function CompanyDashboard() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Number of Vacancies</label>
                   <input
                     type="number" required min="1"
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                     value={newJob.vacancies}
                     onChange={(e) => setNewJob({ ...newJob, vacancies: parseInt(e.target.value) })}
                   />
@@ -351,7 +351,7 @@ export default function CompanyDashboard() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
                   <input
                     type="text" required
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                     value={newJob.location}
                     onChange={(e) => setNewJob({ ...newJob, location: e.target.value })}
                   />
@@ -360,7 +360,7 @@ export default function CompanyDashboard() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
                   <textarea
                     rows={3} required
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                     value={newJob.description}
                     onChange={(e) => setNewJob({ ...newJob, description: e.target.value })}
                   />
@@ -369,14 +369,14 @@ export default function CompanyDashboard() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Requirements (Skills)</label>
                   <textarea
                     rows={2} required
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                     value={newJob.requirements}
                     onChange={(e) => setNewJob({ ...newJob, requirements: e.target.value })}
                   />
                 </div>
               </div>
               <div className="pt-4">
-                <button type="submit" className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-100">
+                <button type="submit" className="w-full py-3 bg-sky-600 text-white font-bold rounded-xl hover:bg-sky-700 shadow-lg shadow-sky-100">
                   Post Job Opening
                 </button>
               </div>
