@@ -61,28 +61,43 @@ export default function ProfilePage({ user }: { user: any }) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="h-32 bg-gradient-to-r from-indigo-600 to-violet-600" />
-        <div className="px-8 pb-8">
-          <div className="relative -mt-12 mb-8 flex items-end gap-6">
+      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl overflow-hidden">
+        <div className="h-48 bg-gradient-to-r from-indigo-600 to-violet-600 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+        </div>
+        
+        <div className="px-10 pb-10 relative">
+          {/* Avatar Section */}
+          <div className="absolute -top-16 left-10">
             <div className="relative group">
-              <div className="w-24 h-24 rounded-3xl bg-white p-1 shadow-xl overflow-hidden">
+              <div className="w-32 h-32 rounded-[2rem] bg-white p-2 shadow-2xl overflow-hidden border-4 border-white">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover rounded-2xl" />
+                  <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover rounded-[1.5rem]" />
                 ) : (
-                  <div className="w-full h-full rounded-2xl bg-indigo-100 flex items-center justify-center text-indigo-600 text-3xl font-bold">
+                  <div className="w-full h-full rounded-[1.5rem] bg-indigo-50 flex items-center justify-center text-indigo-600 text-4xl font-black">
                     {user?.name?.[0]}
                   </div>
                 )}
               </div>
-              <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                <Camera size={24} />
+              <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer backdrop-blur-sm">
+                <Camera size={28} />
                 <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
               </label>
             </div>
-            <div className="mb-2">
-              <h2 className="text-2xl font-bold text-slate-900">{user?.name}</h2>
-              <p className="text-slate-500 capitalize">{user?.role}</p>
+          </div>
+
+          {/* Name & Title Section */}
+          <div className="pt-20 mb-10">
+            <h2 className="text-4xl font-black text-slate-900 tracking-tight">{user?.name}</h2>
+            <div className="flex items-center gap-3 mt-2">
+              <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 text-xs font-black uppercase tracking-widest rounded-xl border border-indigo-100/50">
+                {user?.role}
+              </span>
+              <span className="w-1.5 h-1.5 bg-slate-200 rounded-full" />
+              <div className="flex items-center gap-1.5 text-slate-400 font-bold text-sm bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
+                <ShieldCheck size={14} className="text-green-500" />
+                Verified Profile
+              </div>
             </div>
           </div>
 
