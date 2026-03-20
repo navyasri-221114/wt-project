@@ -33,9 +33,12 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
   };
 
   const navItems = [
-    { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { label: 'Profile', icon: User, path: '/profile' },
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' }
   ];
+
+  if (user?.role !== 'company') {
+    navItems.push({ label: 'Profile', icon: User, path: '/profile' });
+  }
 
   /* STUDENT NAVIGATION */
   if (user?.role === 'student') {

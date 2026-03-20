@@ -1,18 +1,29 @@
-import { useState, useEffect } from "react";
-import { Search, MapPin, Briefcase, IndianRupee, Star, Filter, ArrowUpRight, ShieldCheck, Clock, Building2, CheckCircle2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Search, MapPin, Briefcase, IndianRupee, Star, Filter, ArrowUpRight, ShieldCheck, Clock, CheckCircle2, Building } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import { api } from "../services/api";
 
 export default function JobProfiles() {
+  const [searchParams] = useSearchParams();
   const [jobsData, setJobsData] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState<string | null>(null);
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("q") || "");
   const [locationFilter, setLocationFilter] = useState("");
   const [activeTab, setActiveTab] = useState("All Jobs");
+  
+  // Search Autocomplete State
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q !== null) setSearch(q);
+  }, [searchParams]);
 
   useEffect(() => {
     fetchData();
@@ -20,6 +31,17 @@ export default function JobProfiles() {
       fetchData(true);
     }, 5000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const fetchData = async (isPolling = false) => {
@@ -53,212 +75,328 @@ export default function JobProfiles() {
     return applications.find(app => (app.job_id?.id || app.job_id?._id || app.job_id) === jobId || app.job_id === jobId);
   };
 
-  const filteredJobs = jobsData.filter((job) =>
-    (job.title.toLowerCase().includes(search.toLowerCase()) || 
-     (job.company_name || "").toLowerCase().includes(search.toLowerCase())) &&
-    (job.location || "Remote").toLowerCase().includes(locationFilter.toLowerCase())
-  );
+  const filteredJobs = jobsData.filter((job) => {
+    if (activeTab === "Saved") return false; // Mock saved filter logic
+    return (
+      ((job.title || "").toLowerCase().includes(search.toLowerCase()) || 
+       (job.company_name || "").toLowerCase().includes(search.toLowerCase()) ||
+       (job.requirements || "").toLowerCase().includes(search.toLowerCase())) &&
+      (job.location || "Remote").toLowerCase().includes(locationFilter.toLowerCase())
+    );
+  });
+
+  // Group filtered jobs by company for the main view
+  const jobsByCompany = filteredJobs.reduce((acc: Record<string, any[]>, job: any) => {
+    const company = job.company_name || 'Unknown Company';
+    if (!acc[company]) {
+      acc[company] = [];
+    }
+    acc[company].push(job);
+    return acc;
+  }, {});
 
   const container = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
+      transition: { staggerChildren: 0.1 }
     }
   };
 
   const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+    hidden: { opacity: 0, y: 16 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] } }
   };
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="w-12 h-12 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
-      <p className="text-slate-400 font-black text-sm uppercase tracking-widest">Loading Jobs...</p>
+      <div className="w-10 h-10 border-[3px] border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
+      <p className="text-slate-400 font-semibold text-xs uppercase tracking-[0.2em]">Loading Opportunities...</p>
     </div>
   );
 
   return (
-    <div className="space-y-10">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <motion.div 
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="space-y-10 max-w-[1400px] mx-auto"
+    >
+      {/* ─── Page Header ─── */}
+      <motion.div variants={item} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">
-            Discover <span className="text-gradient">Opportunities</span>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight font-display">
+            Company <span className="text-gradient">Openings</span>
           </h1>
-          <p className="text-slate-500 mt-2 font-medium max-w-md">
-            Find the perfect role that matches your skills. We've curated the best openings from top-tier companies.
+          <p className="text-slate-500 text-sm font-medium mt-1 max-w-md">
+            Live vacancies sorted by company. See exactly who's hiring right now.
           </p>
         </div>
-        <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100 w-fit">
+        <div className="flex p-1 bg-slate-200/50 backdrop-blur-md rounded-xl shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] w-fit border border-slate-200/50">
           {["All Jobs", "Recommended", "Saved"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "px-6 py-2.5 rounded-xl text-sm font-bold transition-all",
-                activeTab === tab ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100" : "text-slate-500 hover:bg-slate-50"
+                "px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300",
+                activeTab === tab 
+                  ? "bg-white text-indigo-600 shadow-sm" 
+                  : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
               )}
             >
               {tab}
             </button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Search + Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="md:col-span-2 relative group">
+      {/* ─── Search + Filters ─── */}
+      <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
+        <div className="md:col-span-2 relative group focus-within:z-50" ref={searchContainerRef}>
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
           <input
             type="text"
-            placeholder="Search job title, company, or keywords..."
-            className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium"
+            placeholder="Search roles or companies (e.g. Developer, TCS)..."
+            className={cn(
+              "w-full bg-white/90 backdrop-blur-sm border border-slate-200/80 py-3.5 pl-12 pr-4 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 transition-all font-medium shadow-sm hover:bg-white",
+              isSearchFocused && search.trim() !== "" && filteredJobs.length > 0 ? "rounded-t-2xl rounded-b-none border-b-0" : "rounded-2xl"
+            )}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
           />
+
+          {/* ─── Live Search Autocomplete Dropdown ─── */}
+          <AnimatePresence>
+            {isSearchFocused && search.trim() !== "" && filteredJobs.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5, transition: { duration: 0.15 } }}
+                className="absolute top-full left-0 right-0 bg-white border border-t-0 border-indigo-500/50 outline outline-4 outline-indigo-500/10 rounded-b-2xl shadow-2xl overflow-hidden z-50 max-h-80 overflow-y-auto custom-scrollbar"
+              >
+                <div className="px-3 py-2 bg-indigo-50/50 border-b border-indigo-100/50 flex items-center justify-between sticky top-0 backdrop-blur-md">
+                  <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                    Live Matches
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400">{filteredJobs.length} Found</span>
+                </div>
+                <div className="divide-y divide-slate-100/80">
+                  {filteredJobs.slice(0, 10).map(job => (
+                    <button 
+                      key={job._id || job.id}
+                      onClick={() => {
+                        setSearch(job.title);
+                        setIsSearchFocused(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors flex items-center justify-between"
+                    >
+                      <div>
+                        <p className="text-sm font-bold text-slate-900 leading-tight">{job.title}</p>
+                        <p className="text-xs font-semibold text-indigo-600 mt-0.5">{job.company_name}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-md text-[10px] font-black uppercase tracking-wider border border-green-100/50">
+                          {job.vacancies || 1} Openings
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                  {filteredJobs.length > 10 && (
+                    <div className="px-4 py-3 text-center text-xs font-semibold text-slate-500 bg-slate-50">
+                      + {filteredJobs.length - 10} more matches. Keep typing to narrow down.
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        <div className="relative group">
+        <div className="relative group focus-within:z-10">
           <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
           <input
             type="text"
             placeholder="Location..."
-            className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium"
+            className="w-full bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 transition-all font-medium shadow-sm hover:bg-white"
             value={locationFilter}
             onChange={(e) => setLocationFilter(e.target.value)}
           />
         </div>
 
-        <button className="flex items-center justify-center gap-2 px-6 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all">
+        <button className="flex items-center justify-center gap-2 px-6 py-3.5 bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm hover:shadow active:scale-[0.98]">
           <Filter size={20} />
-          More Filters
+          Filters
         </button>
-      </div>
+      </motion.div>
 
-      {/* Job Cards */}
-      <motion.div 
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid md:grid-cols-2 xl:grid-cols-3 gap-6"
-      >
+      {/* ─── Grouped Job Cards Grid ─── */}
+      <motion.div variants={container} className="space-y-12 pb-16">
         <AnimatePresence>
-          {filteredJobs.length > 0 ? filteredJobs.map((job) => {
-            const jobId = job._id || job.id;
-            const app = getAppStatus(jobId);
-            return (
-              <motion.div
-                layout
-                key={jobId}
-                variants={item}
-                whileHover={{ y: -5 }}
-                className="bg-white p-7 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all relative overflow-hidden group flex flex-col justify-between"
-              >
-                {/* Trending Badge Simulation based on vacancies check */}
-                {job.vacancies > 5 && (
-                  <div className="absolute top-4 right-4 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
-                    <Star size={10} fill="currentColor" /> Trending
-                  </div>
-                )}
-
-                <div>
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl font-black text-xl flex items-center justify-center border border-slate-100 group-hover:bg-indigo-600 group-hover:text-white shadow-xl shadow-indigo-100 transition-all">
-                       {job.company_name ? job.company_name[0] : 'C'}
-                    </div>
-                    <div className="flex-1 min-w-0 pr-10">
-                      <h3 className="text-xl font-black text-slate-900 leading-tight truncate">
-                        {job.title}
-                      </h3>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className="text-indigo-600 font-bold text-sm tracking-tight">{job.company_name}</span>
-                        <div className="w-1 h-1 bg-slate-300 rounded-full"></div>
-                        <ShieldCheck size={14} className="text-green-500" />
+          {Object.keys(jobsByCompany).length > 0 ? (
+            (Object.entries(jobsByCompany) as [string, any[]][]).map(([company, jobs]) => {
+              const totalVacancies = jobs.reduce((sum: number, job: any) => sum + (job.vacancies || 1), 0);
+              
+              return (
+                <motion.div 
+                  layout
+                  key={company}
+                  variants={item}
+                  className="space-y-6"
+                >
+                  {/* Company Header */}
+                  <div className="flex items-center justify-between border-b-2 border-slate-200/60 pb-3">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-200/50">
+                        {company[0]}
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-black text-slate-900 font-display flex items-center gap-2">
+                          {company}
+                          <ShieldCheck size={20} className="text-emerald-500" />
+                        </h2>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                          {jobs.length} Active Role{jobs.length > 1 ? 's' : ''}
+                        </p>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-y-4 mb-6">
-                    <div className="flex items-center gap-2 text-slate-500 text-sm font-semibold">
-                      <MapPin size={16} className="text-indigo-400" />
-                      {job.location || "Remote"}
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-500 text-sm font-semibold">
-                      <Briefcase size={16} className="text-indigo-400" />
-                      {job.vacancies || 1} Seats
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-500 text-sm font-semibold">
-                      <IndianRupee size={16} className="text-indigo-400" />
-                      {job.salary || "Not specified"}
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-500 text-sm font-semibold">
-                      <Clock size={16} className="text-indigo-400" />
-                      Closing Soon
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2 mb-8">
-                    {job.requirements?.split(',').slice(0,3).map((skill: string, index: number) => (
-                      <span
-                        key={index}
-                        className="text-[11px] font-bold bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl border border-slate-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors truncate max-w-[100px]"
-                      >
-                        {skill.trim()}
+                    <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                       </span>
-                    ))}
-                    {job.min_cgpa && (
-                       <span className="text-[11px] font-bold bg-green-50 text-green-700 px-3 py-1.5 rounded-xl border border-green-100 truncate max-w-[100px]">
-                         {job.min_cgpa}+ CGPA
-                       </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex gap-4 mt-auto">
-                  {app ? (
-                    <div className={cn(
-                       "flex-1 px-6 py-3.5 font-bold rounded-2xl flex items-center justify-center gap-2 text-sm uppercase tracking-widest",
-                       app.status === 'shortlisted' ? "bg-green-50 text-green-700 border border-green-100" :
-                       app.status === 'rejected' ? "bg-red-50 text-red-700 border border-red-100" :
-                       "bg-slate-100 text-slate-500 border border-slate-200"
-                    )}>
-                      {app.status === 'shortlisted' && <CheckCircle2 size={18} />}
-                      {app.status}
+                      <span className="text-sm font-black text-emerald-700">
+                        {totalVacancies} LIVE VACANC{totalVacancies !== 1 ? 'IES' : 'Y'}
+                      </span>
                     </div>
-                  ) : (
-                    <button 
-                      onClick={() => handleApply(jobId)}
-                      disabled={applying === jobId}
-                      className="flex-1 px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 group/btn disabled:opacity-50"
-                    >
-                      {applying === jobId ? (
-                        <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                      ) : (
-                        <>Apply Now <ArrowUpRight size={18} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" /></>
-                      )}
-                    </button>
-                  )}
-                  <button className="px-4 py-3.5 border border-slate-200 text-slate-400 rounded-2xl hover:bg-slate-50 hover:text-indigo-600 transition-all">
-                    <Star size={20} />
-                  </button>
-                </div>
-              </motion.div>
-            )
-          }) : (
-            <div className="col-span-full py-20 text-center">
-              <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search size={32} className="text-slate-400" />
+                  </div>
+
+                  {/* Company's Jobs Grid */}
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+                    {(jobs as any[]).map((job: any) => {
+                      const jobId = job._id || job.id;
+                      const app = getAppStatus(jobId);
+                      return (
+                        <motion.div
+                          layout
+                          key={jobId}
+                          whileHover={{ y: -5 }}
+                          className="card-premium p-7 flex flex-col justify-between relative group bg-white border-slate-200/80 shadow-sm"
+                        >
+                          {/* Status Badges */}
+                          <div className="absolute top-4 right-4 flex gap-2">
+                            {job.vacancies > 5 && (
+                              <div className="bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 border border-amber-100">
+                                <Star size={10} fill="currentColor" /> High Demand
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            {/* Job Title */}
+                            <div className="mb-5 pr-8">
+                              <h3 className="text-lg font-black text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors line-clamp-2">
+                                {job.title}
+                              </h3>
+                            </div>
+
+                            {/* Metrics Grid */}
+                            <div className="grid grid-cols-2 gap-y-4 mb-6 py-4 border-y border-slate-100/80">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                                  <MapPin size={11} /> Location
+                                </div>
+                                <p className="text-sm font-bold text-slate-800 truncate">{job.location || "Remote"}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                                  <Briefcase size={11} /> Openings
+                                </div>
+                                <p className="text-sm font-bold text-slate-800 flex items-center gap-1 text-emerald-600">
+                                  {job.vacancies || 1} Seats
+                                </p>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                                  <IndianRupee size={11} /> Package
+                                </div>
+                                <p className="text-sm font-bold text-slate-800">{job.salary || "N/A"}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                                  <Clock size={11} /> Deadline
+                                </div>
+                                <p className="text-sm font-bold text-slate-800 text-orange-600">4 Days Left</p>
+                              </div>
+                            </div>
+                            
+                            {/* Skills tags */}
+                            <div className="flex flex-wrap gap-2 mb-8">
+                              {job.requirements?.split(',').slice(0,3).map((skill: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="text-[10px] font-bold bg-slate-100/50 text-slate-600 px-2.5 py-1.5 rounded-lg border border-slate-200/50 group-hover:bg-indigo-50/50 group-hover:border-indigo-100/50 group-hover:text-indigo-700 transition-colors truncate max-w-[100px]"
+                                >
+                                  {skill.trim()}
+                                </span>
+                              ))}
+                              {job.min_cgpa && (
+                                <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2.5 py-1.5 rounded-lg border border-indigo-100 truncate max-w-[100px]">
+                                  {job.min_cgpa}+ CGPA
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex gap-3 mt-auto">
+                            {app ? (
+                              <div className={cn(
+                                "flex-1 px-4 py-2.5 font-bold rounded-xl flex items-center justify-center gap-2 text-[11px] uppercase tracking-wider border",
+                                app.status === 'shortlisted' ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
+                                app.status === 'rejected' ? "bg-red-50 text-red-700 border-red-100" :
+                                "bg-indigo-50 text-indigo-700 border-indigo-100"
+                              )}>
+                                {app.status === 'shortlisted' && <CheckCircle2 size={14} />}
+                                {app.status}
+                              </div>
+                            ) : (
+                              <button 
+                                onClick={() => handleApply(jobId)}
+                                disabled={applying === jobId}
+                                className="flex-1 btn-gradient py-2.5 text-sm flex items-center justify-center gap-2 group/btn disabled:opacity-50"
+                              >
+                                {applying === jobId ? (
+                                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                                ) : (
+                                  <>Apply Now <ArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" /></>
+                                )}
+                              </button>
+                            )}
+                            <button className="px-3.5 border border-slate-200/80 text-slate-400 rounded-xl hover:bg-slate-50 hover:text-amber-500 hover:border-amber-200 transition-all">
+                              <Star size={18} />
+                            </button>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              );
+            })
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} 
+              className="col-span-full py-20 text-center"
+            >
+              <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-200/50">
+                <Search size={28} className="text-slate-400" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900">No jobs found</h3>
-              <p className="text-slate-500 mt-2">Try adjusting your filters to find more opportunities.</p>
-            </div>
+              <h3 className="text-xl font-bold text-slate-900 font-display">No opportunities found</h3>
+              <p className="text-slate-500 mt-1 text-sm font-medium">Try adjusting your search or filters to see more results.</p>
+            </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
-    </div>
+    </motion.div>
   );
-}
+}
