@@ -62,9 +62,9 @@ export default function LandingPage() {
             className="mt-20 relative max-w-5xl mx-auto"
           >
             <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 bg-slate-50 p-4">
-              <img 
-                src="https://picsum.photos/seed/dashboard/1200/800" 
-                alt="Platform Preview" 
+              <img
+                src="https://picsum.photos/seed/dashboard/1200/800"
+                alt="Platform Preview"
                 className="rounded-2xl w-full"
                 referrerPolicy="no-referrer"
               />
