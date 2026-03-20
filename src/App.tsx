@@ -97,16 +97,15 @@ export default function App() {
         <Route path="/docs" element={<DocsPage />} />
 
         {/* COMPANY MODULE ROUTES */}
-
-        <Route path="/company/dashboard" element={<CompanyDashboard />} />
-
-        <Route path="/company/profile" element={<CompanyProfile />} />
-
-        <Route path="/company/jobs" element={<CompanyJobs />} />
-
-        <Route path="/company/applicants" element={<CompanyApplicants />} />
-
-        <Route path="/company/branches" element={<CompanyBranches />} />
+        <Route path="/company/*" element={
+            user?.role === 'company' || user?.role === 'admin' ? null : <Navigate to="/dashboard" />
+        }>
+          <Route path="dashboard" element={<CompanyDashboard />} />
+          <Route path="profile" element={<CompanyProfile />} />
+          <Route path="jobs" element={<CompanyJobs />} />
+          <Route path="applicants" element={<CompanyApplicants />} />
+          <Route path="branches" element={<CompanyBranches />} />
+        </Route>
 
       </Route>
 
