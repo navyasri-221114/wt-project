@@ -59,7 +59,7 @@ export default function ExploreCompanies() {
   const handleApplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!applyingJob) return;
-    
+
     setSubmitting(true);
     try {
       await api.applications.apply(applyingJob.id, formData);
@@ -149,7 +149,7 @@ export default function ExploreCompanies() {
                 {/* Profile Header */}
                 <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-sky-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-60"></div>
-                  
+
                   <div className="relative flex flex-col md:flex-row items-start md:items-center gap-8 mb-10">
                     <div className="w-28 h-28 rounded-3xl bg-white flex items-center justify-center text-sky-600 text-4xl font-black overflow-hidden border-4 border-slate-50 shadow-2xl">
                       {selectedCompany.avatar_url ? (
@@ -203,15 +203,15 @@ export default function ExploreCompanies() {
                       Active Opportunities
                     </h3>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {companyJobs.length > 0 ? (
                       companyJobs.map((job) => {
                         const jobId = job._id || job.id;
                         const app = getAppStatus(jobId);
                         return (
-                          <motion.div 
-                            key={jobId} 
+                          <motion.div
+                            key={jobId}
                             whileHover={{ y: -5 }}
                             className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-sky-500/5 transition-all group"
                           >
@@ -233,13 +233,13 @@ export default function ExploreCompanies() {
                               <div className={cn(
                                 "w-full py-4 text-center rounded-2xl text-xs font-black uppercase tracking-widest border",
                                 app.status === 'shortlisted' ? "bg-green-50 text-green-700 border-green-100" :
-                                app.status === 'rejected' ? "bg-red-50 text-red-700 border-red-100" :
-                                "bg-sky-50 text-sky-700 border-sky-100"
+                                  app.status === 'rejected' ? "bg-red-50 text-red-700 border-red-100" :
+                                    "bg-sky-50 text-sky-700 border-sky-100"
                               )}>
                                 {app.status}
                               </div>
                             ) : (
-                              <button 
+                              <button
                                 onClick={() => {
                                   setApplyingJob(job);
                                   setShowApplyModal(true);
@@ -280,7 +280,7 @@ export default function ExploreCompanies() {
       <AnimatePresence>
         {showApplyModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -294,13 +294,13 @@ export default function ExploreCompanies() {
               className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-10 overflow-hidden no-scrollbar"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-sky-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
-              
+
               <div className="relative mb-8 flex items-center justify-between">
                 <div>
                   <h2 className="text-3xl font-black text-slate-900 tracking-tight">Job <span className="text-gradient">Application</span></h2>
                   <p className="text-slate-500 font-medium">{applyingJob?.title} at {selectedCompany?.name}</p>
                 </div>
-                <button 
+                <button
                   onClick={() => setShowApplyModal(false)}
                   className="p-3 bg-slate-50 border border-slate-100 rounded-2xl text-slate-400 hover:text-slate-900 transition-all"
                 >
@@ -314,18 +314,18 @@ export default function ExploreCompanies() {
                   <textarea
                     required
                     value={formData.bio}
-                    onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                     placeholder="Briefly introduce yourself and your professional background..."
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
                   />
                 </div>
-                
+
                 <div className="space-y-2 text-left">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Relevant Experience & Skills</label>
                   <textarea
                     required
                     value={formData.experience}
-                    onChange={(e) => setFormData({...formData, experience: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
                     placeholder="List your key skills and relevant experience for this specific role..."
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
                   />
@@ -336,7 +336,7 @@ export default function ExploreCompanies() {
                   <textarea
                     required
                     value={formData.why_us}
-                    onChange={(e) => setFormData({...formData, why_us: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, why_us: e.target.value })}
                     placeholder="Explain your motivation for applying to this company..."
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
                   />
@@ -347,15 +347,15 @@ export default function ExploreCompanies() {
                   <input
                     type="text"
                     value={formData.links}
-                    onChange={(e) => setFormData({...formData, links: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, links: e.target.value })}
                     placeholder="GitHub, Portfolio, LinkedIn, etc."
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
                   />
                 </div>
 
                 <div className="pt-4">
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     disabled={submitting}
                     className="w-full py-5 bg-sky-600 text-white font-black rounded-3xl shadow-2xl shadow-sky-100 hover:bg-sky-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50"
                   >
