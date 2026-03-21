@@ -26,7 +26,7 @@ export default function CompetitionsPage() {
   if (loading) {
     return (
       <div className="h-[60vh] flex items-center justify-center">
-        <Loader2 className="animate-spin text-indigo-600" size={40} />
+        <Loader2 className="animate-spin text-sky-600" size={40} />
       </div>
     );
   }
@@ -59,7 +59,7 @@ export default function CompetitionsPage() {
         <div className="flex gap-4">
           <div className="px-6 py-3 bg-white border border-slate-100 rounded-2xl shadow-sm text-center">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Active Now</p>
-            <p className="text-xl font-black text-indigo-600">12</p>
+            <p className="text-xl font-black text-sky-600">12</p>
           </div>
           <div className="px-6 py-3 bg-white border border-slate-100 rounded-2xl shadow-sm text-center">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Your Rank</p>
@@ -79,21 +79,21 @@ export default function CompetitionsPage() {
             key={comp._id}
             variants={item}
             whileHover={{ y: -8 }}
-            className="group relative bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all p-10 overflow-hidden"
+            className="group relative bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-sky-500/10 transition-all p-10 overflow-hidden"
           >
             {/* Background Accent */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-bl-[5rem] -z-10 group-hover:bg-indigo-600 group-hover:w-full group-hover:h-full group-hover:rounded-none transition-all duration-500 opacity-20 group-hover:opacity-5"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-sky-50/50 rounded-bl-[5rem] -z-10 group-hover:bg-sky-600 group-hover:w-full group-hover:h-full group-hover:rounded-none transition-all duration-500 opacity-20 group-hover:opacity-5"></div>
 
             <div className="flex justify-between items-start mb-8">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-slate-50 rounded-3xl flex items-center justify-center border border-slate-100 group-hover:bg-white transition-colors">
-                  {comp.category === 'Coding' ? <Code className="text-indigo-600" size={32} /> : 
+                  {comp.category === 'Coding' ? <Code className="text-sky-600" size={32} /> : 
                    comp.category === 'Hackathon' ? <Zap className="text-orange-500" size={32} /> :
                    <Target className="text-blue-500" size={32} />}
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">{comp.organizer}</p>
-                  <h3 className="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">
+                  <p className="text-[10px] font-black text-sky-500 uppercase tracking-widest mb-1">{comp.organizer}</p>
+                  <h3 className="text-2xl font-black text-slate-900 group-hover:text-sky-600 transition-colors leading-tight">
                     {comp.name}
                   </h3>
                 </div>
@@ -110,28 +110,28 @@ export default function CompetitionsPage() {
 
             <div className="grid grid-cols-2 gap-y-6 mb-10">
               <div className="flex items-center gap-3">
-                <Calendar className="text-slate-400 group-hover:text-indigo-600 transition-colors" size={20} />
+                <Calendar className="text-slate-400 group-hover:text-sky-600 transition-colors" size={20} />
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Timeline</p>
                   <p className="font-bold text-slate-700">{comp.date}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Users className="text-slate-400 group-hover:text-indigo-600 transition-colors" size={20} />
+                <Users className="text-slate-400 group-hover:text-sky-600 transition-colors" size={20} />
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Engaged</p>
                   <p className="font-bold text-slate-700">{comp.participants}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Trophy className="text-slate-400 group-hover:text-indigo-600 transition-colors" size={20} />
+                <Trophy className="text-slate-400 group-hover:text-sky-600 transition-colors" size={20} />
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Grand Prize</p>
-                  <p className="font-black text-indigo-600">{comp.prize}</p>
+                  <p className="font-black text-sky-600">{comp.prize}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Star className="text-slate-400 group-hover:text-indigo-600 transition-colors" size={20} />
+                <Star className="text-slate-400 group-hover:text-sky-600 transition-colors" size={20} />
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Focus</p>
                   <p className="font-bold text-slate-700 truncate">{comp.tags[0]}</p>
@@ -144,7 +144,7 @@ export default function CompetitionsPage() {
                 Register Now
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </button>
-              <button className="px-5 py-4 border border-slate-200 text-slate-400 rounded-2xl hover:bg-slate-50 hover:text-indigo-600 transition-all">
+              <button className="px-5 py-4 border border-slate-200 text-slate-400 rounded-2xl hover:bg-slate-50 hover:text-sky-600 transition-all">
                 <Star size={20} />
               </button>
             </div>

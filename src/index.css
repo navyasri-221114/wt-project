@@ -37,13 +37,13 @@
   }
 
   .card-premium:hover {
-    @apply shadow-[0_20px_40px_-12px_rgba(79,70,229,0.12)] border-indigo-100/80;
+    @apply shadow-[0_20px_40px_-12px_rgba(79,70,229,0.12)] border-sky-100/80;
     transform: translateY(-2px);
   }
 
   /* ─── Text Gradient ─── */
   .text-gradient {
-    @apply bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-sky-600 via-violet-600 to-purple-600 bg-clip-text text-transparent;
   }
 
   .text-gradient-emerald {
@@ -52,11 +52,11 @@
 
   /* ─── Gradient Buttons ─── */
   .btn-gradient {
-    @apply bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-200/50 transition-all duration-300;
+    @apply bg-gradient-to-r from-sky-600 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-sky-200/50 transition-all duration-300;
   }
 
   .btn-gradient:hover {
-    @apply shadow-xl shadow-indigo-300/40;
+    @apply shadow-xl shadow-sky-300/40;
     transform: translateY(-1px);
   }
 

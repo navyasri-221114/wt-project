@@ -38,12 +38,12 @@ export default function AuthPage({ setUser }: { setUser: any }) {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 mb-8 transition-colors">
+        <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-sky-600 mb-8 transition-colors">
           <ArrowLeft size={20} />
           <span>Back to Home</span>
         </Link>
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-200 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-sky-600 rounded-2xl shadow-xl shadow-sky-200 mb-4">
             <Briefcase className="text-white" size={32} />
           </div>
           <h1 className="text-3xl font-bold text-slate-900">
@@ -67,7 +67,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
                   onClick={() => setRole(item.id as any)}
                   className={cn(
                     "flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-lg transition-all",
-                    role === item.id ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                    role === item.id ? "bg-white text-sky-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
                   )}
                 >
                   <item.icon size={16} />
@@ -88,7 +88,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none"
                     placeholder="John Doe"
                   />
                 </div>
@@ -104,7 +104,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none"
                   placeholder="name@example.com"
                 />
               </div>
@@ -119,7 +119,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none"
                   placeholder="••••••••"
                 />
               </div>
@@ -135,7 +135,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
                     required
                     value={formData.activationKey}
                     onChange={(e) => setFormData({ ...formData, activationKey: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none"
                     placeholder="COMP-XXXX-XXXX"
                   />
                 </div>
@@ -147,7 +147,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 bg-sky-600 text-white font-semibold rounded-xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? 'Processing...' : isSignup ? 'Create Account' : 'Sign In'}
               {!loading && <ArrowRight size={18} />}
@@ -157,7 +157,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
           <div className="mt-6 text-center">
             <button
               onClick={() => setIsSignup(!isSignup)}
-              className="text-sm text-slate-500 hover:text-indigo-600 transition-colors"
+              className="text-sm text-slate-500 hover:text-sky-600 transition-colors"
             >
               {isSignup ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
             </button>

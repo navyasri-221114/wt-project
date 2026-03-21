@@ -178,7 +178,7 @@ ADDITIONAL
                   try { exportResumePDF(form); }
                   finally { setExporting(false); }
                 }}
-                className="px-6 py-3 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-100 flex items-center gap-2 hover:bg-indigo-700 transition-all disabled:opacity-70"
+                className="px-6 py-3 bg-sky-600 text-white font-black rounded-2xl shadow-lg shadow-sky-100 flex items-center gap-2 hover:bg-sky-700 transition-all disabled:opacity-70"
               >
                 <Download size={20} />
                 {exporting ? "Generating..." : "Export PDF"}
@@ -216,14 +216,14 @@ ADDITIONAL
               >
                 {activeStep === 0 && (
                   <div className="space-y-6">
-                    <div className="p-8 bg-indigo-50/30 border-2 border-dashed border-indigo-200 rounded-[2rem] space-y-4">
+                    <div className="p-8 bg-sky-50/30 border-2 border-dashed border-sky-200 rounded-[2rem] space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="p-3 bg-indigo-600 text-white rounded-xl">
+                        <div className="p-3 bg-sky-600 text-white rounded-xl">
                           <Sparkles size={24} />
                         </div>
                         <div>
-                          <h3 className="text-xl font-black text-indigo-900">AI Smart Fill</h3>
-                          <p className="text-sm text-indigo-600/70 font-medium">Paste your details or a rough summary below</p>
+                          <h3 className="text-xl font-black text-sky-900">AI Smart Fill</h3>
+                          <p className="text-sm text-sky-600/70 font-medium">Paste your details or a rough summary below</p>
                         </div>
                       </div>
                       <textarea
@@ -231,12 +231,12 @@ ADDITIONAL
                         onChange={(e) => setAiSummary(e.target.value)}
                         placeholder="e.g. My name is Alex, I studied CS at IIT Bombay (9.2 CGPA). I know React and Java. I interned at Google..."
                         rows={8}
-                        className="w-full bg-white border border-indigo-100 rounded-2xl p-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium text-slate-700 resize-none shadow-sm placeholder:text-slate-300"
+                        className="w-full bg-white border border-sky-100 rounded-2xl p-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-medium text-slate-700 resize-none shadow-sm placeholder:text-slate-300"
                       />
                       <button
                         onClick={handleAiGenerate}
                         disabled={generating || !aiSummary.trim()}
-                        className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-200 flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:shadow-none"
+                        className="w-full py-4 bg-sky-600 text-white font-black rounded-2xl shadow-xl shadow-sky-200 flex items-center justify-center gap-3 hover:bg-sky-700 transition-all disabled:opacity-50 disabled:shadow-none"
                       >
                         {generating ? (
                           <>
@@ -307,8 +307,8 @@ ADDITIONAL
 
                 {activeStep === 4 && (
                   <div className="space-y-6">
-                    <div className="p-6 bg-indigo-50/50 rounded-3xl border border-indigo-100/50 space-y-4">
-                      <h3 className="font-black text-indigo-900">Experience</h3>
+                    <div className="p-6 bg-sky-50/50 rounded-3xl border border-sky-100/50 space-y-4">
+                      <h3 className="font-black text-sky-900">Experience</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <InputGroup label="Company" name="company" value={form.company} onChange={handleChange} icon={Briefcase} />
                         <InputGroup label="Role" name="role" value={form.role} onChange={handleChange} icon={Briefcase} />
@@ -357,7 +357,7 @@ ADDITIONAL
                     <Editable text={form.email} name="email" setForm={setForm} form={form} />
                   </p>
                   {(form.linkedin || form.portfolio) && (
-                    <p className="text-xs text-indigo-600 font-medium">
+                    <p className="text-xs text-sky-600 font-medium">
                       {form.linkedin && <>LinkedIn: <Editable text={form.linkedin} name="linkedin" setForm={setForm} form={form} /></>}
                       {form.linkedin && form.portfolio ? " | " : ""}
                       {form.portfolio && <>GitHub: <Editable text={form.portfolio} name="portfolio" setForm={setForm} form={form} /></>}
@@ -401,7 +401,7 @@ ADDITIONAL
                         <Editable text={form.year} name="year" setForm={setForm} form={form} placeholder="Year" />
                       </p>
                       {form.cgpa && (
-                        <p className="text-sm text-indigo-600 font-bold">
+                        <p className="text-sm text-sky-600 font-bold">
                           CGPA: <Editable text={form.cgpa} name="cgpa" setForm={setForm} form={form} />
                         </p>
                       )}
@@ -447,7 +447,7 @@ ADDITIONAL
                     <div>
                       <div className="flex justify-between font-bold mb-1">
                         <Editable text={form.project1_title} name="project1_title" setForm={setForm} form={form} />
-                        <span className="text-indigo-600 text-[11px]">
+                        <span className="text-sky-600 text-[11px]">
                           <Editable text={form.project1_tech} name="project1_tech" setForm={setForm} form={form} />
                         </span>
                       </div>
@@ -458,7 +458,7 @@ ADDITIONAL
                     <div>
                       <div className="flex justify-between font-bold mb-1">
                         <Editable text={form.project2_title} name="project2_title" setForm={setForm} form={form} />
-                        <span className="text-indigo-600 text-[11px]">
+                        <span className="text-sky-600 text-[11px]">
                           <Editable text={form.project2_tech} name="project2_tech" setForm={setForm} form={form} />
                         </span>
                       </div>
@@ -540,7 +540,7 @@ function Editable({ text, name, setForm, form, placeholder = "" }: { text: strin
       contentEditable
       suppressContentEditableWarning
       onBlur={(e) => setForm({ ...form, [name]: e.currentTarget.innerText })}
-      className="outline-none focus:bg-indigo-50 px-0.5 rounded transition-all min-w-[20px] inline-block"
+      className="outline-none focus:bg-sky-50 px-0.5 rounded transition-all min-w-[20px] inline-block"
     >
       {text || placeholder}
     </span>
@@ -552,12 +552,12 @@ function InputGroup({ label, name, value, onChange, icon: Icon }: any) {
     <div className="space-y-2">
       <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
       <div className="relative group">
-        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={18} />
+        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-sky-600 transition-colors" size={18} />
         <input
           name={name}
           value={value}
           onChange={onChange}
-          className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all font-bold text-slate-700"
+          className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 focus:bg-white transition-all font-bold text-slate-700"
           placeholder={`Enter ${label.toLowerCase()}`}
         />
       </div>
@@ -570,13 +570,13 @@ function TextAreaGroup({ label, name, value, onChange, icon: Icon, rows = 3 }: a
     <div className="space-y-2">
       <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
       <div className="relative group">
-        <Icon className="absolute left-4 top-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={18} />
+        <Icon className="absolute left-4 top-4 text-slate-300 group-focus-within:text-sky-600 transition-colors" size={18} />
         <textarea
           name={name}
           value={value}
           onChange={onChange}
           rows={rows}
-          className="w-full bg-slate-50 border border-slate-100 rounded-3xl py-4 pl-12 pr-4 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all font-bold text-slate-700 resize-none"
+          className="w-full bg-slate-50 border border-slate-100 rounded-3xl py-4 pl-12 pr-4 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 focus:bg-white transition-all font-bold text-slate-700 resize-none"
           placeholder={`Enter ${label.toLowerCase()}`}
         />
       </div>
@@ -588,7 +588,7 @@ function PreviewSection({ title, value }: { title: string, value: string }) {
   if (!value) return null;
   return (
     <div className="space-y-2">
-      <h4 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest border-b border-slate-100 pb-1">{title}</h4>
+      <h4 className="text-[10px] font-black text-sky-600 uppercase tracking-widest border-b border-slate-100 pb-1">{title}</h4>
       <p className="text-[11px] font-bold text-slate-700 whitespace-pre-line leading-relaxed">{value}</p>
     </div>
   );

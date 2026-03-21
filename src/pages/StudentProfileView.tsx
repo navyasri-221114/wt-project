@@ -60,7 +60,7 @@ export default function StudentDashboard() {
         </div>
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <p className="text-sm text-slate-500 mb-1">Upcoming Interviews</p>
-          <p className="text-3xl font-bold text-indigo-600">
+          <p className="text-3xl font-bold text-sky-600">
             {interviews.filter(i => i.status === 'scheduled').length}
           </p>
         </div>
@@ -73,7 +73,7 @@ export default function StudentDashboard() {
       </div>
 
       {interviews.length > 0 && (
-        <div className="bg-indigo-600 rounded-3xl p-8 text-white">
+        <div className="bg-sky-600 rounded-3xl p-8 text-white">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
               <Video size={20} />
@@ -85,15 +85,15 @@ export default function StudentDashboard() {
               <div key={interview.id} className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl flex justify-between items-center">
                 <div>
                   <h3 className="font-bold">{interview.title}</h3>
-                  <p className="text-sm text-indigo-100">{interview.company_name}</p>
-                  <p className="text-xs text-indigo-200 mt-2 flex items-center gap-1">
+                  <p className="text-sm text-sky-100">{interview.company_name}</p>
+                  <p className="text-xs text-sky-200 mt-2 flex items-center gap-1">
                     <Clock size={12} />
                     {new Date(interview.scheduled_at).toLocaleString()}
                   </p>
                 </div>
                 <Link
                   to={`/interview/${interview.room_id}`}
-                  className="px-6 py-2.5 bg-white text-indigo-600 font-bold rounded-xl hover:bg-indigo-50 transition-all shadow-lg shadow-indigo-900/20"
+                  className="px-6 py-2.5 bg-white text-sky-600 font-bold rounded-xl hover:bg-sky-50 transition-all shadow-lg shadow-sky-900/20"
                 >
                   Join Room
                 </Link>
@@ -114,14 +114,14 @@ export default function StudentDashboard() {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-lg font-bold text-slate-900">{job.title}</h3>
-                    <p className="text-indigo-600 font-medium">{job.company_name}</p>
+                    <p className="text-sky-600 font-medium">{job.company_name}</p>
                   </div>
                   {app ? (
                     <span className={cn(
                       "px-3 py-1 rounded-full text-xs font-semibold capitalize",
                       app.status === 'shortlisted' ? "bg-green-100 text-green-700" :
                       app.status === 'rejected' ? "bg-red-100 text-red-700" :
-                      "bg-indigo-100 text-indigo-700"
+                      "bg-sky-100 text-sky-700"
                     )}>
                       {app.status}
                     </span>
@@ -129,7 +129,7 @@ export default function StudentDashboard() {
                     <button
                       onClick={() => handleApply(job.id)}
                       disabled={applying === job.id}
-                      className="px-6 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-all disabled:opacity-50"
+                      className="px-6 py-2 bg-sky-600 text-white text-sm font-semibold rounded-xl hover:bg-sky-700 transition-all disabled:opacity-50"
                     >
                       {applying === job.id ? 'Applying...' : 'Apply Now'}
                     </button>
@@ -188,7 +188,7 @@ export default function StudentDashboard() {
                           "w-2 h-2 rounded-full",
                           app.status === 'shortlisted' ? "bg-green-500" :
                           app.status === 'rejected' ? "bg-red-500" :
-                          "bg-indigo-500"
+                          "bg-sky-500"
                         )} />
                         <span className="text-xs font-medium text-slate-700 capitalize">{app.status}</span>
                       </div>

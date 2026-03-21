@@ -86,7 +86,7 @@ export default function StudentDashboard() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="w-12 h-12 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
+      <div className="w-12 h-12 border-4 border-sky-600/20 border-t-sky-600 rounded-full animate-spin"></div>
       <p className="text-slate-400 font-black text-sm uppercase tracking-widest">Constructing Dashboard...</p>
     </div>
   );
@@ -128,7 +128,7 @@ export default function StudentDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard label="Live Applications" value={applications.length} color="indigo" icon={Target} trend="3 active processes" />
+        <StatCard label="Live Applications" value={applications.length} color="sky" icon={Target} trend="3 active processes" />
         <StatCard label="Interviews" value={interviews.filter(i => i.status === 'scheduled').length} color="violet" icon={Video} trend="Next session: Tomorrow" />
         <StatCard label="Shortlisted" value={applications.filter(a => a.status === 'shortlisted').length} color="green" icon={CheckCircle2} trend="+1 in last 24h" />
         <StatCard label="AI Readiness" value="84%" color="amber" icon={Sparkles} trend="Top 15% of candidates" />
@@ -141,9 +141,10 @@ export default function StudentDashboard() {
         <div className="xl:col-span-8 space-y-8">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-black text-slate-900 flex items-center gap-3">
-              <Sparkles size={24} className="text-indigo-600" />
+              <Sparkles size={24} className="text-sky-600" />
               Tailored Openings
             </h2>
+<<<<<<< HEAD
             <div className="flex items-center gap-4">
               <div className="relative group">
                 <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
@@ -156,6 +157,10 @@ export default function StudentDashboard() {
                 />
               </div>
               <button className="p-2 text-slate-400 hover:text-indigo-600 transition-colors"><Filter size={20} /></button>
+=======
+            <div className="flex gap-2">
+              <button className="p-2 text-slate-400 hover:text-sky-600 transition-colors"><Filter size={20} /></button>
+>>>>>>> ef4f48c2b31a97a669fb3bf3a421ded7bb2ad703
             </div>
           </div>
 
@@ -169,17 +174,17 @@ export default function StudentDashboard() {
                     layout
                     key={jobId}
                     variants={item}
-                    className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:border-indigo-100 transition-all group"
+                    className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:border-sky-100 transition-all group"
                   >
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
                       <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 rounded-3xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-xl border-4 border-slate-50 shadow-2xl shadow-indigo-100 overflow-hidden">
+                        <div className="w-16 h-16 rounded-3xl bg-sky-50 flex items-center justify-center text-sky-600 font-black text-xl border-4 border-slate-50 shadow-2xl shadow-sky-100 overflow-hidden">
                           {job.company_name ? job.company_name[0] : 'J'}
                         </div>
                         <div>
-                          <h3 className="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">{job.title}</h3>
+                          <h3 className="text-2xl font-black text-slate-900 group-hover:text-sky-600 transition-colors leading-tight">{job.title}</h3>
                           <div className="flex items-center gap-2 mt-1">
-                            <p className="text-indigo-600 font-bold text-sm tracking-tight">{job.company_name}</p>
+                            <p className="text-sky-600 font-bold text-sm tracking-tight">{job.company_name}</p>
                             <div className="w-1 h-1 bg-slate-300 rounded-full" />
                             <p className="text-slate-400 text-xs font-bold">{job.location || 'Remote'}</p>
                           </div>
@@ -192,7 +197,7 @@ export default function StudentDashboard() {
                             "px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest text-center border",
                             app.status === 'shortlisted' ? "bg-green-50 text-green-700 border-green-100" :
                               app.status === 'rejected' ? "bg-red-50 text-red-700 border-red-100" :
-                                "bg-indigo-50 text-indigo-700 border-indigo-100"
+                                "bg-sky-50 text-sky-700 border-sky-100"
                           )}>
                             {app.status}
                           </div>
@@ -230,7 +235,7 @@ export default function StudentDashboard() {
           <section className="space-y-6">
             <div className="flex items-center justify-between px-2">
               <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Live Engagements</h2>
-              {interviews.length > 0 && <span className="w-2 h-2 bg-indigo-500 rounded-full animate-ping" />}
+              {interviews.length > 0 && <span className="w-2 h-2 bg-sky-500 rounded-full animate-ping" />}
             </div>
 
             <div className="space-y-4">
@@ -241,17 +246,17 @@ export default function StudentDashboard() {
                     whileHover={{ scale: 1.02 }}
                     className="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white"
                   >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-full -mr-16 -mt-16 blur-2xl" />
                     <div className="relative space-y-6">
                       <div className="flex justify-between items-start">
                         <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
-                          <Video size={24} className="text-indigo-400" />
+                          <Video size={24} className="text-sky-400" />
                         </div>
                         <span className="px-3 py-1 bg-white/10 rounded-lg text-[10px] font-black uppercase tracking-widest border border-white/5">Virtual</span>
                       </div>
                       <div>
                         <h3 className="text-xl font-black mb-1">{interview.title}</h3>
-                        <p className="text-indigo-400 font-bold text-sm">{interview.company_name}</p>
+                        <p className="text-sky-400 font-bold text-sm">{interview.company_name}</p>
                       </div>
                       <div className="flex items-center gap-2 text-white/50 text-xs font-bold bg-white/5 p-3 rounded-xl border border-white/5">
                         <Clock size={14} />
@@ -259,7 +264,7 @@ export default function StudentDashboard() {
                       </div>
                       <Link
                         to={`/interview/${interview.room_id}`}
-                        className="flex items-center justify-center gap-2 w-full py-4 bg-white text-slate-900 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-xl"
+                        className="flex items-center justify-center gap-2 w-full py-4 bg-white text-slate-900 font-black rounded-2xl hover:bg-sky-50 transition-all shadow-xl"
                       >
                         Enter Room <ArrowUpRight size={18} />
                       </Link>
@@ -288,7 +293,7 @@ export default function StudentDashboard() {
                 applications.slice(0, 5).map((app) => (
                   <div key={app.id} className="p-6 hover:bg-slate-50 transition-all group">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-black text-slate-900 text-sm group-hover:text-indigo-600 transition-colors leading-tight">{app.title}</h4>
+                      <h4 className="font-black text-slate-900 text-sm group-hover:text-sky-600 transition-colors leading-tight">{app.title}</h4>
                       <span className="text-[10px] font-black text-slate-300 uppercase tracking-tighter">
                         {new Date(app.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                       </span>
@@ -300,7 +305,7 @@ export default function StudentDashboard() {
                           "w-1.5 h-1.5 rounded-full",
                           app.status === 'shortlisted' ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" :
                             app.status === 'rejected' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" :
-                              "bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
+                              "bg-sky-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
                         )} />
                         <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{app.status}</span>
                       </div>
@@ -326,7 +331,7 @@ export default function StudentDashboard() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-10 overflow-hidden text-left"
             >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-sky-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
 
               <div className="relative mb-8 flex items-center justify-between">
                 <div>
@@ -345,7 +350,7 @@ export default function StudentDashboard() {
                     required value={formData.bio}
                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                     placeholder="Briefly introduce yourself..."
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
                   />
                 </div>
 
@@ -355,7 +360,7 @@ export default function StudentDashboard() {
                     required value={formData.experience}
                     onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
                     placeholder="List your key skills..."
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
                   />
                 </div>
 
@@ -365,7 +370,7 @@ export default function StudentDashboard() {
                     required value={formData.why_us}
                     onChange={(e) => setFormData({ ...formData, why_us: e.target.value })}
                     placeholder="Why this company?"
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
                   />
                 </div>
 
@@ -375,14 +380,14 @@ export default function StudentDashboard() {
                     type="text" value={formData.links}
                     onChange={(e) => setFormData({ ...formData, links: e.target.value })}
                     placeholder="Portfolio/GitHub/LinkedIn"
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
                   />
                 </div>
 
                 <div className="pt-4">
                   <button
                     type="submit" disabled={submitting}
-                    className="w-full py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-2xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50"
+                    className="w-full py-5 bg-sky-600 text-white font-black rounded-3xl shadow-2xl shadow-sky-100 hover:bg-sky-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50"
                   >
                     {submitting ? "Submitting..." : "Submit Application"} <Send size={20} />
                   </button>
@@ -398,7 +403,7 @@ export default function StudentDashboard() {
 
 function StatCard({ label, value, color, icon: Icon, trend }: any) {
   const colors: any = {
-    indigo: "bg-indigo-50 text-indigo-600",
+    sky: "bg-sky-50 text-sky-600",
     violet: "bg-violet-50 text-violet-600",
     green: "bg-green-50 text-green-600",
     amber: "bg-amber-50 text-amber-600"
@@ -407,15 +412,15 @@ function StatCard({ label, value, color, icon: Icon, trend }: any) {
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:border-indigo-100"
+      className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:border-sky-100"
     >
-      <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 shadow-lg shadow-indigo-100/10", colors[color])}>
+      <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 shadow-lg shadow-sky-100/10", colors[color])}>
         <Icon size={28} />
       </div>
       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
       <p className="text-4xl font-black text-slate-900 mb-2">{value}</p>
       <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-tight">
-        <TrendingUp size={12} className="text-indigo-400" /> {trend}
+        <TrendingUp size={12} className="text-sky-400" /> {trend}
       </div>
     </motion.div>
   );

@@ -79,7 +79,7 @@ export default function CompanyApplicants() {
           <p className="text-slate-500 font-medium mt-1">Review and synchronize with your global applicant pool.</p>
         </div>
         <div className="flex gap-2">
-           <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-100 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-500 hover:text-indigo-600 transition-all shadow-sm">
+           <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-100 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-500 hover:text-sky-600 transition-all shadow-sm">
              <Download size={18} /> Export Data
            </button>
         </div>
@@ -88,12 +88,12 @@ export default function CompanyApplicants() {
       {/* Control Bar */}
       <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-wrap items-center gap-6">
          <div className="flex-1 min-w-[300px] relative group">
-           <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+           <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-sky-600 transition-colors" />
            <input 
              value={searchQuery}
              onChange={(e) => setSearchQuery(e.target.value)}
              placeholder="Search by candidate name or position..." 
-             className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-50 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all font-bold text-slate-700"
+             className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-50 rounded-2xl outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 focus:bg-white transition-all font-bold text-slate-700"
            />
          </div>
          
@@ -104,7 +104,7 @@ export default function CompanyApplicants() {
                 onClick={() => setFilter(f)}
                 className={cn(
                   "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                  filter === f ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                  filter === f ? "bg-white text-sky-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
                 )}
               >
                 {f}
@@ -116,7 +116,7 @@ export default function CompanyApplicants() {
       {/* Applicants Grid */}
       {loading ? (
         <div className="py-20 text-center">
-           <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4" />
+           <div className="w-10 h-10 border-4 border-sky-100 border-t-sky-600 rounded-full animate-spin mx-auto mb-4" />
            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Compiling Talent Data...</p>
         </div>
       ) : (
@@ -130,16 +130,16 @@ export default function CompanyApplicants() {
                  animate={{ opacity: 1, scale: 1 }}
                  transition={{ delay: idx * 0.05 }}
                  key={appId} 
-                 className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all flex flex-col md:flex-row items-start md:items-center gap-8 group"
+                 className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-sky-100 transition-all flex flex-col md:flex-row items-start md:items-center gap-8 group"
                >
                  <div className="flex flex-1 items-center gap-6">
-                    <div className="w-16 h-16 rounded-[1.5rem] bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-xl border-4 border-slate-50 shadow-2xl shadow-indigo-100 group-hover:rotate-3 transition-transform">
+                    <div className="w-16 h-16 rounded-[1.5rem] bg-sky-50 flex items-center justify-center text-sky-600 font-black text-xl border-4 border-slate-50 shadow-2xl shadow-sky-100 group-hover:rotate-3 transition-transform">
                        {app.student_name ? app.student_name[0] : 'U'}
                     </div>
                     <div>
-                       <h3 className="text-xl font-black text-slate-900 leading-tight mb-1 group-hover:text-indigo-600 transition-colors">{app.student_name}</h3>
+                       <h3 className="text-xl font-black text-slate-900 leading-tight mb-1 group-hover:text-sky-600 transition-colors">{app.student_name}</h3>
                        <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-400">
-                          <span className="flex items-center gap-1.5 text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md"><Award size={12} /> {app.title}</span>
+                          <span className="flex items-center gap-1.5 text-sky-600 bg-sky-50 px-2 py-0.5 rounded-md"><Award size={12} /> {app.title}</span>
                           <span className="flex items-center gap-1.5"><Mail size={12} /> {app.student_email || 'n/a'}</span>
                           <span className="flex items-center gap-1.5 font-black text-slate-900 uppercase tracking-tighter border-l pl-4 border-slate-100">{app.cgpa || app.student_cgpa || '8.8'} CGPA</span>
                        </div>
@@ -165,16 +165,16 @@ export default function CompanyApplicants() {
                          </>
                        ) : app.status === 'shortlisted' ? (
                          schedulingApp === appId ? (
-                           <div className="flex items-center gap-2 bg-indigo-50/50 p-2 rounded-2xl border border-indigo-100">
+                           <div className="flex items-center gap-2 bg-sky-50/50 p-2 rounded-2xl border border-sky-100">
                              <input 
                                type="datetime-local" 
                                value={scheduleDate}
                                onChange={(e) => setScheduleDate(e.target.value)}
-                               className="px-3 py-2 text-xs border border-indigo-200 bg-white rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold"
+                               className="px-3 py-2 text-xs border border-sky-200 bg-white rounded-xl outline-none focus:ring-2 focus:ring-sky-500 font-bold"
                              />
                              <button 
                                onClick={() => handleScheduleInterview(appId)}
-                               className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200"
+                               className="px-4 py-2 bg-sky-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-sky-700 transition-all shadow-md shadow-sky-200"
                              >
                                Confirm
                              </button>
@@ -188,7 +188,7 @@ export default function CompanyApplicants() {
                          ) : (
                            <button 
                              onClick={() => setSchedulingApp(appId)}
-                             className="px-6 py-3 bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
+                             className="px-6 py-3 bg-sky-50 text-sky-600 border border-sky-100 hover:bg-sky-600 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
                            >
                              <Video size={14} /> Arrange Interview
                            </button>
@@ -196,7 +196,7 @@ export default function CompanyApplicants() {
                        ) : app.status === 'interview_scheduled' ? (
                           <Link 
                             to={`/interview/${app.room_id}`}
-                            className="px-6 py-3 bg-indigo-600 text-white border border-indigo-100 hover:bg-indigo-700 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-indigo-100"
+                            className="px-6 py-3 bg-sky-600 text-white border border-sky-100 hover:bg-sky-700 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-sky-100"
                           >
                             <Video size={14} /> Conduct Interview
                           </Link>

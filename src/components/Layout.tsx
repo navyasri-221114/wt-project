@@ -100,7 +100,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
                   className={cn(
                     "px-4 py-2 text-sm font-semibold rounded-xl transition-all",
                     location.pathname === item.path
-                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100"
+                      ? "bg-sky-600 text-white shadow-lg shadow-sky-100"
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   )}
                 >
@@ -163,8 +163,8 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
                     className={cn(
                       "group relative flex items-center gap-3.5 px-5 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300",
                       isActive
-                        ? "bg-indigo-600 text-white shadow-xl shadow-indigo-100"
-                        : "text-slate-500 hover:bg-slate-50 hover:text-indigo-600"
+                        ? "bg-sky-600 text-white shadow-xl shadow-sky-100"
+                        : "text-slate-500 hover:bg-slate-50 hover:text-sky-600"
                     )}
                   >
                     <item.icon size={20} className={cn("transition-transform duration-300", isActive ? "scale-110" : "group-hover:scale-110")} />
@@ -183,7 +183,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
             <div className="p-6 border-t border-slate-100 bg-slate-50/50">
               <div className="flex items-center gap-4 p-3 bg-white rounded-2xl border border-slate-100 shadow-sm mb-4">
                 <div className="relative shrink-0">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white font-bold text-lg shadow-lg overflow-hidden border-2 border-white">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-violet-500 flex items-center justify-center text-white font-bold text-lg shadow-lg overflow-hidden border-2 border-white">
                     {user?.avatar_url ? <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" /> : user?.name?.[0]}
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
@@ -191,7 +191,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-extrabold text-slate-900 truncate uppercase tracking-tight">{user?.name}</p>
                   <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <span className="w-1 h-1 bg-indigo-400 rounded-full"></span>
+                    <span className="w-1 h-1 bg-sky-400 rounded-full"></span>
                     {user?.role}
                   </div>
                 </div>
@@ -212,30 +212,30 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
       {/* MAIN CONTENT */}
       <main className="flex-1 min-h-screen flex flex-col relative overflow-hidden">
         {/* Background blobs */}
-        <div className="fixed top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-100/30 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+        <div className="fixed top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-sky-100/30 rounded-full blur-[100px] pointer-events-none -z-10"></div>
         <div className="fixed bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-violet-100/30 rounded-full blur-[100px] pointer-events-none -z-10"></div>
 
         {!isAdmin && (
           <header className="hidden md:flex h-20 bg-white/80 backdrop-blur-md border-b border-slate-200/60 items-center justify-between px-10 fixed top-0 right-0 left-0 md:left-72 z-30 shadow-sm">
             <div>
               <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <ChevronRight size={20} className="text-indigo-600" />
+                <ChevronRight size={20} className="text-sky-600" />
                 {location.pathname.split('/').pop()?.replace('-', ' ') || 'Dashboard'}
               </h1>
-              <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mt-0.5 ml-7">
+              <p className="text-[10px] font-bold text-sky-500 uppercase tracking-widest mt-0.5 ml-7">
                 Welcome back, {user?.name?.split(' ')[0]}
               </p>
             </div>
 
             <div className="flex items-center gap-5">
-              <div className="hidden md:flex items-center bg-white/80 rounded-2xl border border-slate-200/50 px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
+              <div className="hidden md:flex items-center bg-white/80 rounded-2xl border border-slate-200/50 px-4 py-2 shadow-sm focus-within:ring-2 focus-within:ring-sky-500/20 transition-all">
                 <Search size={16} className="text-slate-400" />
                 <input type="text" placeholder="Search anything..." className="ml-3 bg-transparent text-sm font-medium outline-none w-48" />
               </div>
               
               <button className="relative p-2.5 bg-white rounded-xl border border-slate-200/50 hover:bg-slate-50 transition-colors shadow-sm text-slate-600">
                 <Bell size={20} />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-600 rounded-full border-2 border-white"></span>
+                <span className="absolute top-2 right-2 w-2 h-2 bg-sky-600 rounded-full border-2 border-white"></span>
               </button>
             </div>
           </header>

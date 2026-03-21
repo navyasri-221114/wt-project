@@ -53,7 +53,7 @@ export default function HelpPage() {
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-xs font-black uppercase tracking-widest"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-sky-50 text-sky-600 rounded-full text-xs font-black uppercase tracking-widest"
         >
           <MessageCircle size={14} /> Support Center
         </motion.div>
@@ -65,11 +65,11 @@ export default function HelpPage() {
 
       {/* Search Bar */}
       <div className="relative group">
-        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={24} />
+        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-600 transition-colors" size={24} />
         <input
           type="text"
           placeholder="Search for questions, keywords, or topics..."
-          className="w-full bg-white border border-slate-200 rounded-[2rem] py-6 pl-16 pr-8 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-lg shadow-xl shadow-slate-200/20"
+          className="w-full bg-white border border-slate-200 rounded-[2rem] py-6 pl-16 pr-8 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-lg shadow-xl shadow-slate-200/20"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -83,7 +83,7 @@ export default function HelpPage() {
             initial={false}
             className={cn(
               "bg-white rounded-3xl border transition-all duration-300 overflow-hidden",
-              openIndex === index ? "border-indigo-200 shadow-xl shadow-indigo-500/5" : "border-slate-100 shadow-sm hover:border-slate-200"
+              openIndex === index ? "border-sky-200 shadow-xl shadow-sky-500/5" : "border-slate-100 shadow-sm hover:border-slate-200"
             )}
           >
             <button
@@ -93,18 +93,18 @@ export default function HelpPage() {
               <div className="flex items-center gap-5">
                 <div className={cn(
                   "w-16 h-16 rounded-2xl flex items-center justify-center transition-colors",
-                  openIndex === index ? "bg-indigo-600 text-white" : "bg-slate-50 text-slate-400"
+                  openIndex === index ? "bg-sky-600 text-white" : "bg-slate-50 text-slate-400"
                 )}>
                   <faq.icon size={28} />
                 </div>
                 <div>
-                  <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none mb-1 block">{faq.category}</span>
+                  <span className="text-[10px] font-black text-sky-500 uppercase tracking-widest leading-none mb-1 block">{faq.category}</span>
                   <h3 className="text-xl font-black text-slate-900 leading-tight">{faq.question}</h3>
                 </div>
               </div>
               <ChevronDown 
                 size={24} 
-                className={cn("text-slate-300 transition-transform duration-500", openIndex === index && "rotate-180 text-indigo-600")} 
+                className={cn("text-slate-300 transition-transform duration-500", openIndex === index && "rotate-180 text-sky-600")} 
               />
             </button>
             <AnimatePresence>
@@ -122,7 +122,7 @@ export default function HelpPage() {
                     </p>
                     <Link 
                       to="/docs"
-                      className="mt-6 flex items-center gap-2 text-indigo-600 font-bold text-sm hover:gap-3 transition-all"
+                      className="mt-6 flex items-center gap-2 text-sky-600 font-bold text-sm hover:gap-3 transition-all"
                     >
                       Learn more in documentation <ExternalLink size={16} />
                     </Link>
@@ -136,16 +136,16 @@ export default function HelpPage() {
 
       {/* Contact Cards */}
       <div className="grid md:grid-cols-3 gap-6 pt-10">
-        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm text-center group hover:border-indigo-200 transition-all">
-          <div className="w-16 h-16 bg-indigo-50 rounded-3xl flex items-center justify-center text-indigo-600 mx-auto mb-6 group-hover:scale-110 transition-transform">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm text-center group hover:border-sky-200 transition-all">
+          <div className="w-16 h-16 bg-sky-50 rounded-3xl flex items-center justify-center text-sky-600 mx-auto mb-6 group-hover:scale-110 transition-transform">
             <Mail size={28} />
           </div>
           <h4 className="text-xl font-black text-slate-900 mb-2">Email Us</h4>
           <p className="text-slate-500 font-semibold mb-4">Response within 24 hours</p>
-          <a href="mailto:support@campuspro.com" className="text-indigo-600 font-black text-sm uppercase tracking-widest">Contact Support</a>
+          <a href="mailto:support@campuspro.com" className="text-sky-600 font-black text-sm uppercase tracking-widest">Contact Support</a>
         </div>
 
-        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm text-center group hover:border-indigo-200 transition-all">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm text-center group hover:border-sky-200 transition-all">
           <div className="w-16 h-16 bg-violet-50 rounded-3xl flex items-center justify-center text-violet-600 mx-auto mb-6 group-hover:scale-110 transition-transform">
             <MessageCircle size={28} />
           </div>
@@ -154,7 +154,7 @@ export default function HelpPage() {
           <button className="text-violet-600 font-black text-sm uppercase tracking-widest">Start Chatting</button>
         </div>
 
-        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm text-center group hover:border-indigo-200 transition-all">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm text-center group hover:border-sky-200 transition-all">
           <div className="w-16 h-16 bg-blue-50 rounded-3xl flex items-center justify-center text-blue-600 mx-auto mb-6 group-hover:scale-110 transition-transform">
             <Phone size={28} />
           </div>
