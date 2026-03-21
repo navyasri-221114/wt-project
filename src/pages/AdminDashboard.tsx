@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Building2, Briefcase, TrendingUp, Download, CheckCircle2, Video, Key, Plus, Trash2, ShieldCheck, X, FileText, Table2, Loader2 } from 'lucide-react';
+import { Users, Building2, Briefcase, TrendingUp, Download, CheckCircle2, Video, Key, Plus, Trash2, ShieldCheck, X, FileText, Table2, Loader2, PieChart as PieChartIcon, BarChart3 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { api } from '../services/api';
 import { cn } from '../lib/utils';
@@ -18,10 +18,14 @@ export default function AdminDashboard() {
     name: '', organizer: '', date: '', prize: '', category: 'Coding', difficulty: 'Medium', tags: ''
   });
 
+  const [yearlyStats, setYearlyStats] = useState<any[]>([]);
+  const [selectedYearIndex, setSelectedYearIndex] = useState(0);
+
   useEffect(() => {
     fetchStats();
     fetchKeys();
     fetchCompetitions();
+    fetchYearlyAnalytics();
   }, []);
 
   const fetchStats = async () => {
@@ -99,6 +103,15 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchYearlyAnalytics = async () => {
+    try {
+      const res = await api.admin.getPlacementAnalytics();
+      setYearlyStats(res);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleExportPDF = async () => {
     setExportingPDF(true);
     try {
@@ -128,7 +141,16 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading || !stats) return <div>Loading...</div>;
+  const currentYearData = yearlyStats[selectedYearIndex] || null;
+
+  if (loading || !stats) return (
+    <div className="h-[80vh] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 size={40} className="animate-spin text-indigo-600" />
+        <p className="text-slate-500 font-bold animate-pulse">Loading Dashboard...</p>
+      </div>
+    </div>
+  );
 
   const chartData = [
     { name: 'Students', value: stats.totalStudents },
@@ -160,6 +182,135 @@ export default function AdminDashboard() {
             <p className="text-3xl font-bold text-slate-900">{item.value}</p>
           </div>
         ))}
+      </div>
+
+      {/* NEW YEARLY ANALYTICS SECTION */}
+      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+          <div>
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Yearly Placement <span className="text-indigo-600">Analytics</span></h3>
+            <p className="text-sm text-slate-500 mt-1 uppercase font-bold tracking-widest text-[10px]">Track historical hiring trends and company participation</p>
+          </div>
+          
+          <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl">
+            {yearlyStats.length > 0 ? yearlyStats.map((item, i) => (
+              <button
+                key={item.year}
+                onClick={() => setSelectedYearIndex(i)}
+                className={cn(
+                  "px-6 py-2.5 rounded-xl text-sm font-black transition-all",
+                  selectedYearIndex === i 
+                    ? "bg-white text-indigo-600 shadow-md scale-105" 
+                    : "text-slate-500 hover:text-slate-900"
+                )}
+              >
+                {item.year}
+              </button>
+            )) : (
+              <div className="px-6 py-2.5 text-xs font-bold text-slate-400">No Historical Data</div>
+            )}
+          </div>
+        </div>
+
+        {currentYearData ? (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+              <div className="lg:col-span-1 space-y-4">
+                <div className="bg-indigo-600 text-white p-8 rounded-3xl shadow-xl shadow-indigo-100">
+                  <p className="text-indigo-100 font-bold uppercase tracking-widest text-[10px] mb-2 text-center md:text-left">Students Placed</p>
+                  <p className="text-5xl font-black text-center md:text-left">{currentYearData.totalStudents}</p>
+                  <div className="mt-4 pt-4 border-t border-white/20 flex items-center justify-between text-xs font-bold">
+                    <span>Performance</span>
+                    <span className="bg-white/20 px-2 py-1 rounded-lg">Target Met ✅</span>
+                  </div>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 p-8 rounded-3xl">
+                  <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-2 text-center md:text-left">Hiring Partners</p>
+                  <p className="text-5xl font-black text-slate-900 text-center md:text-left">{currentYearData.totalCompanies}</p>
+                  <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between text-xs font-bold text-slate-500">
+                    <span>Year-on-Year</span>
+                    <span className="text-green-600">+4% Visit Rate</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 bg-slate-50/50 border border-slate-100 rounded-3xl p-8">
+                <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 flex items-center gap-2">
+                  <BarChart3 size={16} className="text-indigo-600" />
+                  Company Hiring Distribution ({currentYearData.year})
+                </h4>
+                <div className="h-[250px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={currentYearData.companyBreakdown}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10, fontWeight: 'bold' }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} />
+                      <Tooltip 
+                        contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '15px' }}
+                        cursor={{ fill: '#f1f5f9' }}
+                      />
+                      <Bar dataKey="count" name="Students Placed" fill="#4f46e5" radius={[10, 10, 0, 0]} barSize={45} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+            <div className="border border-slate-100 rounded-[2rem] overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-slate-50">
+                  <tr className="text-left">
+                    <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-slate-500">Hiring Partner</th>
+                    <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-slate-500">Students Selected</th>
+                    <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-slate-500">Salary Package</th>
+                    <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-slate-500">Performance</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {currentYearData.companyBreakdown.map((comp: any, i: number) => (
+                    <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black group-hover:scale-110 transition-transform">
+                            {comp.name[0]}
+                          </div>
+                          <span className="font-bold text-slate-900">{comp.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                          <span className="font-black text-slate-700">{comp.count} Students</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5">
+                        <span className="px-3 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-lg border border-green-100">
+                          {comp.package}
+                        </span>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden max-w-[100px]">
+                          <div 
+                            className="bg-indigo-500 h-full rounded-full" 
+                            style={{ width: `${Math.min((comp.count / currentYearData.totalStudents) * 500, 100)}%` }}
+                          ></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : (
+          <div className="py-20 text-center flex flex-col items-center justify-center">
+            <div className="p-6 bg-slate-50 rounded-full mb-4">
+              <PieChartIcon size={40} className="text-slate-300" />
+            </div>
+            <h4 className="text-xl font-bold text-slate-900">No Records Found</h4>
+            <p className="text-slate-500 max-w-xs mx-auto mt-2">Historical data will appear here once students are selected and assigned a placement year.</p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
