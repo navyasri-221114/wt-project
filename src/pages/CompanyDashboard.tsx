@@ -152,7 +152,6 @@ export default function CompanyDashboard() {
 
         {/* Left Side: Job Postings Control */}
         <div className="xl:col-span-4 space-y-6">
-<<<<<<< HEAD
           <div className="space-y-4">
             <div className="flex items-center justify-between px-2">
               <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Postings Repository ({filteredJobs.length})</h2>
@@ -166,13 +165,6 @@ export default function CompanyDashboard() {
                 onChange={(e) => setJobSearch(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 bg-white border border-slate-100 rounded-2xl shadow-sm outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-700 text-sm"
               />
-=======
-          <div className="flex items-center justify-between px-2">
-            <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Postings Repository</h2>
-            <div className="flex gap-2">
-              <button className="p-2 text-slate-400 hover:text-sky-600"><Filter size={18} /></button>
-              <button className="p-2 text-slate-400 hover:text-sky-600"><Search size={18} /></button>
->>>>>>> ef4f48c2b31a97a669fb3bf3a421ded7bb2ad703
             </div>
           </div>
 
@@ -259,13 +251,8 @@ export default function CompanyDashboard() {
                 <div className="space-y-6">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h3 className="text-xl font-black text-slate-900 flex items-center gap-3">
-<<<<<<< HEAD
                       <Users size={24} className="text-indigo-600" />
                       Applicant Pipeline ({filteredApplicants.length})
-=======
-                      <Users size={24} className="text-sky-600" />
-                      Applicant Pipeline
->>>>>>> ef4f48c2b31a97a669fb3bf3a421ded7bb2ad703
                     </h3>
                     <div className="flex items-center gap-3 w-full md:w-auto">
                       <select 

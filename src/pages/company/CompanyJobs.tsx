@@ -104,7 +104,6 @@ export default function CompanyJobs() {
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-600 transition-colors" />
           <input 
             type="text" 
-<<<<<<< HEAD
             placeholder="Search your postings..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -121,14 +120,6 @@ export default function CompanyJobs() {
           )}
         >
           <Filter size={18} /> {onlyRemote ? "Remote Only" : "All Locations"}
-=======
-            placeholder="Search by title, location or keywords..." 
-            className="w-full pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-[1.5rem] shadow-sm outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
-          />
-        </div>
-        <button className="px-6 py-4 bg-white border border-slate-100 rounded-[1.5rem] shadow-sm flex items-center gap-2 font-black text-xs uppercase tracking-widest text-slate-500 hover:text-sky-600 transition-all">
-          <Filter size={18} /> Filters
->>>>>>> ef4f48c2b31a97a669fb3bf3a421ded7bb2ad703
         </button>
       </div>
 

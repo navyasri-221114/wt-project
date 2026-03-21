@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
-import { 
-  FileText, Briefcase, Sparkles, Video, Shield, 
-  HelpCircle, ChevronRight, BookOpen, User, 
+import {
+  FileText, Briefcase, Sparkles, Video, Shield,
+  HelpCircle, ChevronRight, BookOpen, User,
   CheckCircle2, AlertCircle
 } from "lucide-react";
 
@@ -58,7 +58,7 @@ export default function DocsPage() {
           <div className="sticky top-32 space-y-2">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-4">Table of Contents</p>
             {sections.map((section) => (
-              <a 
+              <a
                 key={section.id}
                 href={`#${section.id}`}
                 className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-xl transition-all group"
@@ -73,7 +73,7 @@ export default function DocsPage() {
         {/* Content Area */}
         <div className="md:col-span-9 space-y-20">
           {sections.map((section) => (
-            <motion.section 
+            <motion.section
               key={section.id}
               id={section.id}
               initial={{ opacity: 0, y: 20 }}
@@ -87,7 +87,7 @@ export default function DocsPage() {
                 </div>
                 <h2 className="text-3xl font-black text-slate-900 tracking-tight">{section.title}</h2>
               </div>
-              
+
               <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm leading-relaxed">
                 <p className="text-lg text-slate-600 font-medium mb-8">
                   {section.content}
@@ -125,24 +125,24 @@ export default function DocsPage() {
               </div>
             </motion.section>
           ))}
-          
+
           {/* Support CTA */}
           <div className="bg-sky-600 p-12 rounded-[3rem] text-center space-y-6 shadow-2xl shadow-sky-200 relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-32 -mt-32 blur-3xl" />
-             <div className="absolute bottom-0 right-0 w-64 h-64 bg-sky-400/20 rounded-full -mr-32 -mb-32 blur-3xl" />
-             
-             <h3 className="text-3xl font-black text-white relative z-10">Still have questions?</h3>
-             <p className="text-sky-100 font-medium max-w-md mx-auto relative z-10">
-               Our support team is available 24/7 to assist you with any platform-related issues.
-             </p>
-             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 relative z-10">
-                <button className="px-8 py-4 bg-white text-sky-600 font-black rounded-2xl shadow-xl hover:bg-slate-50 transition-all active:scale-95">
-                  Contact Support
-                </button>
-                <button className="px-8 py-4 bg-sky-500 text-white font-black rounded-2xl hover:bg-sky-400 transition-all">
-                  Join Community
-                </button>
-             </div>
+            <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-32 -mt-32 blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-sky-400/20 rounded-full -mr-32 -mb-32 blur-3xl" />
+
+            <h3 className="text-3xl font-black text-white relative z-10">Still have questions?</h3>
+            <p className="text-sky-100 font-medium max-w-md mx-auto relative z-10">
+              Our support team is available 24/7 to assist you with any platform-related issues.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 relative z-10">
+              <button className="px-8 py-4 bg-white text-sky-600 font-black rounded-2xl shadow-xl hover:bg-slate-50 transition-all active:scale-95">
+                Contact Support
+              </button>
+              <button className="px-8 py-4 bg-sky-500 text-white font-black rounded-2xl hover:bg-sky-400 transition-all">
+                Join Community
+              </button>
+            </div>
           </div>
         </div>
       </div>

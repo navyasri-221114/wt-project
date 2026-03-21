@@ -13,3 +13,4 @@ yarn-error.log*
 pnpm-debug.log*
 .vscode-test
 .vite
+node_modules

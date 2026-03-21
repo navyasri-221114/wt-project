@@ -5,6 +5,7 @@ import {
   ChevronRight, ArrowUpRight, Search, Filter, Send, X
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
 import { api } from '../services/api';
 import { formatCurrency, cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -14,7 +15,7 @@ export default function StudentDashboard() {
   const [applications, setApplications] = useState<any[]>([]);
   const [interviews, setInterviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [applying, setApplying] = useState<string | null>(null);
+
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showApplyModal, setShowApplyModal] = useState(false);
@@ -111,7 +112,7 @@ export default function StudentDashboard() {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-10"
+      className="space-y-16 pb-20"
     >
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -144,7 +145,6 @@ export default function StudentDashboard() {
               <Sparkles size={24} className="text-sky-600" />
               Tailored Openings
             </h2>
-<<<<<<< HEAD
             <div className="flex items-center gap-4">
               <div className="relative group">
                 <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
@@ -157,10 +157,6 @@ export default function StudentDashboard() {
                 />
               </div>
               <button className="p-2 text-slate-400 hover:text-indigo-600 transition-colors"><Filter size={20} /></button>
-=======
-            <div className="flex gap-2">
-              <button className="p-2 text-slate-400 hover:text-sky-600 transition-colors"><Filter size={20} /></button>
->>>>>>> ef4f48c2b31a97a669fb3bf3a421ded7bb2ad703
             </div>
           </div>
 
@@ -218,10 +214,6 @@ export default function StudentDashboard() {
                       <Metric icon={Users} label="Total Capacity" value={`${job.vacancies || 1} Seats`} />
                       <Metric icon={Clock} label="Closing Date" value="4 Days Left" />
                     </div>
-
-                    <div className="mt-4 p-5 bg-slate-50 rounded-[2rem] border border-slate-100">
-                      <p className="text-sm text-slate-500 font-medium leading-relaxed line-clamp-2">{job.description}</p>
-                    </div>
                   </motion.div>
                 );
               })}
@@ -231,7 +223,6 @@ export default function StudentDashboard() {
 
         {/* Right Aspect: Operational Intelligence */}
         <div className="xl:col-span-4 space-y-10">
-          {/* Upcoming Sessions */}
           <section className="space-y-6">
             <div className="flex items-center justify-between px-2">
               <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Live Engagements</h2>
@@ -258,10 +249,6 @@ export default function StudentDashboard() {
                         <h3 className="text-xl font-black mb-1">{interview.title}</h3>
                         <p className="text-sky-400 font-bold text-sm">{interview.company_name}</p>
                       </div>
-                      <div className="flex items-center gap-2 text-white/50 text-xs font-bold bg-white/5 p-3 rounded-xl border border-white/5">
-                        <Clock size={14} />
-                        {new Date(interview.scheduled_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                      </div>
                       <Link
                         to={`/interview/${interview.room_id}`}
                         className="flex items-center justify-center gap-2 w-full py-4 bg-white text-slate-900 font-black rounded-2xl hover:bg-sky-50 transition-all shadow-xl"
@@ -280,7 +267,6 @@ export default function StudentDashboard() {
             </div>
           </section>
 
-          {/* Activity Log */}
           <section className="space-y-6">
             <div className="flex items-center justify-between px-2">
               <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">Activity Stream</h2>
