@@ -4,8 +4,7 @@ export interface IApplication extends Document {
   job_id: mongoose.Types.ObjectId;
   student_id: mongoose.Types.ObjectId;
   status: 'applied' | 'shortlisted' | 'interview_scheduled' | 'selected' | 'rejected';
-  placement_year?: number;
-  offered_package?: string;
+  responses?: any;
   created_at: Date;
 }
 
@@ -13,8 +12,7 @@ const applicationSchema = new Schema<IApplication>({
   job_id: { type: Schema.Types.ObjectId, ref: 'Job', required: true },
   student_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   status: { type: String, default: 'applied' },
-  placement_year: { type: Number },
-  offered_package: { type: String },
+  responses: { type: Schema.Types.Mixed },
   created_at: { type: Date, default: Date.now }
 });
 

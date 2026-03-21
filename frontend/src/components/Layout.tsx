@@ -34,7 +34,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
       {isAdmin && (
         <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 z-50 px-8 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+            <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-violet-600 bg-clip-text text-transparent">
               CampusPortal
             </Link>
             <nav className="flex items-center gap-1">
@@ -45,7 +45,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
                   className={cn(
                     "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                     location.pathname === item.path
-                      ? "bg-indigo-50 text-indigo-600"
+                      ? "bg-sky-50 text-sky-600"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   )}
                 >
@@ -57,13 +57,13 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
           <div className="flex items-center gap-4">
             <Link 
               to="/" 
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+              className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white text-xs font-bold rounded-xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100"
             >
               <Home size={14} />
               Back to Home
             </Link>
             <div className="flex items-center gap-3 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-200">
-              <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[10px] font-bold">
+              <div className="w-6 h-6 rounded-full bg-sky-600 flex items-center justify-center text-white text-[10px] font-bold">
                 {user?.name?.[0]}
               </div>
               <span className="text-xs font-medium text-slate-700">{user?.name}</span>
@@ -83,7 +83,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
       {!isAdmin && (
         <aside className="w-64 bg-white border-r border-slate-200 flex flex-col h-screen sticky top-0">
           <div className="p-6">
-            <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+            <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-violet-600 bg-clip-text text-transparent">
               CampusPortal
             </Link>
           </div>
@@ -96,7 +96,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors",
                   location.pathname === item.path
-                    ? "bg-indigo-50 text-indigo-600"
+                    ? "bg-sky-50 text-sky-600"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 )}
               >
@@ -112,7 +112,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
               Home Page
             </Link>
             <div className="flex items-center gap-3 px-4 py-3 mb-2">
-              <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold overflow-hidden border border-indigo-200">
+              <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 font-bold overflow-hidden border border-sky-200">
                 {user?.avatar_url ? (
                   <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                 ) : user?.name?.[0]}
@@ -143,7 +143,7 @@ export default function Layout({ user, setUser }: { user: any, setUser: any }) {
             <div className="flex items-center gap-4">
               <Link 
                 to="/" 
-                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white text-xs font-bold rounded-xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100"
               >
                 <Home size={14} />
                 Back to Home

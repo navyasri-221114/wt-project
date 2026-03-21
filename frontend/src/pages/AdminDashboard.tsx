@@ -72,7 +72,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {[
           { label: 'Students', value: stats.totalStudents, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Companies', value: stats.totalCompanies, icon: Building2, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+          { label: 'Companies', value: stats.totalCompanies, icon: Building2, color: 'text-sky-600', bg: 'bg-sky-50' },
           { label: 'Jobs', value: stats.totalJobs, icon: Briefcase, color: 'text-violet-600', bg: 'bg-violet-50' },
           { label: 'Interviews', value: stats.totalInterviews, icon: Video, color: 'text-orange-600', bg: 'bg-orange-50' },
           { label: 'Placement Rate', value: `${stats.placementRate.toFixed(1)}%`, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
               </div>
             ))}
           </div>
-          <button className="w-full mt-8 py-3 text-sm font-bold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors">
+          <button className="w-full mt-8 py-3 text-sm font-bold text-sky-600 bg-sky-50 rounded-xl hover:bg-sky-100 transition-colors">
             View All Activity
           </button>
         </div>
@@ -155,7 +155,7 @@ export default function AdminDashboard() {
             <Download size={20} />
             Export PDF
           </button>
-          <button className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all flex items-center gap-2">
+          <button className="px-6 py-3 bg-sky-600 text-white font-bold rounded-xl hover:bg-sky-700 transition-all flex items-center gap-2">
             <Download size={20} />
             Export CSV
           </button>
@@ -172,7 +172,7 @@ export default function AdminDashboard() {
           <button
             onClick={handleGenerateKey}
             disabled={generating}
-            className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center gap-2 disabled:opacity-50"
+            className="px-6 py-3 bg-sky-600 text-white font-bold rounded-xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 flex items-center gap-2 disabled:opacity-50"
           >
             <Plus size={20} />
             {generating ? 'Generating...' : 'Generate New Key'}
@@ -195,7 +195,7 @@ export default function AdminDashboard() {
                 <tr key={key.id} className="group hover:bg-slate-50 transition-colors">
                   <td className="py-4">
                     <div className="flex items-center gap-2">
-                      <Key size={16} className="text-indigo-600" />
+                      <Key size={16} className="text-sky-600" />
                       <code className="text-sm font-mono font-bold text-slate-700">{key.key}</code>
                     </div>
                   </td>

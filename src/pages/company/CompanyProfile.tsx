@@ -19,7 +19,7 @@ export default function CompanyProfile() {
       </div>
 
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl overflow-hidden relative">
-        <div className="h-48 bg-gradient-to-r from-indigo-600 to-violet-600 relative overflow-hidden">
+        <div className="h-48 bg-gradient-to-r from-sky-600 to-violet-600 relative overflow-hidden">
            <div className="absolute inset-0 bg-white/10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
         </div>
         
@@ -28,8 +28,8 @@ export default function CompanyProfile() {
             {profile?.avatar_url ? (
                <img src={profile.avatar_url} alt="Logo" className="w-full h-full object-cover rounded-2xl" />
             ) : (
-               <div className="w-full h-full bg-indigo-50 flex items-center justify-center rounded-2xl">
-                 <Building2 size={48} className="text-indigo-400" />
+               <div className="w-full h-full bg-sky-50 flex items-center justify-center rounded-2xl">
+                 <Building2 size={48} className="text-sky-400" />
                </div>
             )}
           </div>

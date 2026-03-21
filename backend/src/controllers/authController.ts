@@ -69,13 +69,14 @@ export const authController = {
     const ADMIN_PASS = "admin123";
 
     if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
+      const validAdminId = "000000000000000000000000"; // Valid ObjectId hex
       const token = jwt.sign(
-        { id: "0", role: 'admin', name: 'System Admin', email: ADMIN_EMAIL }, 
+        { id: validAdminId, role: 'admin', name: 'System Admin', email: ADMIN_EMAIL }, 
         JWT_SECRET
       );
       return res.json({ 
         token, 
-        user: { id: "0", name: 'System Admin', email: ADMIN_EMAIL, role: 'admin' } 
+        user: { id: validAdminId, name: 'System Admin', email: ADMIN_EMAIL, role: 'admin' } 
       });
     }
 

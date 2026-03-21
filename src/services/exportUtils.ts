@@ -50,7 +50,7 @@ export interface StudentAnalyticsRow {
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Indigo brand colour used as accent throughout PDFs */
+/** sky brand colour used as accent throughout PDFs */
 const BRAND = { r: 79, g: 70, b: 229 }; // #4F46E5
 
 /** Draws a styled header band */
@@ -138,7 +138,7 @@ function skillBadges(doc: jsPDF, skills: string, x: number, y: number, maxWidth:
       cx = x;
       cy += lineGap;
     }
-    doc.setFillColor(237, 233, 254); // light indigo
+    doc.setFillColor(237, 233, 254); // light sky
     doc.setDrawColor(BRAND.r, BRAND.g, BRAND.b);
     doc.roundedRect(cx, cy - badgeH + 1, tw, badgeH, 1.5, 1.5, "FD");
     doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
@@ -211,7 +211,7 @@ export function exportResumePDF(data: any) {
 
   const socialInfo = [`LinkedIn: ${data.linkedin}`, `GitHub: ${data.portfolio}`].filter((s) => !s.endsWith("undefined")).join("  |  ");
   doc.setFontSize(8);
-  doc.setTextColor(79, 70, 229); // Indigo
+  doc.setTextColor(79, 70, 229); // sky
   doc.text(socialInfo, W / 2, y, { align: "center" });
   y += 6;
 

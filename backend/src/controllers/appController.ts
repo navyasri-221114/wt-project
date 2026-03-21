@@ -9,7 +9,7 @@ import { InterviewModel } from "../models/Interview.js";
 export const appController = {
   applyToJob: async (req: AuthRequest, res: Response) => {
     if (req.user?.role !== 'student') return res.status(403).json({ error: "Forbidden" });
-    const { job_id } = req.body;
+    const { job_id, responses } = req.body;
     
     try {
       // Check eligibility
@@ -33,7 +33,8 @@ export const appController = {
 
       const application = await ApplicationModel.create({
         job_id,
-        student_id: req.user.id
+        student_id: req.user.id,
+        responses
       });
 
       res.json({ message: "Application submitted", application });
@@ -111,6 +112,10 @@ export const appController = {
     try {
       const app = await ApplicationModel.findByIdAndUpdate(id, { status }, { new: true });
       if (!app) return res.status(404).json({ error: "Application not found" });
+
+      if (status === 'interviewed' || status === 'rejected') {
+         await InterviewModel.updateMany({ application_id: id }, { status: 'completed' });
+      }
 
       // Notify student
       await NotificationModel.create({

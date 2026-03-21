@@ -423,7 +423,7 @@ export default function InterviewRoom() {
             </p>
             <button
               onClick={enterFullScreen}
-              className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all flex items-center gap-3 mx-auto shadow-xl shadow-indigo-500/20"
+              className="px-8 py-4 bg-sky-600 text-white font-bold rounded-2xl hover:bg-sky-700 transition-all flex items-center gap-3 mx-auto shadow-xl shadow-sky-500/20"
             >
               <Maximize size={20} /> Enter Full-Screen
             </button>
@@ -434,7 +434,7 @@ export default function InterviewRoom() {
       {/* Header */}
       <header className="h-16 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-8 text-white">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <div className="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center shadow-lg shadow-sky-500/20">
             <Video size={20} />
           </div>
           <div>
@@ -526,7 +526,7 @@ export default function InterviewRoom() {
               onClick={() => setShowChat(!showChat)}
               className={cn(
                 "w-16 h-16 rounded-2xl flex items-center justify-center transition-all shadow-xl border",
-                showChat ? "bg-indigo-600 text-white border-indigo-500" : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
+                showChat ? "bg-sky-600 text-white border-sky-500" : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
               )}
             >
               <MessageSquare size={24} />
@@ -557,7 +557,7 @@ export default function InterviewRoom() {
               onClick={() => setActiveTab('chat')}
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-                activeTab === 'chat' ? "bg-indigo-600 text-white" : "text-slate-500 hover:text-slate-300"
+                activeTab === 'chat' ? "bg-sky-600 text-white" : "text-slate-500 hover:text-slate-300"
               )}
             >
               <MessageSquare size={16} /> Chat
@@ -589,7 +589,7 @@ export default function InterviewRoom() {
               <div className="p-8 space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center border border-indigo-500/20">
+                    <div className="w-12 h-12 bg-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center border border-sky-500/20">
                       <FileText size={24} />
                     </div>
                     <div>
@@ -607,7 +607,7 @@ export default function InterviewRoom() {
                      <div className="h-px bg-slate-800" />
                      <div className="flex justify-between items-center text-xs">
                         <span className="text-slate-500 font-bold uppercase text-[9px]">Position</span>
-                        <span className="text-indigo-400 font-black uppercase tracking-widest">Software Engineer</span>
+                        <span className="text-sky-400 font-black uppercase tracking-widest">Software Engineer</span>
                      </div>
                   </div>
                 </div>
@@ -625,7 +625,7 @@ export default function InterviewRoom() {
                       'All session data is encrypted and recorded.'
                     ].map((tip, i) => (
                       <li key={i} className="flex gap-4 p-4 bg-slate-900/30 border border-slate-700/50 rounded-2xl text-[11px] text-slate-400 leading-relaxed font-bold">
-                        <span className="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-[10px] font-black shrink-0 border border-indigo-500/20">{i + 1}</span>
+                        <span className="w-6 h-6 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center text-[10px] font-black shrink-0 border border-sky-500/20">{i + 1}</span>
                         {tip}
                       </li>
                     ))}
@@ -654,7 +654,7 @@ export default function InterviewRoom() {
                         <div className={cn(
                           "px-4 py-3 rounded-2xl text-sm font-bold shadow-2xl",
                           m.sender === (user?.name || 'Anonymous') 
-                            ? "bg-indigo-600 text-white rounded-tr-none shadow-indigo-500/10" 
+                            ? "bg-sky-600 text-white rounded-tr-none shadow-sky-500/10" 
                             : "bg-slate-700 text-slate-200 rounded-tl-none shadow-slate-900/50"
                         )}>
                           {m.text}
@@ -672,12 +672,12 @@ export default function InterviewRoom() {
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Transmission secure. Type here..."
-                      className="w-full bg-slate-800 border border-slate-700 rounded-2xl py-4 pl-5 pr-14 text-sm text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold placeholder:text-slate-600"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-2xl py-4 pl-5 pr-14 text-sm text-white outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold placeholder:text-slate-600"
                     />
                     <button 
                       type="submit"
                       disabled={!newMessage.trim()}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-indigo-600/20"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-sky-600 text-white rounded-xl flex items-center justify-center hover:bg-sky-700 transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-sky-600/20"
                     >
                       <Send size={18} />
                     </button>
@@ -733,7 +733,7 @@ export default function InterviewRoom() {
                    <label className="block text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Recruiter Observation Logs</label>
                    <textarea
                      rows={8}
-                     className="w-full bg-slate-900 border border-slate-700 rounded-[2rem] p-6 text-sm text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold placeholder:text-slate-600 resize-none custom-scrollbar"
+                     className="w-full bg-slate-900 border border-slate-700 rounded-[2rem] p-6 text-sm text-white outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold placeholder:text-slate-600 resize-none custom-scrollbar"
                      placeholder="Document skills, soft-skills, and technical prowess..."
                      value={notes}
                      onChange={(e) => setNotes(e.target.value)}
@@ -744,7 +744,7 @@ export default function InterviewRoom() {
                   <button
                     onClick={() => handleSaveEvaluation('completed')}
                     disabled={saving}
-                    className="w-full py-5 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-3"
+                    className="w-full py-5 bg-sky-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-sky-700 transition-all shadow-xl shadow-sky-500/20 flex items-center justify-center gap-3"
                   >
                     Complete Interview & Finalize
                   </button>

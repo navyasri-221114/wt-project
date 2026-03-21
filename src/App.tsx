@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 import LandingPage from './pages/LandingPage';
@@ -77,36 +77,34 @@ export default function App() {
 
         <Route path="/profile" element={<ProfilePage user={user} />} />
 
-        <Route path="/search" element={<StudentSearch user={user} />} />
-
-        <Route path="/students/:id" element={<StudentProfileView />} />
+        {/* RECRUITER & ADMIN FEATURES */}
+        <Route element={user?.role === 'admin' || user?.role === 'company' ? <Outlet /> : <Navigate to="/dashboard" />}>
+          <Route path="/search" element={<StudentSearch user={user} />} />
+          <Route path="/students/:id" element={<StudentProfileView />} />
+        </Route>
 
         <Route path="/companies" element={<ExploreCompanies />} />
 
         {/* STUDENT FEATURES */}
-
-        <Route path="/jobs" element={<JobProfiles />} />
-
-        <Route path="/interviews" element={<InterviewsPage />} />
-
-
-
-        <Route path="/resume-builder" element={<ResumeBuilder />} />
+        <Route element={user?.role === 'student' ? <Outlet /> : <Navigate to="/dashboard" />}>
+          <Route path="/jobs" element={<JobProfiles />} />
+          <Route path="/interviews" element={<InterviewsPage />} />
+          <Route path="/resume-builder" element={<ResumeBuilder />} />
+        </Route>
 
         <Route path="/help" element={<HelpPage />} />
         <Route path="/docs" element={<DocsPage />} />
 
         {/* COMPANY MODULE ROUTES */}
-
-        <Route path="/company/dashboard" element={<CompanyDashboard />} />
-
-        <Route path="/company/profile" element={<CompanyProfile />} />
-
-        <Route path="/company/jobs" element={<CompanyJobs />} />
-
-        <Route path="/company/applicants" element={<CompanyApplicants />} />
-
-        <Route path="/company/branches" element={<CompanyBranches />} />
+        <Route path="/company/*" element={
+            user?.role === 'company' || user?.role === 'admin' ? <Outlet /> : <Navigate to="/dashboard" />
+        }>
+          <Route path="dashboard" element={<CompanyDashboard />} />
+          <Route path="profile" element={<CompanyProfile />} />
+          <Route path="jobs" element={<CompanyJobs />} />
+          <Route path="applicants" element={<CompanyApplicants />} />
+          <Route path="branches" element={<CompanyBranches />} />
+        </Route>
 
       </Route>
 

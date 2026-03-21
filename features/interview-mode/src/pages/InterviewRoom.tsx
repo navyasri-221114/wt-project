@@ -181,7 +181,7 @@ export default function InterviewRoom() {
       {/* Header */}
       <header className="h-16 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-8 text-white">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center">
             <Video size={20} />
           </div>
           <div>
@@ -267,7 +267,7 @@ export default function InterviewRoom() {
         <div className="w-96 bg-slate-800 border-l border-slate-700 flex flex-col overflow-hidden">
           <div className="p-6 border-b border-slate-700">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-sky-500/20 text-sky-400 rounded-xl flex items-center justify-center">
                 <FileText size={20} />
               </div>
               <h2 className="font-bold text-white">Interview Details</h2>
@@ -281,9 +281,9 @@ export default function InterviewRoom() {
                 <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">AI Match Score</p>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-500" style={{ width: `${interview?.ai_score}%` }} />
+                    <div className="h-full bg-sky-500" style={{ width: `${interview?.ai_score}%` }} />
                   </div>
-                  <span className="text-xs font-bold text-indigo-400">{interview?.ai_score}%</span>
+                  <span className="text-xs font-bold text-sky-400">{interview?.ai_score}%</span>
                 </div>
               </div>
             </div>
@@ -314,7 +314,7 @@ export default function InterviewRoom() {
                   <label className="block text-[10px] text-slate-500 uppercase font-bold mb-2">Interview Notes</label>
                   <textarea
                     rows={6}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-2xl p-4 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-2xl p-4 text-sm text-white outline-none focus:ring-2 focus:ring-sky-500 transition-all"
                     placeholder="Write your observations here..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
@@ -332,7 +332,7 @@ export default function InterviewRoom() {
                   <button
                     onClick={() => handleSaveEvaluation('completed')}
                     disabled={saving}
-                    className="w-full py-3 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-900/20"
+                    className="w-full py-3 bg-sky-600 text-white text-sm font-bold rounded-xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-900/20"
                   >
                     Complete Interview
                   </button>
