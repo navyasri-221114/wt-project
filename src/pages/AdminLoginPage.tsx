@@ -4,7 +4,7 @@ import { Shield, Lock, Key, ArrowLeft } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function AdminLoginPage({ setUser }: { setUser: (user: any) => void }) {
-  const [formData, setFormData] = useState({ adminId: 'admin@college.com', password: 'admin123', adminKey: 'auto-generated-key' });
+  const [formData, setFormData] = useState({ adminId: '', password: '', adminKey: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -56,9 +56,11 @@ export default function AdminLoginPage({ setUser }: { setUser: (user: any) => vo
               <div className="relative">
                 <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
-                  type="text" required readOnly
-                  className="w-full pl-10 pr-4 py-3 bg-slate-100 text-slate-500 border border-slate-200 rounded-xl outline-none"
+                  type="text" required
+                  className="w-full pl-10 pr-4 py-3 bg-slate-100 text-slate-800 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                   value={formData.adminId}
+                  onChange={(e) => setFormData({...formData, adminId: e.target.value})}
+                  placeholder="admin@college.com"
                 />
               </div>
             </div>
@@ -68,9 +70,11 @@ export default function AdminLoginPage({ setUser }: { setUser: (user: any) => vo
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
-                  type="password" required readOnly
-                  className="w-full pl-10 pr-4 py-3 bg-slate-100 text-slate-500 border border-slate-200 rounded-xl outline-none"
+                  type="password" required
+                  className="w-full pl-10 pr-4 py-3 bg-slate-100 text-slate-800 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                   value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  placeholder="Enter Password"
                 />
               </div>
             </div>
@@ -80,9 +84,11 @@ export default function AdminLoginPage({ setUser }: { setUser: (user: any) => vo
               <div className="relative">
                 <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
-                  type="password" required readOnly
-                  className="w-full pl-10 pr-4 py-3 bg-slate-100 text-slate-500 border border-slate-200 rounded-xl outline-none"
+                  type="password" required
+                  className="w-full pl-10 pr-4 py-3 bg-slate-100 text-slate-800 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500"
                   value={formData.adminKey}
+                  onChange={(e) => setFormData({...formData, adminKey: e.target.value})}
+                  placeholder="Enter Secret Key"
                 />
               </div>
             </div>

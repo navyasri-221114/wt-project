@@ -463,7 +463,16 @@ export default function JobProfiles() {
                 </button>
               </div>
 
-              <form onSubmit={handleApplySubmit} className="relative space-y-6 max-h-[60vh] overflow-y-auto pr-4 no-scrollbar">
+              {selectedJob?.description && (
+                <div className="mb-6 bg-slate-50 border border-slate-100 rounded-2xl p-6">
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-2">Job Description</h3>
+                  <p className="text-sm font-medium text-slate-600 leading-relaxed max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                     {selectedJob.description}
+                  </p>
+                </div>
+              )}
+
+              <form onSubmit={handleApplySubmit} className="relative space-y-6 max-h-[50vh] overflow-y-auto pr-4 no-scrollbar">
                 <div className="space-y-2">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Professional Introduction</label>
                   <textarea
