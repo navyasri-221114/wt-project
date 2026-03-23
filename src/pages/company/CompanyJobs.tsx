@@ -12,6 +12,7 @@ export default function CompanyJobs() {
   const [onlyRemote, setOnlyRemote] = useState(false);
   const [analysisJob, setAnalysisJob] = useState<any>(null);
   const [jobToDelete, setJobToDelete] = useState<any>(null);
+  const [editingJob, setEditingJob] = useState<string | null>(null);
   const [newJob, setNewJob] = useState({
     title: '',
     location: '',
@@ -37,14 +38,45 @@ export default function CompanyJobs() {
     }
   };
 
+  const openModal = (job?: any) => {
+    if (job) {
+      setEditingJob(job.id);
+      setNewJob({
+        title: job.title || '',
+        location: job.location || '',
+        salary: job.salary || '',
+        requirements: job.requirements || '',
+        description: job.description || '',
+        vacancies: job.vacancies || 1,
+        min_cgpa: job.min_cgpa || 6.0
+      });
+    } else {
+      setEditingJob(null);
+      setNewJob({
+        title: '',
+        location: '',
+        salary: '',
+        requirements: '',
+        description: '',
+        vacancies: 1,
+        min_cgpa: 6.0
+      });
+    }
+    setShowModal(true);
+  };
+
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.jobs.create(newJob);
+      if (editingJob) {
+        await api.jobs.update(editingJob, newJob);
+      } else {
+        await api.jobs.create(newJob);
+      }
       setShowModal(false);
       fetchJobs();
-    } catch (err) {
-      alert("Failed to post job");
+    } catch (err: any) {
+      alert(err.message || "Failed to save job");
     }
   };
 
@@ -91,7 +123,7 @@ export default function CompanyJobs() {
           <p className="text-slate-500 font-medium mt-1">Manage and monitor all your active opportunities.</p>
         </div>
         <button 
-          onClick={() => setShowModal(true)}
+          onClick={() => openModal()}
           className="flex items-center gap-2 px-8 py-3.5 bg-sky-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-sky-100 hover:bg-sky-700 transition-all active:scale-95"
         >
           <Plus size={18} /> Add New Listing
@@ -164,7 +196,10 @@ export default function CompanyJobs() {
                  </div>
                  <div className="h-10 w-px bg-slate-100 hidden lg:block" />
                  <div className="flex items-center gap-2">
-                    <button className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:bg-slate-900 hover:text-white transition-all">
+                    <button 
+                       onClick={() => openModal(job)}
+                       className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:bg-slate-900 hover:text-white transition-all"
+                    >
                        <Edit3 size={18} />
                     </button>
                     <button 
@@ -265,15 +300,19 @@ export default function CompanyJobs() {
                className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-12 overflow-hidden"
              >
                 <div className="absolute top-0 right-0 w-64 h-64 bg-sky-50 rounded-full blur-3xl -mr-32 -mt-32"></div>
-                <h2 className="text-3xl font-black text-slate-900 mb-2 relative">New <span className="text-gradient">Posting</span></h2>
-                <p className="text-slate-500 font-medium mb-10 relative">Define the perfect candidate for your mission.</p>
+                <h2 className="text-3xl font-black text-slate-900 mb-2 relative">{editingJob ? 'Edit' : 'New'} <span className="text-gradient">Posting</span></h2>
+                <p className="text-slate-500 font-medium mb-10 relative">{editingJob ? 'Update the details for this position.' : 'Define the perfect candidate for your mission.'}</p>
                 
                 <form onSubmit={handlePost} className="relative space-y-6 max-h-[70vh] overflow-y-auto pr-2 no-scrollbar">
                    <InputGroup label="Expertise Title" name="title" value={newJob.title} onChange={(e: any) => setNewJob({...newJob, title: e.target.value})} placeholder="e.g. Strategic Frontend Lead" icon={Briefcase} />
-                   <div className="grid grid-cols-2 gap-6">
-                      <InputGroup label="Compensation" name="salary" value={newJob.salary} onChange={(e: any) => setNewJob({...newJob, salary: e.target.value})} placeholder="e.g. ₹20L - ₹28L" icon={IndianRupee} />
-                      <InputGroup label="HQ / Node" name="location" value={newJob.location} onChange={(e: any) => setNewJob({...newJob, location: e.target.value})} placeholder="Global / Bengaluru" icon={MapPin} />
-                   </div>
+                    <div className="grid grid-cols-2 gap-6">
+                       <InputGroup label="Compensation" name="salary" value={newJob.salary} onChange={(e: any) => setNewJob({...newJob, salary: e.target.value})} placeholder="e.g. ₹20L - ₹28L" icon={IndianRupee} />
+                       <InputGroup label="HQ / Node" name="location" value={newJob.location} onChange={(e: any) => setNewJob({...newJob, location: e.target.value})} placeholder="Global / Bengaluru" icon={MapPin} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-6">
+                       <InputGroup label="Vacancies" name="vacancies" type="number" value={newJob.vacancies} onChange={(e: any) => setNewJob({...newJob, vacancies: parseInt(e.target.value)})} placeholder="1" icon={Globe} />
+                       <InputGroup label="Min CGPA" name="min_cgpa" type="number" step="0.1" value={newJob.min_cgpa} onChange={(e: any) => setNewJob({...newJob, min_cgpa: parseFloat(e.target.value)})} placeholder="6.0" icon={Sparkles} />
+                    </div>
                    <InputGroup label="Tech Stack" name="requirements" value={newJob.requirements} onChange={(e: any) => setNewJob({...newJob, requirements: e.target.value})} placeholder="React, Three.js, AI" icon={Sparkles} />
                    <div className="space-y-2">
                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Detailed Description</label>
@@ -287,12 +326,12 @@ export default function CompanyJobs() {
                      />
                    </div>
                    
-                   <button 
-                     type="submit"
-                     className="w-full py-5 bg-sky-600 text-white font-black rounded-3xl shadow-2xl shadow-sky-100 hover:bg-sky-700 transition-all flex items-center justify-center gap-3"
-                   >
-                     Deploy Position <Send size={20} />
-                   </button>
+                    <button 
+                      type="submit"
+                      className="w-full py-5 bg-sky-600 text-white font-black rounded-3xl shadow-2xl shadow-sky-100 hover:bg-sky-700 transition-all flex items-center justify-center gap-3"
+                    >
+                      {editingJob ? 'Update Position' : 'Deploy Position'} <Send size={20} />
+                    </button>
                 </form>
              </motion.div>
           </div>
@@ -341,13 +380,15 @@ export default function CompanyJobs() {
   );
 }
 
-function InputGroup({ label, name, value, onChange, placeholder, icon: Icon }: any) {
+function InputGroup({ label, name, value, onChange, placeholder, icon: Icon, type = "text", step }: any) {
   return (
     <div className="space-y-2">
       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
       <div className="relative group">
         <Icon className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-sky-600 transition-colors" size={18} />
         <input 
+          type={type}
+          step={step}
           name={name}
           value={value}
           onChange={onChange}

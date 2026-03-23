@@ -72,5 +72,30 @@ export const jobController = {
     } catch (err: any) {
       res.status(500).json({ error: "Failed to delete job", details: err.message });
     }
+  },
+
+  updateJob: async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const { title, description, requirements, salary, location, min_cgpa, vacancies, status } = req.body;
+    
+    try {
+      const job = await JobModel.findById(id);
+      if (!job) return res.status(404).json({ error: "Job not found" });
+
+      // Check if user is the owner
+      if (job.company_id.toString() !== req.user?.id && req.user?.role !== 'admin') {
+        return res.status(403).json({ error: "Unauthorized to update this job" });
+      }
+
+      const updatedJob = await JobModel.findByIdAndUpdate(
+        id,
+        { title, description, requirements, salary, location, min_cgpa, vacancies, status },
+        { new: true }
+      );
+
+      res.json({ message: "Job updated successfully", job: updatedJob });
+    } catch (err: any) {
+      res.status(500).json({ error: "Failed to update job", details: err.message });
+    }
   }
 };
