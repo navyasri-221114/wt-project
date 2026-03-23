@@ -1,16 +1,22 @@
-import { useState, useRef } from "react";
-import { User, Mail, Phone, Link as LinkIcon, Github, Briefcase, GraduationCap, Award, Languages, Sparkles, Download, Eye, Edit3, Trash2, Plus } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { User, Mail, Phone, Link as LinkIcon, Github, Briefcase, GraduationCap, Award, Languages, Sparkles, Download, Edit3, Trash2, Plus, Send, Bot, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import { exportResumePDF } from "../services/exportUtils";
-import { parseSummaryToResume } from "../services/aiService";
+import { chatWithAI, suggestField } from "../services/aiService";
 
+type ChatMsg = { role: "user" | "assistant"; text: string };
 
 export default function ResumeBuilder() {
   const [activeStep, setActiveStep] = useState(0);
   const [exporting, setExporting] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const [aiSummary, setAiSummary] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMsg[]>([
+    { role: "assistant", text: "Hi! 👋 I'm your AI Resume Assistant — just like ChatGPT, but built for resumes.\n\nTell me about yourself! You can say things like:\n\n• \"I'm a CSE student interested in AI/ML, write a 6-line summary\"\n• \"Suggest skills for an ECE student\"\n• \"Help me brainstorm projects for my resume\"\n\nI'll chat with you and fill your resume automatically as we go!" }
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [suggestingField, setSuggestingField] = useState<string | null>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
   const [form, setForm] = useState({
 
     name: "Alex Johnson",
@@ -81,19 +87,45 @@ export default function ResumeBuilder() {
     { id: 'experience', label: 'Experience & Extras', icon: Award },
   ];
 
-  const handleAiGenerate = async () => {
-    if (!aiSummary.trim()) return;
-    setGenerating(true);
+  useEffect(() => {
+    // Slight timeout to ensure the message bubble has been rendered
+    const timer = setTimeout(() => {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [chatMessages, chatLoading]);
+
+  const handleChatSend = async () => {
+    if (!chatInput.trim() || chatLoading) return;
+    const userMsg: ChatMsg = { role: "user", text: chatInput };
+    const newMessages = [...chatMessages, userMsg];
+    setChatMessages(newMessages);
+    setChatInput("");
+    setChatLoading(true);
     try {
-      const parsedData = await parseSummaryToResume(aiSummary);
-      if (parsedData) {
-        setForm(prev => ({ ...prev, ...parsedData }));
-        setActiveStep(1); // Move to Personal step after fill
+      const { reply, resumeData } = await chatWithAI(newMessages, form);
+      setChatMessages(prev => [...prev, { role: "assistant", text: reply }]);
+      if (resumeData) {
+        setForm(prev => ({ ...prev, ...resumeData }));
       }
     } catch (err) {
-      console.error("AI Generation failed", err);
+      setChatMessages(prev => [...prev, { role: "assistant", text: "Something went wrong. Please try again!" }]);
     } finally {
-      setGenerating(false);
+      setChatLoading(false);
+    }
+  };
+
+  const handleSuggest = async (fieldName: string) => {
+    setSuggestingField(fieldName);
+    try {
+      const suggestion = await suggestField(fieldName, form);
+      if (suggestion) {
+        setForm(prev => ({ ...prev, [fieldName]: suggestion }));
+      }
+    } catch (err) {
+      console.error("Suggestion failed", err);
+    } finally {
+      setSuggestingField(null);
     }
   };
 
@@ -215,41 +247,97 @@ ADDITIONAL
                 className="space-y-6"
               >
                 {activeStep === 0 && (
-                  <div className="space-y-6">
-                    <div className="p-8 bg-sky-50/30 border-2 border-dashed border-sky-200 rounded-[2rem] space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-3 bg-sky-600 text-white rounded-xl">
-                          <Sparkles size={24} />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-black text-sky-900">AI Smart Fill</h3>
-                          <p className="text-sm text-sky-600/70 font-medium">Paste your details or a rough summary below</p>
-                        </div>
+                  <div className="flex flex-col h-[580px]">
+                    {/* Chat Header */}
+                    <div className="flex items-center gap-3 pb-4 border-b border-slate-100 mb-4">
+                      <div className="p-2.5 bg-gradient-to-br from-sky-500 to-indigo-600 text-white rounded-xl shadow-lg">
+                        <Bot size={22} />
                       </div>
-                      <textarea
-                        value={aiSummary}
-                        onChange={(e) => setAiSummary(e.target.value)}
-                        placeholder="e.g. My name is Alex, I studied CS at IIT Bombay (9.2 CGPA). I know React and Java. I interned at Google..."
-                        rows={8}
-                        className="w-full bg-white border border-sky-100 rounded-2xl p-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-medium text-slate-700 resize-none shadow-sm placeholder:text-slate-300"
-                      />
+                      <div>
+                        <h3 className="font-black text-slate-900 text-lg">AI Resume Assistant</h3>
+                        <p className="text-xs text-sky-500 font-semibold">Powered by Gemini AI • Chat to build your resume</p>
+                      </div>
                       <button
-                        onClick={handleAiGenerate}
-                        disabled={generating || !aiSummary.trim()}
-                        className="w-full py-4 bg-sky-600 text-white font-black rounded-2xl shadow-xl shadow-sky-200 flex items-center justify-center gap-3 hover:bg-sky-700 transition-all disabled:opacity-50 disabled:shadow-none"
+                        onClick={() => setActiveStep(1)}
+                        className="ml-auto flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-sky-600 transition-all"
                       >
-                        {generating ? (
-                          <>
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            Processing Summary...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles size={20} />
-                            Generate Resume Details
-                          </>
-                        )}
+                        Open Editor <ChevronRight size={14} />
                       </button>
+                    </div>
+
+                    {/* Messages */}
+                    <div className="flex-1 overflow-y-auto space-y-6 pr-2 custom-scrollbar">
+                      {chatMessages.map((msg, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ duration: 0.3 }}
+                          className={cn("flex gap-4", msg.role === "user" ? "justify-end" : "justify-start")}
+                        >
+                          {msg.role === "assistant" && (
+                            <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-200">
+                              <Bot size={20} className="text-white" />
+                            </div>
+                          )}
+                          <div className={cn(
+                            "max-w-[85%] px-5 py-4 rounded-[1.5rem] text-[15px] leading-relaxed font-medium shadow-sm transition-all",
+                            msg.role === "user"
+                              ? "bg-slate-900 text-white rounded-br-none"
+                              : "bg-white border border-slate-100 text-slate-700 rounded-bl-none"
+                          )}>
+                            <div className="whitespace-pre-wrap">
+                                {msg.text.split('\n').map((line, idx) => {
+                                    // Simple bold formatter
+                                    const parts = line.split(/(\*\*.*?\*\*)/g);
+                                    return (
+                                        <p key={idx} className={cn(idx > 0 && "mt-2")}>
+                                            {parts.map((part, pIdx) => {
+                                                if (part.startsWith('**') && part.endsWith('**')) {
+                                                    return <strong key={pIdx} className="font-black text-sky-600">{part.slice(2, -2)}</strong>;
+                                                }
+                                                return part;
+                                            })}
+                                        </p>
+                                    );
+                                })}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                      {chatLoading && (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4 justify-start">
+                          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-200 flex-shrink-0">
+                            <Bot size={20} className="text-white" />
+                          </div>
+                          <div className="bg-white border border-slate-100 px-6 py-5 rounded-[1.5rem] rounded-bl-none flex items-center gap-2 shadow-sm">
+                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{animationDelay:'0ms'}} />
+                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{animationDelay:'150ms'}} />
+                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{animationDelay:'300ms'}} />
+                          </div>
+                        </motion.div>
+                      )}
+                      <div ref={chatEndRef} />
+                    </div>
+
+                    {/* Input Box */}
+                    <div className="mt-6">
+                      <div className="flex gap-3 bg-slate-50 p-2 rounded-[2rem] border border-slate-200 focus-within:border-sky-500 focus-within:ring-4 focus-within:ring-sky-500/10 transition-all">
+                        <input
+                          value={chatInput}
+                          onChange={e => setChatInput(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleChatSend()}
+                          placeholder="Ask me anything or say 'I am a CSE student'..."
+                          className="flex-1 bg-transparent px-4 py-3 outline-none font-medium text-slate-700 text-[15px] placeholder:text-slate-400"
+                        />
+                        <button
+                          onClick={handleChatSend}
+                          disabled={chatLoading || !chatInput.trim()}
+                          className="w-12 h-12 flex items-center justify-center bg-sky-600 text-white rounded-full hover:bg-sky-700 transition-all disabled:opacity-50 shadow-lg shadow-sky-100 flex-shrink-0"
+                        >
+                          <Send size={20} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -268,7 +356,17 @@ ADDITIONAL
                       <InputGroup label="LinkedIn" name="linkedin" value={form.linkedin} onChange={handleChange} icon={LinkIcon} />
                       <InputGroup label="GitHub / Portfolio" name="portfolio" value={form.portfolio} onChange={handleChange} icon={Github} />
                     </div>
-                    <TextAreaGroup label="Professional Summary" name="objective" value={form.objective} onChange={handleChange} icon={Sparkles} />
+                    <div className="relative">
+                      <TextAreaGroup label="Professional Summary" name="objective" value={form.objective} onChange={handleChange} icon={Sparkles} />
+                      <button 
+                        onClick={() => handleSuggest('objective')}
+                        disabled={!!suggestingField}
+                        className="absolute right-4 top-10 p-2 bg-sky-100 text-sky-600 rounded-lg hover:bg-sky-200 transition-all"
+                        title="Suggest professional summary"
+                      >
+                        {suggestingField === 'objective' ? <div className="w-4 h-4 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" /> : <Sparkles size={16} />}
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -282,7 +380,19 @@ ADDITIONAL
                       <InputGroup label="Year" name="year" value={form.year} onChange={handleChange} icon={GraduationCap} />
                       <InputGroup label="CGPA / Percentage" name="cgpa" value={form.cgpa} onChange={handleChange} icon={GraduationCap} />
                     </div>
-                    <InputGroup label="Programming Languages" name="languages" value={form.languages} onChange={handleChange} icon={Award} />
+                    
+                    <div className="grid grid-cols-1 gap-6 relative">
+                      <InputGroup label="Programming Languages" name="languages" value={form.languages} onChange={handleChange} icon={Award} />
+                      <button 
+                         onClick={() => handleSuggest('languages')}
+                         disabled={!!suggestingField}
+                         className="absolute right-4 top-10 p-2 bg-sky-100 text-sky-600 rounded-lg hover:bg-sky-200 transition-all"
+                         title="Suggest skills for your branch"
+                       >
+                         {suggestingField === 'languages' ? <div className="w-4 h-4 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" /> : <Sparkles size={16} />}
+                      </button>
+                    </div>
+
                     <InputGroup label="Web Technologies" name="web_tech" value={form.web_tech} onChange={handleChange} icon={Award} />
                     <InputGroup label="Tools & Tech" name="tools" value={form.tools} onChange={handleChange} icon={Award} />
                   </div>
