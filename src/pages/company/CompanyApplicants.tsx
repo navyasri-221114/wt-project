@@ -65,6 +65,71 @@ export default function CompanyApplicants() {
     }
   };
 
+  const allFilteredApplicants = jobs.flatMap(job => 
+    job.applicants.filter((app: any) => {
+      const matchesFilter = filter === 'all' || app.status === filter;
+      const matchesSearch = (app.student_name || "").toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesFilter && matchesSearch;
+    }).map((app: any) => ({ ...app, title: job.title }))
+  );
+
+  const handleExportData = (data: any[], filenameSuffix: string = "") => {
+    if (data.length === 0) {
+      alert("No data to export");
+      return;
+    }
+
+    const headers = [
+      "Job Title",
+      "Student Name",
+      "Email",
+      "CGPA",
+      "Status",
+      "Applied Date",
+      "Skills",
+      "Department",
+      "Branch",
+      "College",
+      "Year",
+      "Resume URL",
+      "LinkedIn URL",
+      "GitHub URL"
+    ];
+
+    const csvRows = data.map(app => [
+      app.title || "N/A",
+      app.student_name || "N/A",
+      app.student_email || "N/A",
+      app.student_cgpa || app.cgpa || "N/A",
+      app.status || "Applied",
+      new Date(app.created_at || Date.now()).toLocaleDateString(),
+      app.skills || "N/A",
+      app.department || "N/A",
+      app.branch || "N/A",
+      app.college || "N/A",
+      app.year || "N/A",
+      app.resume_url || "N/A",
+      app.linkedin_url || "N/A",
+      app.github_url || "N/A"
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...csvRows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const cleanSuffix = filenameSuffix.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const name = cleanSuffix ? `Applicants_${cleanSuffix}_${new Date().toISOString().split('T')[0]}.csv` : `Applicants_All_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-10">
       {/* Header */}
@@ -74,8 +139,11 @@ export default function CompanyApplicants() {
           <p className="text-slate-500 font-medium mt-1">Review candidates categorized by your open positions.</p>
         </div>
         <div className="flex gap-2">
-           <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-100 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-500 hover:text-sky-600 transition-all shadow-sm">
-             <Download size={18} /> Export Data
+           <button 
+             onClick={() => handleExportData(allFilteredApplicants)}
+             className="flex items-center gap-3 px-8 py-3.5 bg-sky-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-sky-100 hover:bg-sky-700 transition-all active:scale-95"
+           >
+             <Download size={20} /> Export All Talent
            </button>
         </div>
       </div>
@@ -117,46 +185,54 @@ export default function CompanyApplicants() {
       ) : (
         <div className="space-y-6">
            {jobs.length > 0 ? (
-             jobs.map((job) => {
-               const filteredApplicants = job.applicants.filter((app: any) => {
-                 const matchesFilter = filter === 'all' || app.status === filter;
-                 const matchesSearch = (app.student_name || "").toLowerCase().includes(searchQuery.toLowerCase());
-                 return matchesFilter && matchesSearch;
-               });
-               
-               const isExpanded = expandedJobId === job.id;
+              jobs.map((job) => {
+                const jobFilteredApplicants = job.applicants.filter((app: any) => {
+                  const matchesFilter = filter === 'all' || app.status === filter;
+                  const matchesSearch = (app.student_name || "").toLowerCase().includes(searchQuery.toLowerCase());
+                  return matchesFilter && matchesSearch;
+                }).map((app: any) => ({ ...app, title: job.title }));
+                
+                const isExpanded = expandedJobId === job.id;
 
-               return (
-                 <div key={job.id} className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden transition-all">
-                   {/* Job Header */}
-                   <div 
-                     onClick={() => setExpandedJobId(isExpanded ? null : job.id)}
-                     className="p-8 flex flex-col md:flex-row items-start md:items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
-                   >
-                     <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 rounded-[1.5rem] bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-xl border-4 border-slate-50 shadow-sm">
-                           {job.title[0]}
-                        </div>
-                        <div>
-                           <h2 className="text-xl font-black text-slate-900 leading-tight">{job.title}</h2>
-                           <p className="text-sm font-bold text-slate-400 mt-1">{filteredApplicants.length} Candidates</p>
-                        </div>
-                     </div>
-                     <ChevronDown size={24} className={cn("text-slate-400 transition-transform mt-4 md:mt-0", isExpanded && "rotate-180")} />
-                   </div>
+                return (
+                  <div key={job.id} className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden transition-all">
+                    {/* Job Header */}
+                    <div 
+                      onClick={() => setExpandedJobId(isExpanded ? null : job.id)}
+                      className="p-8 flex flex-col md:flex-row items-start md:items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-6">
+                         <div className="w-16 h-16 rounded-[1.5rem] bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-xl border-4 border-slate-50 shadow-sm">
+                            {job.title[0]}
+                         </div>
+                         <div>
+                            <h2 className="text-xl font-black text-slate-900 leading-tight">{job.title}</h2>
+                            <p className="text-sm font-bold text-slate-400 mt-1">{jobFilteredApplicants.length} Candidates</p>
+                         </div>
+                      </div>
+                      <div className="flex items-center gap-6 mt-4 md:mt-0">
+                         <button 
+                            onClick={(e) => { e.stopPropagation(); handleExportData(jobFilteredApplicants, job.title); }}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-100 text-slate-500 hover:text-indigo-600 hover:border-indigo-100 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
+                         >
+                            <Download size={14} /> Export Job Data
+                         </button>
+                         <ChevronDown size={24} className={cn("text-slate-400 transition-transform", isExpanded && "rotate-180")} />
+                      </div>
+                    </div>
 
-                   {/* Applicants List */}
-                   <AnimatePresence>
-                     {isExpanded && (
-                       <motion.div 
-                         initial={{ height: 0, opacity: 0 }}
-                         animate={{ height: 'auto', opacity: 1 }}
-                         exit={{ height: 0, opacity: 0 }}
-                         className="border-t border-slate-100 bg-slate-50/50"
-                       >
-                         {filteredApplicants.length > 0 ? (
-                           <div className="p-8 space-y-4">
-                             {filteredApplicants.map((app: any, idx: number) => {
+                    {/* Applicants List */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div 
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="border-t border-slate-100 bg-slate-50/50"
+                        >
+                          {jobFilteredApplicants.length > 0 ? (
+                            <div className="p-8 space-y-4">
+                              {jobFilteredApplicants.map((app: any, idx: number) => {
                                const appId = app.id || app._id;
                                const studentId = app.student_id?._id || app.student_id?.id || app.student_id;
                                return (

@@ -96,6 +96,13 @@ export const appController = {
                 title: (app.job_id as any)?.title,
                 student_cgpa: profile?.cgpa,
                 skills: profile?.skills,
+                department: profile?.department,
+                branch: profile?.branch,
+                college: profile?.college,
+                year: profile?.year,
+                resume_url: profile?.resume_url,
+                linkedin_url: profile?.linkedin_url,
+                github_url: profile?.github_url,
                 room_id: interview?.room_id
             };
         }));
