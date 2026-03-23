@@ -175,21 +175,39 @@ export default function InterviewRoom() {
         });
     };
 
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((currentStream) => {
-        if (!mounted) {
-           currentStream.getTracks().forEach(track => track.stop());
-           return;
+    const startMediaAndConnect = async () => {
+      let currentStream: MediaStream | undefined = undefined;
+      try {
+        currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setVideoOn(true);
+        setMicOn(true);
+      } catch (err) {
+        console.warn("Camera+Mic failed. Falling back to Audio-only:", err);
+        try {
+          currentStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+          setVideoOn(false);
+          setMicOn(true);
+        } catch (audioErr) {
+          console.error("Audio-only also failed. Connecting in text-only mode:", audioErr);
+          setVideoOn(false);
+          setMicOn(false);
         }
+      }
+
+      if (!mounted) {
+        if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+        return;
+      }
+
+      if (currentStream) {
         localStream = currentStream;
         setStream(currentStream);
-        setupConnection(currentStream);
-      })
-      .catch(err => {
-        console.error("Media devices access denied or not available:", err);
-        // alert("Camera/mic not available. Connecting in text-only mode.");
-        setupConnection(undefined);
-      });
+      }
+      
+      setupConnection(currentStream);
+    };
+
+    startMediaAndConnect();
 
     return () => {
       mounted = false;
