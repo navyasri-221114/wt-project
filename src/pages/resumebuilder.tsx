@@ -26,7 +26,7 @@ export default function ResumeBuilder() {
     linkedin: "linkedin.com/in/alexj",
     portfolio: "github.com/alexj",
     objective: "Highly motivated student with a strong foundation in Web Technologies and Problem Solving. Eager to contribute to high-impact projects and drive innovation within a professional team environment.",
-    
+
     // Education
     degree: "B.Tech in Computer Science",
     college: "IIT Bombay",
@@ -172,7 +172,7 @@ STRENGTHS
 ADDITIONAL
 - Languages Known: ${form.spoken_languages}
     `.trim();
-    
+
     navigator.clipboard.writeText(text);
     alert("Resume content copied as clean text!");
   };
@@ -180,7 +180,7 @@ ADDITIONAL
   return (
     <div className="max-w-[1600px] mx-auto p-4 sm:p-8">
       <div className="flex flex-col xl:flex-row gap-10">
-        
+
         {/* Left Side - Editor */}
         <div className="xl:w-1/2 space-y-8">
           <div className="flex items-center justify-between flex-wrap gap-4">
@@ -225,8 +225,8 @@ ADDITIONAL
                 onClick={() => setActiveStep(idx)}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-2xl font-black text-sm transition-all whitespace-nowrap",
-                  activeStep === idx 
-                    ? "bg-slate-900 text-white shadow-xl" 
+                  activeStep === idx
+                    ? "bg-slate-900 text-white shadow-xl"
                     : "text-slate-400 hover:bg-slate-50"
                 )}
               >
@@ -237,8 +237,8 @@ ADDITIONAL
           </div>
 
           <div className="bg-white p-6 sm:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm min-h-[600px]">
-             {/* Steps content... (unchanged except wrapping in motion.div) */}
-             <AnimatePresence mode="wait">
+            {/* Steps content... (unchanged except wrapping in motion.div) */}
+            <AnimatePresence mode="wait">
               <motion.div
                 key={activeStep}
                 initial={{ opacity: 0, y: 10 }}
@@ -287,20 +287,20 @@ ADDITIONAL
                               : "bg-white border border-slate-100 text-slate-700 rounded-bl-none"
                           )}>
                             <div className="whitespace-pre-wrap">
-                                {msg.text.split('\n').map((line, idx) => {
-                                    // Simple bold formatter
-                                    const parts = line.split(/(\*\*.*?\*\*)/g);
-                                    return (
-                                        <p key={idx} className={cn(idx > 0 && "mt-2")}>
-                                            {parts.map((part, pIdx) => {
-                                                if (part.startsWith('**') && part.endsWith('**')) {
-                                                    return <strong key={pIdx} className="font-black text-sky-600">{part.slice(2, -2)}</strong>;
-                                                }
-                                                return part;
-                                            })}
-                                        </p>
-                                    );
-                                })}
+                              {msg.text.split('\n').map((line, idx) => {
+                                // Simple bold formatter
+                                const parts = line.split(/(\*\*.*?\*\*)/g);
+                                return (
+                                  <p key={idx} className={cn(idx > 0 && "mt-2")}>
+                                    {parts.map((part, pIdx) => {
+                                      if (part.startsWith('**') && part.endsWith('**')) {
+                                        return <strong key={pIdx} className="font-black text-sky-600">{part.slice(2, -2)}</strong>;
+                                      }
+                                      return part;
+                                    })}
+                                  </p>
+                                );
+                              })}
                             </div>
                           </div>
                         </motion.div>
@@ -311,9 +311,9 @@ ADDITIONAL
                             <Bot size={20} className="text-white" />
                           </div>
                           <div className="bg-white border border-slate-100 px-6 py-5 rounded-[1.5rem] rounded-bl-none flex items-center gap-2 shadow-sm">
-                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{animationDelay:'0ms'}} />
-                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{animationDelay:'150ms'}} />
-                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{animationDelay:'300ms'}} />
+                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                           </div>
                         </motion.div>
                       )}
@@ -341,7 +341,7 @@ ADDITIONAL
                     </div>
                   </div>
                 )}
-                
+
                 {activeStep === 1 && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -358,7 +358,7 @@ ADDITIONAL
                     </div>
                     <div className="relative">
                       <TextAreaGroup label="Professional Summary" name="objective" value={form.objective} onChange={handleChange} icon={Sparkles} />
-                      <button 
+                      <button
                         onClick={() => handleSuggest('objective')}
                         disabled={!!suggestingField}
                         className="absolute right-4 top-10 p-2 bg-sky-100 text-sky-600 rounded-lg hover:bg-sky-200 transition-all"
@@ -380,16 +380,16 @@ ADDITIONAL
                       <InputGroup label="Year" name="year" value={form.year} onChange={handleChange} icon={GraduationCap} />
                       <InputGroup label="CGPA / Percentage" name="cgpa" value={form.cgpa} onChange={handleChange} icon={GraduationCap} />
                     </div>
-                    
+
                     <div className="grid grid-cols-1 gap-6 relative">
                       <InputGroup label="Programming Languages" name="languages" value={form.languages} onChange={handleChange} icon={Award} />
-                      <button 
-                         onClick={() => handleSuggest('languages')}
-                         disabled={!!suggestingField}
-                         className="absolute right-4 top-10 p-2 bg-sky-100 text-sky-600 rounded-lg hover:bg-sky-200 transition-all"
-                         title="Suggest skills for your branch"
-                       >
-                         {suggestingField === 'languages' ? <div className="w-4 h-4 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" /> : <Sparkles size={16} />}
+                      <button
+                        onClick={() => handleSuggest('languages')}
+                        disabled={!!suggestingField}
+                        className="absolute right-4 top-10 p-2 bg-sky-100 text-sky-600 rounded-lg hover:bg-sky-200 transition-all"
+                        title="Suggest skills for your branch"
+                      >
+                        {suggestingField === 'languages' ? <div className="w-4 h-4 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" /> : <Sparkles size={16} />}
                       </button>
                     </div>
 
@@ -445,14 +445,14 @@ ADDITIONAL
         {/* Right Side - Live Preview */}
         <div className="xl:w-1/2">
           <div className="sticky top-28">
-             {/* Preview Card */}
+            {/* Preview Card */}
             <div className="bg-white min-h-[842px] w-full shadow-2xl p-8 sm:p-12 overflow-hidden border border-slate-100 font-serif text-slate-900">
-              
+
               {/* Header */}
               {(form.name || form.email || form.phone) && (
                 <div className="text-center space-y-2 mb-6">
-                  <h1 
-                    contentEditable 
+                  <h1
+                    contentEditable
                     suppressContentEditableWarning
                     onBlur={(e) => setForm({ ...form, name: e.currentTarget.innerText })}
                     className="text-3xl font-bold uppercase tracking-tight outline-none focus:bg-slate-50 min-h-[1.2em]"
@@ -481,8 +481,8 @@ ADDITIONAL
               {form.objective && (
                 <div className="space-y-2 mb-6 text-sm">
                   <h4 className="font-bold uppercase tracking-wider text-slate-800 text-[13px]">Summary / Objective</h4>
-                  <p 
-                    contentEditable 
+                  <p
+                    contentEditable
                     suppressContentEditableWarning
                     onBlur={(e) => setForm({ ...form, objective: e.currentTarget.innerText })}
                     className="leading-relaxed text-slate-600 italic outline-none focus:bg-slate-50"
@@ -702,4 +702,4 @@ function PreviewSection({ title, value }: { title: string, value: string }) {
       <p className="text-[11px] font-bold text-slate-700 whitespace-pre-line leading-relaxed">{value}</p>
     </div>
   );
-}
+}
