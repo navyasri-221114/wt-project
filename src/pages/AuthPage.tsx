@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Briefcase, Mail, Lock, User, Building2, ShieldCheck, ArrowRight, ArrowLeft, Key } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 import { api } from '../services/api';
 import { cn } from '../lib/utils';
 
@@ -10,18 +12,72 @@ export default function AuthPage({ setUser }: { setUser: any }) {
   const [isSignup, setIsSignup] = useState(searchParams.get('signup') === 'true');
   const [role, setRole] = useState<'student' | 'company' | 'admin'>('student');
   const [formData, setFormData] = useState({ name: '', email: '', password: '', activationKey: '' });
+  const [showOtp, setShowOtp] = useState(false);
+  const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    if (!credentialResponse.credential) return;
+    
+    try {
+      const decoded: any = jwtDecode(credentialResponse.credential);
+      const email = decoded.email;
+      const name = decoded.name;
+
+      if (!email || !email.toLowerCase().includes('rgukt')) {
+        setError("Authorization blocked: Only institutional emails containing 'rgukt' are allowed.");
+        return;
+      }
+
+      setLoading(true);
+
+      const res = await api.auth.signup({ name: name, email, password: 'google-secure-token', role: 'student' })
+        .catch(async () => {
+           // If signup fails because email exists, try login
+           return await api.auth.login({ email, password: 'google-secure-token' });
+        });
+      
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('user', JSON.stringify(res.user));
+      setUser(res.user);
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError("Google authentication failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (isSignup && role === 'company' && !showOtp) {
+       setLoading(true);
+       try {
+         await api.auth.sendOtp({ email: formData.email });
+         setShowOtp(true);
+         alert(`A verification OTP has been sent to ${formData.email}. Please verify to continue.`);
+       } catch (err: any) {
+         setError(err.message || 'Failed to send OTP.');
+       } finally {
+         setLoading(false);
+       }
+       return;
+    }
+    
+    if (showOtp && otp.length < 6) {
+       setError('Please enter the 6 digit OTP code.');
+       return;
+    }
+
     setLoading(true);
 
     try {
       const res = isSignup 
-        ? await api.auth.signup({ ...formData, role })
+        ? await api.auth.signup({ ...formData, role, otp })
         : await api.auth.login({ email: formData.email, password: formData.password });
       
       localStorage.setItem('token', res.token);
@@ -59,8 +115,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
             <div className="flex p-1 bg-slate-100 rounded-xl mb-8">
               {[
                 { id: 'student', label: 'Student', icon: User },
-                { id: 'company', label: 'Company', icon: Building2 },
-                { id: 'admin', label: 'Admin', icon: ShieldCheck },
+                { id: 'company', label: 'Company', icon: Building2 }
               ].map((item) => (
                 <button
                   type="button"
@@ -143,6 +198,20 @@ export default function AuthPage({ setUser }: { setUser: any }) {
               </div>
             )}
 
+            {isSignup && role === 'company' && showOtp && (
+              <div className="bg-sky-50 p-4 rounded-xl border border-sky-100">
+                <label className="block text-sm font-bold text-sky-800 mb-1">Email Verification OTP</label>
+                <p className="text-xs text-sky-600 mb-3">Please fetch the OTP sent to {formData.email}</p>
+                <input
+                  type="text" required value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-sky-200 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-center font-bold tracking-[0.5em]"
+                  placeholder="------"
+                  maxLength={6}
+                />
+              </div>
+            )}
+
             {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg overflow-hidden break-words">{error}</p>}
 
             <button
@@ -150,9 +219,28 @@ export default function AuthPage({ setUser }: { setUser: any }) {
               disabled={loading}
               className="w-full py-3 bg-sky-600 text-white font-semibold rounded-xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {loading ? 'Processing...' : isSignup ? 'Create Account' : 'Sign In'}
+              {loading ? 'Processing...' : (isSignup && role === 'company' && !showOtp) ? 'Send Verification' : isSignup ? 'Create Account' : 'Sign In'}
               {!loading && <ArrowRight size={18} />}
             </button>
+
+            {role === 'student' && (
+              <div className="mt-4">
+                <div className="relative flex items-center py-4">
+                  <div className="flex-grow border-t border-slate-200"></div>
+                  <span className="flex-shrink-0 mx-4 text-slate-400 text-sm">or connect securely</span>
+                  <div className="flex-grow border-t border-slate-200"></div>
+                </div>
+                <div className="flex justify-center w-full">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => setError('Google sign in failed unexpectedly.')}
+                    theme="outline"
+                    width="100%"
+                    shape="pill"
+                  />
+                </div>
+              </div>
+            )}
           </form>
 
           <div className="mt-6 text-center">

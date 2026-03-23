@@ -14,7 +14,7 @@ export default function JobProfiles() {
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [formData, setFormData] = useState({
-    bio: '', experience: '', why_us: '', links: ''
+    bio: '', experience: '', why_us: '', links: '', resume: ''
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -78,7 +78,7 @@ export default function JobProfiles() {
     try {
       await api.applications.apply((selectedJob._id || selectedJob.id) as any, formData);
       setShowApplyModal(false);
-      setFormData({ bio: '', experience: '', why_us: '', links: '' });
+      setFormData({ bio: '', experience: '', why_us: '', links: '', resume: '' });
       fetchData(true);
       alert("Application submitted successfully!");
     } catch (err: any) {
@@ -473,6 +473,16 @@ export default function JobProfiles() {
                     type="text" value={formData.links}
                     onChange={(e) => setFormData({...formData, links: e.target.value})}
                     placeholder="Portfolio/GitHub/LinkedIn"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Resume Link</label>
+                  <input
+                    type="text" required value={formData.resume}
+                    onChange={(e) => setFormData({ ...formData, resume: e.target.value })}
+                    placeholder="Google Drive, Dropbox, or Portfolio URL"
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
                   />
                 </div>

@@ -5,14 +5,67 @@ import { UserModel } from "../models/User.js";
 import { StudentModel } from "../models/Student.js";
 import { CompanyModel } from "../models/Company.js";
 import { ActivationKeyModel } from "../models/ActivationKey.js";
+import { OTPModel } from "../models/OTP.js";
+import nodemailer from "nodemailer";
 
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret-key";
 
 export const authController = {
+  sendOtp: async (req: Request, res: Response) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    // Generate 6 digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    try {
+      // Store in DB
+      await OTPModel.create({ email, otp });
+
+      // Only attempt to send actual email if SMTP config exists
+      if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+        let transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port: parseInt(process.env.SMTP_PORT || '587'),
+          secure: process.env.SMTP_PORT === '465',
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        });
+
+        await transporter.sendMail({
+          from: `"Campus Placement Portal" <${process.env.SMTP_USER}>`,
+          to: email,
+          subject: "Your Company Verification Code",
+          text: `Your activation OTP is: ${otp}`,
+          html: `<p>Your activation OTP is: <b>${otp}</b></p>`
+        });
+        
+        console.log(`Sent OTP ${otp} to ${email} via SMTP`);
+      } else {
+        console.warn(`SMTP credentials missing in .env! Generated OTP ${otp} for ${email} but did not send email.`);
+      }
+
+      res.status(200).json({ message: "OTP sent successfully" });
+    } catch (err: any) {
+      console.error("Failed to send OTP:", err);
+      res.status(500).json({ error: "Failed to send OTP", details: err.message });
+    }
+  },
+
   signup: async (req: Request, res: Response) => {
-    const { name, email, password, role, activationKey } = req.body;
+    const { name, email, password, role, activationKey, otp } = req.body;
 
     if (role === 'company') {
+      if (!otp) {
+        return res.status(400).json({ error: "Verification OTP is required for company registration." });
+      }
+      const otpRecord = await OTPModel.findOne({ email }).sort({ createdAt: -1 });
+      if (!otpRecord || otpRecord.otp !== otp) {
+        return res.status(400).json({ error: "Invalid or expired OTP." });
+      }
+
       if (!activationKey) {
         return res.status(400).json({ error: "Activation key is required for companies" });
       }
@@ -44,6 +97,7 @@ export const authController = {
         await StudentModel.create({ user_id: newUser._id });
       } else if (role === 'company') {
         await CompanyModel.create({ user_id: newUser._id });
+        await OTPModel.deleteMany({ email }); // Clear used OTPs
       }
 
       const token = jwt.sign(

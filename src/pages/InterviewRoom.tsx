@@ -102,15 +102,8 @@ export default function InterviewRoom() {
     let localStream: MediaStream | null = null;
     let localSocket: any = null;
 
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((currentStream) => {
-        if (!mounted) {
-           currentStream.getTracks().forEach(track => track.stop());
-           return;
-        }
-        
-        localStream = currentStream;
-        setStream(currentStream);
+    const setupConnection = (currentStream: MediaStream | undefined) => {
+        if (!mounted) return;
         
         const socketUrl = import.meta.env.VITE_API_URL || window.location.origin;
         console.log("Connecting socket to:", socketUrl);
@@ -141,7 +134,6 @@ export default function InterviewRoom() {
           if (!mounted) return;
           console.log("Joined room. Users already in room:", users);
           if (users.length > 0) {
-            // Initiate connection to the first user found
             createPeer(users[0], localSocket.id, currentStream);
           }
         });
@@ -170,7 +162,6 @@ export default function InterviewRoom() {
           setCode(newCode);
         });
 
-        // Handle when the other user disconnects
         localSocket.on('user-disconnected', (disconnectedId: string) => {
           if (!mounted) return;
           console.log("Remote user disconnected:", disconnectedId);
@@ -182,10 +173,22 @@ export default function InterviewRoom() {
           setPeerConnected(false);
           setRemoteStream(null);
         });
+    };
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then((currentStream) => {
+        if (!mounted) {
+           currentStream.getTracks().forEach(track => track.stop());
+           return;
+        }
+        localStream = currentStream;
+        setStream(currentStream);
+        setupConnection(currentStream);
       })
       .catch(err => {
-        console.error("Media devices access denied:", err);
-        alert("Could not access camera/microphone. Please ensure permissions are granted.");
+        console.error("Media devices access denied or not available:", err);
+        // alert("Camera/mic not available. Connecting in text-only mode.");
+        setupConnection(undefined);
       });
 
     return () => {
@@ -201,6 +204,7 @@ export default function InterviewRoom() {
       if (localSocket) {
         localSocket.disconnect();
       }
+//...
       window.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleVisibilityChange);
       document.removeEventListener('fullscreenchange', handleFullScreenChange);
@@ -265,7 +269,7 @@ export default function InterviewRoom() {
     }
   };
 
-  const createPeer = (userToSignal: string, callerID: string, stream: MediaStream) => {
+  const createPeer = (userToSignal: string, callerID: string, stream: MediaStream | undefined) => {
     // Destroy any existing peer before creating a new one
     if (peerRef.current) {
       peerRef.current.destroy();
@@ -274,7 +278,7 @@ export default function InterviewRoom() {
     console.log("Initiating P2P connection as initiator to:", userToSignal);
     const peer = new Peer({
       initiator: true,
-      trickle: true,
+      trickle: false,
       stream,
       config: iceConfig
     });
@@ -306,7 +310,7 @@ export default function InterviewRoom() {
     peerCallerID.current = userToSignal;
   };
 
-  const addPeer = (incomingSignal: any, callerID: string, stream: MediaStream) => {
+  const addPeer = (incomingSignal: any, callerID: string, stream: MediaStream | undefined) => {
     // If we already have a peer for trickle ICE candidates, just forward the signal
     if (peerRef.current && !peerRef.current.destroyed && peerCallerID.current === callerID) {
         console.log("Forwarding trickle ICE signal to existing peer...");
@@ -327,7 +331,7 @@ export default function InterviewRoom() {
     console.log("Creating new peer as receiver for caller:", callerID);
     const peer = new Peer({
       initiator: false,
-      trickle: true,
+      trickle: false,
       stream,
       config: iceConfig
     });

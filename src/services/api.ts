@@ -31,6 +31,7 @@ export const api = {
     login: (credentials: any) => api.request("/auth/login", { method: "POST", body: JSON.stringify(credentials) }),
     adminLogin: (credentials: any) => api.request("/auth/login", { method: "POST", body: JSON.stringify(credentials) }),
     signup: (data: any) => api.request("/auth/signup", { method: "POST", body: JSON.stringify(data) }),
+    sendOtp: (data: { email: string }) => api.request("/auth/send-otp", { method: "POST", body: JSON.stringify(data) }),
   },
 
   profile: {

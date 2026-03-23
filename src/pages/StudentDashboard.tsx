@@ -23,7 +23,8 @@ export default function StudentDashboard() {
     bio: '',
     experience: '',
     why_us: '',
-    links: ''
+    links: '',
+    resume: ''
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -65,7 +66,7 @@ export default function StudentDashboard() {
     try {
       await api.applications.apply((selectedJob._id || selectedJob.id) as any, formData);
       setShowApplyModal(false);
-      setFormData({ bio: '', experience: '', why_us: '', links: '' });
+      setFormData({ bio: '', experience: '', why_us: '', links: '', resume: '' });
       fetchData();
       alert("Application submitted successfully!");
     } catch (err: any) {
@@ -107,6 +108,25 @@ export default function StudentDashboard() {
     show: { opacity: 1, y: 0 }
   };
 
+  const activeInterviews = interviews.filter(i => {
+    if (i.status !== 'scheduled') return false;
+    if (!i.scheduled_at) return true;
+    const isPast24Hrs = new Date(i.scheduled_at).getTime() + 24 * 60 * 60 * 1000 < new Date().getTime();
+    return !isPast24Hrs;
+  });
+
+  const getButtonState = (scheduledAt: string) => {
+    if (!scheduledAt) return { isReady: true, text: "Enter Room" };
+    const timeDiff = new Date(scheduledAt).getTime() - new Date().getTime();
+    if (timeDiff <= 0) return { isReady: true, text: "Enter Room" };
+    
+    const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+    if (hours > 24) return { isReady: false, text: `Starts in ${Math.floor(hours / 24)}d` };
+    if (hours > 0) return { isReady: false, text: `Starts in ${hours}h ${minutes}m` };
+    return { isReady: false, text: `Starts in ${minutes}m` };
+  };
+
   return (
     <motion.div
       variants={container}
@@ -130,7 +150,7 @@ export default function StudentDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard label="Live Applications" value={applications.length} color="sky" icon={Target} trend="3 active processes" />
-        <StatCard label="Interviews" value={interviews.filter(i => i.status === 'scheduled').length} color="violet" icon={Video} trend="Next session: Tomorrow" />
+        <StatCard label="Interviews" value={activeInterviews.length} color="violet" icon={Video} trend="Next session: Tomorrow" />
         <StatCard label="Shortlisted" value={applications.filter(a => a.status === 'shortlisted').length} color="green" icon={CheckCircle2} trend="+1 in last 24h" />
         <StatCard label="AI Readiness" value="84%" color="amber" icon={Sparkles} trend="Top 15% of candidates" />
       </div>
@@ -230,34 +250,42 @@ export default function StudentDashboard() {
             </div>
 
             <div className="space-y-4">
-              {interviews.filter(i => i.status === 'scheduled').length > 0 ? (
-                interviews.filter(i => i.status === 'scheduled').map((interview) => (
-                  <motion.div
-                    key={interview.id}
-                    whileHover={{ scale: 1.02 }}
-                    className="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white"
-                  >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-                    <div className="relative space-y-6">
-                      <div className="flex justify-between items-start">
-                        <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
-                          <Video size={24} className="text-sky-400" />
+              {activeInterviews.length > 0 ? (
+                activeInterviews.map((interview) => {
+                  const { isReady, text } = getButtonState(interview.scheduled_at);
+                  return (
+                    <motion.div
+                      key={interview.id}
+                      whileHover={{ scale: 1.02 }}
+                      className="bg-slate-900 p-5 rounded-[1.5rem] shadow-xl relative overflow-hidden text-white border border-slate-700"
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-sky-500/20 rounded-[1rem] flex items-center justify-center shrink-0">
+                            <Video size={20} className="text-sky-400" />
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="text-base font-black truncate">{interview.title}</h3>
+                            <p className="text-sky-400 font-bold text-xs truncate">{interview.company_name}</p>
+                          </div>
                         </div>
-                        <span className="px-3 py-1 bg-white/10 rounded-lg text-[10px] font-black uppercase tracking-widest border border-white/5">Virtual</span>
+                        
+                        {isReady ? (
+                          <Link
+                            to={`/interview/${interview.room_id}`}
+                            className="flex items-center justify-center px-4 py-2.5 bg-white text-slate-900 font-black text-xs rounded-xl hover:bg-sky-50 transition-all shadow-md shrink-0"
+                          >
+                            Enter Room <ArrowUpRight size={14} className="ml-1" />
+                          </Link>
+                        ) : (
+                          <button disabled className="px-4 py-2.5 bg-slate-800 text-slate-400 font-black text-xs rounded-xl border border-slate-700 cursor-not-allowed shrink-0">
+                            {text}
+                          </button>
+                        )}
                       </div>
-                      <div>
-                        <h3 className="text-xl font-black mb-1">{interview.title}</h3>
-                        <p className="text-sky-400 font-bold text-sm">{interview.company_name}</p>
-                      </div>
-                      <Link
-                        to={`/interview/${interview.room_id}`}
-                        className="flex items-center justify-center gap-2 w-full py-4 bg-white text-slate-900 font-black rounded-2xl hover:bg-sky-50 transition-all shadow-xl"
-                      >
-                        Enter Room <ArrowUpRight size={18} />
-                      </Link>
-                    </div>
-                  </motion.div>
-                ))
+                    </motion.div>
+                  );
+                })
               ) : (
                 <div className="p-10 border-2 border-dashed border-slate-100 rounded-[2.5rem] text-center">
                   <Video size={40} className="mx-auto text-slate-100 mb-4" />
@@ -366,6 +394,16 @@ export default function StudentDashboard() {
                     type="text" value={formData.links}
                     onChange={(e) => setFormData({ ...formData, links: e.target.value })}
                     placeholder="Portfolio/GitHub/LinkedIn"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Resume Link</label>
+                  <input
+                    type="text" required value={formData.resume}
+                    onChange={(e) => setFormData({ ...formData, resume: e.target.value })}
+                    placeholder="Google Drive, Dropbox, or Portfolio URL"
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
                   />
                 </div>
