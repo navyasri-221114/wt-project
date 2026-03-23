@@ -14,6 +14,7 @@ export interface IStudentProfile extends Document {
   linkedin_url?: string;
   github_url?: string;
   is_public: number;
+  saved_jobs?: mongoose.Types.ObjectId[];
 }
 
 const studentProfileSchema = new Schema<IStudentProfile>({
@@ -29,7 +30,8 @@ const studentProfileSchema = new Schema<IStudentProfile>({
   resume_url: { type: String },
   linkedin_url: { type: String },
   github_url: { type: String },
-  is_public: { type: Number, default: 1 }
+  is_public: { type: Number, default: 1 },
+  saved_jobs: [{ type: Schema.Types.ObjectId, ref: 'Job' }]
 });
 
 export const StudentModel = mongoose.models.StudentProfile || mongoose.model<IStudentProfile>('StudentProfile', studentProfileSchema);

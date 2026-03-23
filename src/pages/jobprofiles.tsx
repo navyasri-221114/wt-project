@@ -9,6 +9,7 @@ export default function JobProfiles() {
   const [searchParams] = useSearchParams();
   const [jobsData, setJobsData] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
+  const [studentProfile, setStudentProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<any>(null);
@@ -19,7 +20,6 @@ export default function JobProfiles() {
   const [submitting, setSubmitting] = useState(false);
 
   const [search, setSearch] = useState(searchParams.get("q") || "");
-  const [locationFilter, setLocationFilter] = useState("");
   const [activeTab, setActiveTab] = useState("All Jobs");
   
   // Search Autocomplete State
@@ -52,16 +52,27 @@ export default function JobProfiles() {
 
   const fetchData = async (isPolling = false) => {
     try {
-      const [jobsRes, appsRes] = await Promise.all([
+      const [jobsRes, appsRes, profileRes] = await Promise.all([
         api.jobs.getAll(),
-        api.applications.getMy().catch(() => []) 
+        api.applications.getMy().catch(() => []),
+        api.profile.get().catch(() => null)
       ]);
       setJobsData(jobsRes);
       setApplications(appsRes);
+      setStudentProfile(profileRes);
     } catch (err) {
       console.error("Error fetching jobs:", err);
     } finally {
       if (!isPolling) setLoading(false);
+    }
+  };
+
+  const handleToggleSave = async (jobId: string) => {
+    try {
+      const res = await api.profile.saveJob(jobId);
+      setStudentProfile({ ...studentProfile, saved_jobs: res.saved_jobs });
+    } catch (err: any) {
+      alert(err.message || "Failed to save job");
     }
   };
 
@@ -93,14 +104,39 @@ export default function JobProfiles() {
     return applications.find(app => (app.job_id?.id || app.job_id?._id || app.job_id) === jobId || app.job_id === jobId);
   };
 
+  const isJobSaved = (jobId: string) => {
+    return studentProfile?.saved_jobs?.some((id: string) => id === jobId) || false;
+  };
+
   const filteredJobs = jobsData.filter((job) => {
-    if (activeTab === "Saved") return false; // Mock saved filter logic
-    return (
-      ((job.title || "").toLowerCase().includes(search.toLowerCase()) || 
+    const jobId = job._id || job.id;
+    const matchesSearch = ((job.title || "").toLowerCase().includes(search.toLowerCase()) || 
        (job.company_name || "").toLowerCase().includes(search.toLowerCase()) ||
-       (job.requirements || "").toLowerCase().includes(search.toLowerCase())) &&
-      (job.location || "Remote").toLowerCase().includes(locationFilter.toLowerCase())
-    );
+       (job.requirements || "").toLowerCase().includes(search.toLowerCase()));
+
+    if (!matchesSearch) return false;
+
+    if (activeTab === "Saved") {
+      return isJobSaved(jobId);
+    }
+
+    if (activeTab === "Recommended") {
+      const minCgpa = job.min_cgpa || 0;
+      const myCgpa = studentProfile?.cgpa || 0;
+      if (myCgpa < minCgpa) return false;
+      
+      const mySkillsStr = (studentProfile?.skills || "").toLowerCase();
+      const jobSkills = (job.requirements || "").toLowerCase().split(',').map((s: string) => s.trim());
+      
+      // If student has at least one matching skill or both have generic/no skills
+      if (jobSkills.length > 0 && jobSkills[0] !== "") {
+          const hasMatchingSkill = jobSkills.some((skill: string) => mySkillsStr.includes(skill));
+          return hasMatchingSkill;
+      }
+      return true; // if no specific skills required but CGPA matched
+    }
+
+    return true; // "All Jobs"
   });
 
   // Group filtered jobs by company for the main view
@@ -170,7 +206,7 @@ export default function JobProfiles() {
 
       {/* ─── Search + Filters ─── */}
       <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
-        <div className="md:col-span-2 relative group focus-within:z-50" ref={searchContainerRef}>
+        <div className="md:col-span-4 relative group focus-within:z-50" ref={searchContainerRef}>
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-600 transition-colors" size={20} />
           <input
             type="text"
@@ -229,22 +265,6 @@ export default function JobProfiles() {
             )}
           </AnimatePresence>
         </div>
-
-        <div className="relative group focus-within:z-10">
-          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-600 transition-colors" size={20} />
-          <input
-            type="text"
-            placeholder="Location..."
-            className="w-full bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500/50 transition-all font-medium shadow-sm hover:bg-white"
-            value={locationFilter}
-            onChange={(e) => setLocationFilter(e.target.value)}
-          />
-        </div>
-
-        <button className="flex items-center justify-center gap-2 px-6 py-3.5 bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm hover:shadow active:scale-[0.98]">
-          <Filter size={20} />
-          Filters
-        </button>
       </motion.div>
 
       {/* ─── Grouped Job Cards Grid ─── */}
@@ -385,8 +405,15 @@ export default function JobProfiles() {
                                 Apply Now <ArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                               </button>
                             )}
-                            <button className="px-3.5 border border-slate-200/80 text-slate-400 rounded-xl hover:bg-slate-50 hover:text-amber-500 hover:border-amber-200 transition-all">
-                              <Star size={18} />
+                            <button 
+                              onClick={() => handleToggleSave(jobId)} 
+                              className={cn(
+                                "px-3.5 border rounded-xl transition-all flex items-center justify-center",
+                                isJobSaved(jobId) 
+                                 ? "bg-amber-50 text-amber-500 border-amber-200" 
+                                 : "border-slate-200/80 text-slate-400 hover:bg-slate-50 hover:text-amber-500 hover:border-amber-200"
+                              )}>
+                              <Star size={18} fill={isJobSaved(jobId) ? "currentColor" : "none"} />
                             </button>
                           </div>
                         </motion.div>

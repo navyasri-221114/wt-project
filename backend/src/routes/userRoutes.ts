@@ -6,6 +6,7 @@ const router = Router();
 
 router.get("/profile", authenticate, userController.getProfile);
 router.put("/profile", authenticate, userController.updateProfile);
+router.post("/profile/save-job", authenticate, userController.toggleSaveJob);
 router.get("/students/search", authenticate, userController.searchStudents);
 router.get("/students/:id", authenticate, userController.getStudentById);
 router.get("/companies", authenticate, userController.getAllCompanies);

@@ -4,6 +4,7 @@ import { UserService } from "../services/userService.js";
 import { StudentService } from "../services/studentService.js";
 import { UserModel } from "../models/User.js";
 import { CompanyModel } from "../models/Company.js";
+import { StudentModel } from "../models/Student.js";
 
 export const userController = {
   getProfile: async (req: AuthRequest, res: Response) => {
@@ -84,6 +85,31 @@ export const userController = {
       res.json(result);
     } catch (err: any) {
       res.status(500).json({ error: "Failed to fetch companies", details: err.message });
+    }
+  },
+
+  toggleSaveJob: async (req: AuthRequest, res: Response) => {
+    if (req.user?.role !== 'student') return res.status(403).json({ error: "Forbidden" });
+    const { jobId } = req.body;
+    try {
+      const student = await StudentModel.findOne({ user_id: req.user.id });
+      if (!student) return res.status(404).json({ error: "Student profile not found" });
+
+      const savedJobs = student.saved_jobs || [];
+      const jobIndex = savedJobs.findIndex(id => id.toString() === jobId);
+
+      if (jobIndex > -1) {
+        savedJobs.splice(jobIndex, 1);
+      } else {
+        savedJobs.push(jobId as any);
+      }
+
+      student.saved_jobs = savedJobs;
+      await student.save();
+
+      res.json({ message: jobIndex > -1 ? "Job removed from saved" : "Job saved successfully", saved_jobs: student.saved_jobs });
+    } catch (err: any) {
+      res.status(500).json({ error: "Failed to toggle save job", details: err.message });
     }
   }
 };
