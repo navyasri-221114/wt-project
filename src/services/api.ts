@@ -41,6 +41,7 @@ export const api = {
       const query = new URLSearchParams(params).toString();
       return api.request(`/students/search?${query}`);
     },
+    saveJob: (jobId: string) => api.request("/profile/save-job", { method: "POST", body: JSON.stringify({ jobId }) }),
   },
 
   companies: {
