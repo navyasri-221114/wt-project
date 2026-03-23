@@ -20,6 +20,7 @@ export default function ResumeBuilder() {
   const [form, setForm] = useState({
 
     name: "Alex Johnson",
+    job_title: "Full Stack Developer",
     phone: "+91 98765 43210",
     email: "alex.j@example.com",
     location: "Mumbai, India",
@@ -54,11 +55,21 @@ export default function ResumeBuilder() {
     work: "Optimized search latency by 15% and implemented new UI features for the cloud dashboard.",
 
     // Others
-    achievement1: "Winner of SIH 2024 (Smart India Hackathon)",
-    achievement2: "Ranked 150 globally in Google Kickstart Round F",
-    strength1: "Strong analytical and problem-solving mindset",
-    strength2: "Excellent team collaboration and communication",
-    spoken_languages: "English (Professional), Hindi (Native), Spanish (Elementary)"
+    certifications: "AWS Certified Developer Associate",
+    achievement1: "Winner of SIH 2024",
+    achievement2: "Ranked 150 globally in Kickstart",
+    strength1: "Strong analytical mindset",
+    strength2: "Team collaboration",
+    spoken_languages: "English, Hindi, Spanish",
+    extra_curricular: "Core Member of GDSC",
+
+    // References
+    ref1_name: "Dr. Robert Smith",
+    ref1_role: "Professor, IIT Bombay",
+    ref1_contact: "robert.s@iitb.ac.in",
+    ref2_name: "Sarah Miller",
+    ref2_role: "Tech Lead, Google",
+    ref2_contact: "s.miller@google.com"
   });
 
   const handleChange = (e: any) => {
@@ -74,17 +85,23 @@ export default function ResumeBuilder() {
         project1_title: "", project1_desc: "", project1_tech: "",
         project2_title: "", project2_desc: "", project2_tech: "",
         company: "", role: "", duration: "", work: "",
-        achievement1: "", achievement2: "", strength1: "", strength2: "", spoken_languages: ""
+        certifications: "", extra_curricular: "",
+        achievement1: "", achievement2: "", strength1: "", strength2: "", spoken_languages: "",
+        job_title: "", ref1_name: "", ref1_role: "", ref1_contact: "", ref2_name: "", ref2_role: "", ref2_contact: ""
       });
     }
   };
 
   const steps = [
     { id: 'smart', label: 'AI Smart Fill', icon: Sparkles },
-    { id: 'personal', label: 'Personal & Summary', icon: User },
-    { id: 'education', label: 'Education & Skills', icon: GraduationCap },
+    { id: 'personal', label: 'Personal Info', icon: User },
+    { id: 'summary', label: 'Professional Summary', icon: Edit3 },
+    { id: 'skills', label: 'Technical Skills', icon: Award },
+    { id: 'education', label: 'Education', icon: GraduationCap },
     { id: 'projects', label: 'Projects', icon: Briefcase },
-    { id: 'experience', label: 'Experience & Extras', icon: Award },
+    { id: 'others', label: 'Achievements & Certs', icon: Award },
+    { id: 'additional', label: 'Additional Info', icon: Plus },
+    { id: 'references', label: 'References', icon: User },
   ];
 
   useEffect(() => {
@@ -346,41 +363,36 @@ ADDITIONAL
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <InputGroup label="Full Name" name="name" value={form.name} onChange={handleChange} icon={User} />
+                      <InputGroup label="Job Title" name="job_title" value={form.job_title} onChange={handleChange} icon={Briefcase} />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <InputGroup label="Location" name="location" value={form.location} onChange={handleChange} icon={Phone} />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <InputGroup label="Email Address" name="email" value={form.email} onChange={handleChange} icon={Mail} />
-                      <InputGroup label="Phone Number" name="phone" value={form.phone} onChange={handleChange} icon={Phone} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <InputGroup label="Phone Number" name="phone" value={form.phone} onChange={handleChange} icon={Phone} />
                       <InputGroup label="LinkedIn" name="linkedin" value={form.linkedin} onChange={handleChange} icon={LinkIcon} />
-                      <InputGroup label="GitHub / Portfolio" name="portfolio" value={form.portfolio} onChange={handleChange} icon={Github} />
                     </div>
-                    <div className="relative">
-                      <TextAreaGroup label="Professional Summary" name="objective" value={form.objective} onChange={handleChange} icon={Sparkles} />
-                      <button
-                        onClick={() => handleSuggest('objective')}
-                        disabled={!!suggestingField}
-                        className="absolute right-4 top-10 p-2 bg-sky-100 text-sky-600 rounded-lg hover:bg-sky-200 transition-all"
-                        title="Suggest professional summary"
-                      >
-                        {suggestingField === 'objective' ? <div className="w-4 h-4 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" /> : <Sparkles size={16} />}
-                      </button>
-                    </div>
+                    <InputGroup label="GitHub / Portfolio" name="portfolio" value={form.portfolio} onChange={handleChange} icon={Github} />
                   </div>
                 )}
 
                 {activeStep === 2 && (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <InputGroup label="Degree" name="degree" value={form.degree} onChange={handleChange} icon={GraduationCap} />
-                      <InputGroup label="College" name="college" value={form.college} onChange={handleChange} icon={GraduationCap} />
+                    <div className="space-y-6 relative">
+                        <TextAreaGroup label="Professional Summary" name="objective" value={form.objective} onChange={handleChange} icon={Sparkles} />
+                        <button
+                          onClick={() => handleSuggest('objective')}
+                          disabled={!!suggestingField}
+                          className="absolute right-4 top-10 p-2 bg-sky-100 text-sky-600 rounded-lg hover:bg-sky-200 transition-all"
+                          title="Suggest professional summary"
+                        >
+                          {suggestingField === 'objective' ? <div className="w-4 h-4 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" /> : <Sparkles size={16} />}
+                        </button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <InputGroup label="Year" name="year" value={form.year} onChange={handleChange} icon={GraduationCap} />
-                      <InputGroup label="CGPA / Percentage" name="cgpa" value={form.cgpa} onChange={handleChange} icon={GraduationCap} />
-                    </div>
+                )}
 
+                {activeStep === 3 && (
+                  <div className="space-y-6">
                     <div className="grid grid-cols-1 gap-6 relative">
                       <InputGroup label="Programming Languages" name="languages" value={form.languages} onChange={handleChange} icon={Award} />
                       <button
@@ -392,13 +404,38 @@ ADDITIONAL
                         {suggestingField === 'languages' ? <div className="w-4 h-4 border-2 border-sky-600/30 border-t-sky-600 rounded-full animate-spin" /> : <Sparkles size={16} />}
                       </button>
                     </div>
-
                     <InputGroup label="Web Technologies" name="web_tech" value={form.web_tech} onChange={handleChange} icon={Award} />
                     <InputGroup label="Tools & Tech" name="tools" value={form.tools} onChange={handleChange} icon={Award} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <InputGroup label="Strength 1" name="strength1" value={form.strength1} onChange={handleChange} icon={Sparkles} />
+                      <InputGroup label="Strength 2" name="strength2" value={form.strength2} onChange={handleChange} icon={Sparkles} />
+                    </div>
                   </div>
                 )}
 
-                {activeStep === 3 && (
+                {activeStep === 4 && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <InputGroup label="Degree" name="degree" value={form.degree} onChange={handleChange} icon={GraduationCap} />
+                      <InputGroup label="College" name="college" value={form.college} onChange={handleChange} icon={GraduationCap} />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <InputGroup label="Year" name="year" value={form.year} onChange={handleChange} icon={GraduationCap} />
+                      <InputGroup label="CGPA / Percentage" name="cgpa" value={form.cgpa} onChange={handleChange} icon={GraduationCap} />
+                    </div>
+                    <div className="p-6 bg-sky-50/50 rounded-3xl border border-sky-100/50 space-y-4">
+                      <h3 className="font-black text-sky-900">Optional Experience</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <InputGroup label="Company" name="company" value={form.company} onChange={handleChange} icon={Briefcase} />
+                        <InputGroup label="Role" name="role" value={form.role} onChange={handleChange} icon={Briefcase} />
+                      </div>
+                      <InputGroup label="Duration" name="duration" value={form.duration} onChange={handleChange} icon={Briefcase} />
+                      <TextAreaGroup label="Work Done" name="work" value={form.work} onChange={handleChange} icon={Briefcase} />
+                    </div>
+                  </div>
+                )}
+
+                {activeStep === 5 && (
                   <div className="space-y-8">
                     <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 space-y-4">
                       <h3 className="font-black text-slate-800">Project 1</h3>
@@ -415,26 +452,28 @@ ADDITIONAL
                   </div>
                 )}
 
-                {activeStep === 4 && (
+                {activeStep === 6 && (
                   <div className="space-y-6">
-                    <div className="p-6 bg-sky-50/50 rounded-3xl border border-sky-100/50 space-y-4">
-                      <h3 className="font-black text-sky-900">Experience</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <InputGroup label="Company" name="company" value={form.company} onChange={handleChange} icon={Briefcase} />
-                        <InputGroup label="Role" name="role" value={form.role} onChange={handleChange} icon={Briefcase} />
-                      </div>
-                      <InputGroup label="Duration" name="duration" value={form.duration} onChange={handleChange} icon={Briefcase} />
-                      <TextAreaGroup label="Work Done" name="work" value={form.work} onChange={handleChange} icon={Briefcase} />
+                    <TextAreaGroup label="Achievements" name="achievement1" value={form.achievement1} onChange={handleChange} icon={Award} />
+                     <TextAreaGroup label="Achievements Continued" name="achievement2" value={form.achievement2} onChange={handleChange} icon={Award} />
+                     <TextAreaGroup label="Certifications" name="certifications" value={form.certifications} onChange={handleChange} icon={Award} placeholder="E.g. AWS Certified, Java Gold..." />
+                  </div>
+                )}
+
+                {activeStep === 8 && (
+                  <div className="space-y-8">
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 space-y-4">
+                      <h3 className="font-black text-slate-800">Reference 1</h3>
+                      <InputGroup label="Full Name" name="ref1_name" value={form.ref1_name} onChange={handleChange} icon={User} />
+                      <InputGroup label="Job Title / Role" name="ref1_role" value={form.ref1_role} onChange={handleChange} icon={Briefcase} />
+                      <InputGroup label="Contact Info" name="ref1_contact" value={form.ref1_contact} onChange={handleChange} icon={Mail} />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <TextAreaGroup label="Achievement 1" name="achievement1" value={form.achievement1} onChange={handleChange} icon={Award} />
-                      <TextAreaGroup label="Achievement 2" name="achievement2" value={form.achievement2} onChange={handleChange} icon={Award} />
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 space-y-4">
+                      <h3 className="font-black text-slate-800">Reference 2</h3>
+                      <InputGroup label="Full Name" name="ref2_name" value={form.ref2_name} onChange={handleChange} icon={User} />
+                      <InputGroup label="Job Title / Role" name="ref2_role" value={form.ref2_role} onChange={handleChange} icon={Briefcase} />
+                      <InputGroup label="Contact Info" name="ref2_contact" value={form.ref2_contact} onChange={handleChange} icon={Mail} />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <InputGroup label="Strength 1" name="strength1" value={form.strength1} onChange={handleChange} icon={Sparkles} />
-                      <InputGroup label="Strength 2" name="strength2" value={form.strength2} onChange={handleChange} icon={Sparkles} />
-                    </div>
-                    <InputGroup label="Languages Known" name="spoken_languages" value={form.spoken_languages} onChange={handleChange} icon={Languages} />
                   </div>
                 )}
               </motion.div>
@@ -445,196 +484,134 @@ ADDITIONAL
         {/* Right Side - Live Preview */}
         <div className="xl:w-1/2">
           <div className="sticky top-28">
-            {/* Preview Card */}
-            <div className="bg-white min-h-[842px] w-full shadow-2xl p-8 sm:p-12 overflow-hidden border border-slate-100 font-serif text-slate-900">
-
-              {/* Header */}
-              {(form.name || form.email || form.phone) && (
-                <div className="text-center space-y-2 mb-6">
-                  <h1
-                    contentEditable
-                    suppressContentEditableWarning
-                    onBlur={(e) => setForm({ ...form, name: e.currentTarget.innerText })}
-                    className="text-3xl font-bold uppercase tracking-tight outline-none focus:bg-slate-50 min-h-[1.2em]"
-                  >
-                    {form.name || "YOUR NAME"}
-                  </h1>
-                  <p className="text-sm">
-                    <Editable text={form.location} name="location" setForm={setForm} form={form} />
-                    {(form.location && (form.phone || form.email)) ? " | " : ""}
-                    <Editable text={form.phone} name="phone" setForm={setForm} form={form} />
-                    {(form.phone && form.email) ? " | " : ""}
-                    <Editable text={form.email} name="email" setForm={setForm} form={form} />
+            <div className="bg-white min-h-[842px] w-full shadow-2xl overflow-hidden border border-slate-100 font-sans flex text-slate-900 rounded-sm">
+              
+              {/* LEFT SIDEBAR (30-35%) */}
+              <div className="w-[32%] bg-[#f5f5f5] p-8 flex flex-col border-r border-slate-100">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-black uppercase leading-tight tracking-tight">
+                    <Editable text={form.name} name="name" setForm={setForm} form={form} />
+                  </h2>
+                  <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">
+                    <Editable text={form.job_title} name="job_title" setForm={setForm} form={form} placeholder="Role / Title" />
                   </p>
-                  {(form.linkedin || form.portfolio) && (
-                    <p className="text-xs text-sky-600 font-medium">
-                      {form.linkedin && <>LinkedIn: <Editable text={form.linkedin} name="linkedin" setForm={setForm} form={form} /></>}
-                      {form.linkedin && form.portfolio ? " | " : ""}
-                      {form.portfolio && <>GitHub: <Editable text={form.portfolio} name="portfolio" setForm={setForm} form={form} /></>}
-                    </p>
-                  )}
-                  <hr className="border-slate-300 mt-4" />
                 </div>
-              )}
 
-              {/* Summary */}
-              {form.objective && (
-                <div className="space-y-2 mb-6 text-sm">
-                  <h4 className="font-bold uppercase tracking-wider text-slate-800 text-[13px]">Summary / Objective</h4>
-                  <p
-                    contentEditable
-                    suppressContentEditableWarning
-                    onBlur={(e) => setForm({ ...form, objective: e.currentTarget.innerText })}
-                    className="leading-relaxed text-slate-600 italic outline-none focus:bg-slate-50"
-                  >
-                    "{form.objective}"
-                  </p>
-                  <hr className="border-slate-200 mt-4" />
-                </div>
-              )}
-
-              {/* Education */}
-              {(form.degree || form.college) && (
-                <div className="space-y-3 mb-6">
-                  <h4 className="font-bold uppercase tracking-wider text-slate-800 text-[13px]">Education</h4>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-bold text-sm">
-                        <Editable text={form.degree} name="degree" setForm={setForm} form={form} placeholder="Degree Name" />
-                      </p>
-                      <p className="text-sm text-slate-600">
-                        <Editable text={form.college} name="college" setForm={setForm} form={form} placeholder="College/University" />
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold">
-                        <Editable text={form.year} name="year" setForm={setForm} form={form} placeholder="Year" />
-                      </p>
-                      {form.cgpa && (
-                        <p className="text-sm text-sky-600 font-bold">
-                          CGPA: <Editable text={form.cgpa} name="cgpa" setForm={setForm} form={form} />
-                        </p>
-                      )}
+                <div className="space-y-6">
+                  {/* Contact */}
+                  <div className="space-y-3">
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Contact</h3>
+                    <div className="space-y-2 text-[11px] font-medium text-slate-600">
+                      <div className="flex items-center gap-2"><Phone size={12} /> <Editable text={form.phone} name="phone" setForm={setForm} form={form} /></div>
+                      <div className="flex items-center gap-2"><Mail size={12} /> <Editable text={form.email} name="email" setForm={setForm} form={form} /></div>
+                      <div className="flex items-center gap-2"><Briefcase size={12} /> <Editable text={form.location} name="location" setForm={setForm} form={form} /></div>
+                      <div className="flex items-center gap-2"><LinkIcon size={12} /> <Editable text={form.linkedin} name="linkedin" setForm={setForm} form={form} /></div>
                     </div>
                   </div>
-                  <hr className="border-slate-200 mt-4" />
-                </div>
-              )}
 
-              {/* Skills */}
-              {(form.languages || form.web_tech || form.tools) && (
-                <div className="space-y-2 mb-6 text-sm">
-                  <h4 className="font-bold uppercase tracking-wider text-slate-800 text-[13px]">Skills</h4>
-                  <div className="space-y-1">
-                    {form.languages && (
-                      <p>
-                        <span className="font-bold">Programming Languages:</span>{" "}
-                        <Editable text={form.languages} name="languages" setForm={setForm} form={form} />
-                      </p>
-                    )}
-                    {form.web_tech && (
-                      <p>
-                        <span className="font-bold">Web Technologies:</span>{" "}
-                        <Editable text={form.web_tech} name="web_tech" setForm={setForm} form={form} />
-                      </p>
-                    )}
-                    {form.tools && (
-                      <p>
-                        <span className="font-bold">Tools & Technologies:</span>{" "}
-                        <Editable text={form.tools} name="tools" setForm={setForm} form={form} />
-                      </p>
-                    )}
+                  {/* Education */}
+                  <div className="space-y-3">
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Education</h3>
+                    <div className="space-y-4">
+                      <div className="space-y-1">
+                         <p className="text-[11px] font-black uppercase tracking-tight text-slate-800"><Editable text={form.degree} name="degree" setForm={setForm} form={form} /></p>
+                         <p className="text-[10px] font-bold text-slate-500 italic"><Editable text={form.college} name="college" setForm={setForm} form={form} /></p>
+                         <div className="flex justify-between text-[10px] font-bold text-sky-600 mt-1">
+                            <span><Editable text={form.year} name="year" setForm={setForm} form={form} /></span>
+                            <span>GPA: <Editable text={form.cgpa} name="cgpa" setForm={setForm} form={form} /></span>
+                         </div>
+                      </div>
+                    </div>
                   </div>
-                  <hr className="border-slate-200 mt-4" />
-                </div>
-              )}
 
-              {/* Projects */}
-              {(form.project1_title || form.project2_title) && (
-                <div className="space-y-4 mb-6 text-sm">
-                  <h4 className="font-bold uppercase tracking-wider text-slate-800 text-[13px]">Projects</h4>
-                  {form.project1_title && (
-                    <div>
-                      <div className="flex justify-between font-bold mb-1">
-                        <Editable text={form.project1_title} name="project1_title" setForm={setForm} form={form} />
-                        <span className="text-sky-600 text-[11px]">
-                          <Editable text={form.project1_tech} name="project1_tech" setForm={setForm} form={form} />
-                        </span>
-                      </div>
-                      <p className="text-slate-600">• <Editable text={form.project1_desc} name="project1_desc" setForm={setForm} form={form} /></p>
+                  {/* Skills */}
+                  <div className="space-y-3">
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Skills</h3>
+                    <div className="space-y-1 text-[10px] font-bold text-slate-700">
+                      {form.languages && <div className="flex items-start gap-1 pb-1">• <Editable text={form.languages} name="languages" setForm={setForm} form={form} /></div>}
+                      {form.web_tech && <div className="flex items-start gap-1 pb-1">• <Editable text={form.web_tech} name="web_tech" setForm={setForm} form={form} /></div>}
+                      {form.tools && <div className="flex items-start gap-1">• <Editable text={form.tools} name="tools" setForm={setForm} form={form} /></div>}
                     </div>
-                  )}
-                  {form.project2_title && (
-                    <div>
-                      <div className="flex justify-between font-bold mb-1">
-                        <Editable text={form.project2_title} name="project2_title" setForm={setForm} form={form} />
-                        <span className="text-sky-600 text-[11px]">
-                          <Editable text={form.project2_tech} name="project2_tech" setForm={setForm} form={form} />
-                        </span>
-                      </div>
-                      <p className="text-slate-600">• <Editable text={form.project2_desc} name="project2_desc" setForm={setForm} form={form} /></p>
-                    </div>
-                  )}
-                  <hr className="border-slate-200 mt-4" />
-                </div>
-              )}
+                  </div>
 
-              {/* Experience */}
-              {form.company && (
-                <div className="space-y-2 mb-6 text-sm">
-                  <h4 className="font-bold uppercase tracking-wider text-slate-800 text-[13px]">Experience</h4>
-                  <div className="flex justify-between items-start mb-1">
-                    <div>
-                      <p className="font-bold">
-                        <Editable text={form.role} name="role" setForm={setForm} form={form} />
-                      </p>
-                      <p className="text-slate-600 italic text-[13px]">
-                        <Editable text={form.company} name="company" setForm={setForm} form={form} />
-                      </p>
-                    </div>
-                    <p className="font-bold text-[13px]">
-                      <Editable text={form.duration} name="duration" setForm={setForm} form={form} />
+                  {/* Languages */}
+                  <div className="space-y-3">
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Languages</h3>
+                    <p className="text-[10px] font-bold text-slate-600 italic leading-relaxed">
+                      <Editable text={form.spoken_languages} name="spoken_languages" setForm={setForm} form={form} />
                     </p>
                   </div>
-                  <p className="text-slate-600">• <Editable text={form.work} name="work" setForm={setForm} form={form} /></p>
-                  <hr className="border-slate-200 mt-4" />
                 </div>
-              )}
+              </div>
 
-              {/* Achievements */}
-              {(form.achievement1 || form.achievement2) && (
-                <div className="space-y-2 mb-6 text-sm">
-                  <h4 className="font-bold uppercase tracking-wider text-slate-800 text-[13px]">Achievements</h4>
-                  <ul className="list-disc list-inside text-slate-600 space-y-1">
-                    {form.achievement1 && <li><Editable text={form.achievement1} name="achievement1" setForm={setForm} form={form} /></li>}
-                    {form.achievement2 && <li><Editable text={form.achievement2} name="achievement2" setForm={setForm} form={form} /></li>}
-                  </ul>
-                  <hr className="border-slate-200 mt-4" />
+              {/* RIGHT MAIN CONTENT (65-70%) */}
+              <div className="flex-1 bg-white p-10 flex flex-col">
+                {/* Profile Section */}
+                <div className="mb-10">
+                   <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Profile</h3>
+                   <p className="text-xs text-slate-600 italic leading-relaxed">
+                     <Editable text={form.objective} name="objective" setForm={setForm} form={form} />
+                   </p>
                 </div>
-              )}
 
-              {/* Strengths & Extra */}
-              {(form.strength1 || form.strength2 || form.spoken_languages) && (
-                <div className="grid grid-cols-2 gap-8 text-sm">
-                  {(form.strength1 || form.strength2) && (
-                    <div className="space-y-2">
-                      <h4 className="font-bold uppercase tracking-wider text-slate-800 text-[13px]">Strengths</h4>
-                      <ul className="list-disc list-inside text-slate-600 text-[11px]">
-                        {form.strength1 && <li><Editable text={form.strength1} name="strength1" setForm={setForm} form={form} /></li>}
-                        {form.strength2 && <li><Editable text={form.strength2} name="strength2" setForm={setForm} form={form} /></li>}
-                      </ul>
-                    </div>
-                  )}
-                  {form.spoken_languages && (
-                    <div className="space-y-2">
-                      <h4 className="font-bold uppercase tracking-wider text-slate-800 text-[13px]">Languages Known</h4>
-                      <p className="text-slate-600 italic">
-                        <Editable text={form.spoken_languages} name="spoken_languages" setForm={setForm} form={form} />
-                      </p>
-                    </div>
-                  )}
+                {/* Work Experience with Timeline */}
+                <div className="mb-10">
+                   <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-6">Work Experience</h3>
+                   <div className="relative pl-6 space-y-8 border-l border-slate-200">
+                      <div className="relative">
+                         <div className="absolute -left-[30px] top-1.5 w-3.5 h-3.5 bg-slate-900 rounded-full border-4 border-white ring-1 ring-slate-200 shadow-sm" />
+                         <div className="flex justify-between items-start mb-1">
+                            <div>
+                               <h4 className="text-[13px] font-black uppercase text-slate-800"><Editable text={form.role} name="role" setForm={setForm} form={form} /></h4>
+                               <p className="text-[11px] font-bold text-slate-400 italic"><Editable text={form.company} name="company" setForm={setForm} form={form} /></p>
+                            </div>
+                            <span className="text-[10px] font-black bg-slate-100 px-2 py-0.5 rounded text-slate-500 uppercase">
+                               <Editable text={form.duration} name="duration" setForm={setForm} form={form} />
+                            </span>
+                         </div>
+                         <p className="text-xs text-slate-600 mt-2 leading-relaxed">• <Editable text={form.work} name="work" setForm={setForm} form={form} /></p>
+                      </div>
+                   </div>
                 </div>
-              )}
+
+                {/* Projects Section */}
+                <div className="mb-10">
+                   <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-6">Projects</h3>
+                   <div className="grid grid-cols-1 gap-6">
+                      <div className="p-4 bg-slate-50 rounded border border-slate-100">
+                         <div className="flex justify-between items-center mb-1">
+                            <h4 className="text-[12px] font-black uppercase text-slate-800"><Editable text={form.project1_title} name="project1_title" setForm={setForm} form={form} /></h4>
+                            <span className="text-[9px] font-black text-sky-600 uppercase tracking-wider"><Editable text={form.project1_tech} name="project1_tech" setForm={setForm} form={form} /></span>
+                         </div>
+                         <p className="text-[11px] text-slate-600 leading-relaxed"><Editable text={form.project1_desc} name="project1_desc" setForm={setForm} form={form} /></p>
+                      </div>
+                      <div className="p-4 bg-slate-50 rounded border border-slate-100">
+                         <div className="flex justify-between items-center mb-1">
+                            <h4 className="text-[12px] font-black uppercase text-slate-800"><Editable text={form.project2_title} name="project2_title" setForm={setForm} form={form} /></h4>
+                            <span className="text-[9px] font-black text-sky-600 uppercase tracking-wider"><Editable text={form.project2_tech} name="project2_tech" setForm={setForm} form={form} /></span>
+                         </div>
+                         <p className="text-[11px] text-slate-600 leading-relaxed"><Editable text={form.project2_desc} name="project2_desc" setForm={setForm} form={form} /></p>
+                      </div>
+                   </div>
+                </div>
+
+                {/* Reference Section (2-Column) */}
+                <div className="mt-auto">
+                   <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-6">References</h3>
+                   <div className="grid grid-cols-2 gap-8">
+                      <div className="space-y-1">
+                         <p className="text-[11px] font-black uppercase text-slate-800"><Editable text={form.ref1_name} name="ref1_name" setForm={setForm} form={form} /></p>
+                         <p className="text-[10px] font-bold text-slate-500 italic"><Editable text={form.ref1_role} name="ref1_role" setForm={setForm} form={form} /></p>
+                         <p className="text-[10px] font-black text-sky-600 uppercase mt-2 tracking-tighter"><Editable text={form.ref1_contact} name="ref1_contact" setForm={setForm} form={form} /></p>
+                      </div>
+                      <div className="space-y-1">
+                         <p className="text-[11px] font-black uppercase text-slate-800"><Editable text={form.ref2_name} name="ref2_name" setForm={setForm} form={form} /></p>
+                         <p className="text-[10px] font-bold text-slate-500 italic"><Editable text={form.ref2_role} name="ref2_role" setForm={setForm} form={form} /></p>
+                         <p className="text-[10px] font-black text-sky-600 uppercase mt-2 tracking-tighter"><Editable text={form.ref2_contact} name="ref2_contact" setForm={setForm} form={form} /></p>
+                      </div>
+                   </div>
+                 </div>
+              </div>
 
             </div>
           </div>

@@ -175,177 +175,222 @@ function addFooter(doc: jsPDF, label: string) {
 export function exportResumePDF(data: any) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
-  const MARGIN = 16;
-  const CONTENT_W = W - MARGIN * 2;
-  let y = 18;
-
-  // Helpers
-  const drawLine = (yPos: number) => {
-    doc.setDrawColor(200, 200, 210);
-    doc.setLineWidth(0.2);
-    doc.line(MARGIN, yPos, W - MARGIN, yPos);
-    return yPos + 6;
-  };
-
-  const sectionHeader = (title: string, yPos: number) => {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(40, 40, 60);
-    doc.text(title.toUpperCase(), MARGIN, yPos);
-    return yPos + 5;
-  };
-
-  // ── Header ──────────────────────────────────────────────────────────────────
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.setTextColor(20, 20, 30);
-  doc.text(data.name || "YOUR NAME", W / 2, y, { align: "center" });
-  y += 7;
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(80, 80, 90);
-  const contactInfo = [data.location, data.phone, data.email].filter(Boolean).join("  |  ");
-  doc.text(contactInfo, W / 2, y, { align: "center" });
-  y += 5;
-
-  const socialInfo = [`LinkedIn: ${data.linkedin}`, `GitHub: ${data.portfolio}`].filter((s) => !s.endsWith("undefined")).join("  |  ");
-  doc.setFontSize(8);
-  doc.setTextColor(79, 70, 229); // sky
-  doc.text(socialInfo, W / 2, y, { align: "center" });
-  y += 6;
-
-  y = drawLine(y);
-
-  // ── Summary ──────────────────────────────────────────────────────────────────
-  if (data.objective) {
-    y = sectionHeader("Summary / Objective", y);
-    doc.setFont("helvetica", "oblique");
-    doc.setFontSize(9);
-    doc.setTextColor(60, 60, 70);
-    const lines = doc.splitTextToSize(data.objective, CONTENT_W);
-    doc.text(lines, MARGIN, y);
-    y += lines.length * 5 + 4;
-    y = drawLine(y);
-  }
-
-  // ── Education ─────────────────────────────────────────────────────────────
-  y = sectionHeader("Education", y);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.setTextColor(40, 40, 50);
-  doc.text(data.degree, MARGIN, y);
-  doc.text(data.year, W - MARGIN, y, { align: "right" });
-  y += 5;
+  const H = doc.internal.pageSize.getHeight();
   
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.text(data.college, MARGIN, y);
+  const SIDEBAR_W = W * 0.33;
+  const MAIN_X = SIDEBAR_W + 10;
+  const RIGHT_CONTENT_W = W - MAIN_X - 10;
+  
+  // ── Backgrounds ────────────────────────────────────────────────────────────
+  // Sidebar Background
+  doc.setFillColor(245, 245, 245);
+  doc.rect(0, 0, SIDEBAR_W, H, "F");
+  
+  // Main Content Background (already white)
+  
+  let ly = 20; // Left Y
+  let ry = 25; // Right Y
+  const MARGIN_L = 10;
+
+  // ── LEFT SIDEBAR ───────────────────────────────────────────────────────────
+  // Name & Title
   doc.setFont("helvetica", "bold");
-  doc.setTextColor(79, 70, 229);
-  doc.text(`CGPA: ${data.cgpa}`, W - MARGIN, y, { align: "right" });
-  y += 8;
-  y = drawLine(y);
+  doc.setFontSize(18);
+  doc.setTextColor(20, 20, 20);
+  const nameLines = doc.splitTextToSize(data.name?.toUpperCase() || "YOUR NAME", SIDEBAR_W - MARGIN_L * 2);
+  doc.text(nameLines, MARGIN_L, ly);
+  ly += nameLines.length * 7 + 2;
 
-  // ── Skills ────────────────────────────────────────────────────────────────
-  y = sectionHeader("Skills", y);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(60, 60, 70);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 100);
+  doc.text(data.job_title?.toUpperCase() || "PROFESSIONAL", MARGIN_L, ly);
+  ly += 12;
 
-  const skills = [
-    { label: "Programming Languages", val: data.languages },
-    { label: "Web Technologies", val: data.web_tech },
-    { label: "Tools & Technologies", val: data.tools },
+  const sidebarHeader = (title: string, yPos: number) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text(title.toUpperCase(), MARGIN_L, yPos);
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.2);
+    doc.line(MARGIN_L, yPos + 1.5, SIDEBAR_W - MARGIN_L, yPos + 1.5);
+    return yPos + 7;
+  };
+
+  // Contact
+  ly = sidebarHeader("Contact", ly);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(60, 60, 60);
+  const contacts = [
+    { label: "Phone", val: data.phone },
+    { label: "Email", val: data.email },
+    { label: "Location", val: data.location },
+    { label: "LinkedIn", val: data.linkedin },
+    { label: "GitHub", val: data.portfolio }
   ];
-
-  skills.forEach(s => {
-    if (s.val) {
+  contacts.forEach(c => {
+    if (c.val && c.val !== "—" && c.val !== "") {
       doc.setFont("helvetica", "bold");
-      doc.text(`${s.label}: `, MARGIN, y);
+      doc.text(c.label, MARGIN_L, ly);
       doc.setFont("helvetica", "normal");
-      doc.text(s.val, MARGIN + doc.getTextWidth(`${s.label}: `), y);
-      y += 5;
+      const lines = doc.splitTextToSize(c.val, SIDEBAR_W - MARGIN_L * 2);
+      doc.text(lines, MARGIN_L, ly + 4);
+      ly += 4 + lines.length * 4;
     }
   });
-  y += 3;
-  y = drawLine(y);
+  ly += 5;
 
-  // ── Projects ─────────────────────────────────────────────────────────────
-  y = sectionHeader("Projects", y);
-  
-  const drawProject = (title: string, tech: string, desc: string) => {
+  // Education
+  ly = sidebarHeader("Education", ly);
+  if (data.degree) {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(40, 40, 40);
+    const degLines = doc.splitTextToSize(data.degree, SIDEBAR_W - MARGIN_L * 2);
+    doc.text(degLines, MARGIN_L, ly);
+    ly += degLines.length * 4;
+    
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 100, 100);
+    doc.text(data.college || "", MARGIN_L, ly);
+    ly += 4;
+    
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(79, 70, 229);
+    doc.text(`${data.year || ""} | GPA: ${data.cgpa || ""}`, MARGIN_L, ly);
+    ly += 10;
+  }
+
+  // Skills
+  ly = sidebarHeader("Skills", ly);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(60, 60, 60);
+  [data.languages, data.web_tech, data.tools].forEach(s => {
+    if (s && s !== "—" && s !== "") {
+      const sLines = doc.splitTextToSize(`• ${s}`, SIDEBAR_W - MARGIN_L * 2);
+      doc.text(sLines, MARGIN_L, ly);
+      ly += sLines.length * 4 + 1;
+    }
+  });
+  ly += 5;
+
+  // Languages
+  if (data.spoken_languages) {
+    ly = sidebarHeader("Languages", ly);
+    doc.setFont("helvetica", "italic");
+    doc.text(data.spoken_languages, MARGIN_L, ly);
+  }
+
+  // ── RIGHT MAIN CONTENT ─────────────────────────────────────────────────────
+  const mainHeader = (title: string, yPos: number) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(20, 20, 20);
+    doc.text(title.toUpperCase(), MAIN_X, yPos);
+    doc.setDrawColor(20, 20, 20);
+    doc.setLineWidth(0.5);
+    doc.line(MAIN_X, yPos + 2, W - 10, yPos + 2);
+    return yPos + 10;
+  };
+
+  // Profile
+  ry = mainHeader("Profile", ry);
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(9);
+  doc.setTextColor(80, 80, 80);
+  const objLines = doc.splitTextToSize(data.objective || "", RIGHT_CONTENT_W);
+  doc.text(objLines, MAIN_X, ry);
+  ry += objLines.length * 5 + 10;
+
+  // Experience (Timeline)
+  if (data.company) {
+    ry = mainHeader("Work Experience", ry);
+    // Timeline Line
+    doc.setDrawColor(230, 230, 230);
+    doc.setLineWidth(0.3);
+    doc.line(MAIN_X + 2, ry, MAIN_X + 2, ry + 25);
+    
+    // Dot
+    doc.setFillColor(20, 20, 20);
+    doc.circle(MAIN_X + 2, ry + 1, 1, "F");
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(40, 40, 50);
-    doc.text(title, MARGIN, y);
+    doc.setTextColor(40, 40, 40);
+    doc.text(data.role?.toUpperCase() || "", MAIN_X + 6, ry + 2);
+    
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text(data.duration || "", W - 10, ry + 2, { align: "right" });
+    ry += 6;
+
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(100, 100, 100);
+    doc.text(data.company || "", MAIN_X + 6, ry);
+    ry += 6;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(80, 80, 80);
+    const expLines = doc.splitTextToSize(`• ${data.work || ""}`, RIGHT_CONTENT_W - 6);
+    doc.text(expLines, MAIN_X + 6, ry);
+    ry += expLines.length * 5 + 12;
+  }
+
+  // Projects
+  ry = mainHeader("Projects", ry);
+  const drawProj = (title: string, tech: string, desc: string) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 40);
+    doc.text(title.toUpperCase(), MAIN_X, ry);
     doc.setFontSize(8);
     doc.setTextColor(79, 70, 229);
-    doc.text(tech, W - MARGIN, y, { align: "right" });
-    y += 5;
+    doc.text(tech, W - 10, ry, { align: "right" });
+    ry += 5;
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(80, 80, 90);
-    const lines = doc.splitTextToSize(`• ${desc}`, CONTENT_W);
-    doc.text(lines, MARGIN, y);
-    y += lines.length * 5 + 4;
+    doc.setFontSize(8.5);
+    doc.setTextColor(80, 80, 80);
+    const lines = doc.splitTextToSize(`• ${desc}`, RIGHT_CONTENT_W);
+    doc.text(lines, MAIN_X, ry);
+    ry += lines.length * 4.5 + 6;
   };
 
-  if (data.project1_title) drawProject(data.project1_title, data.project1_tech, data.project1_desc);
-  if (data.project2_title) drawProject(data.project2_title, data.project2_tech, data.project2_desc);
-  
-  y = drawLine(y);
+  if (data.project1_title) drawProj(data.project1_title, data.project1_tech || "", data.project1_desc || "");
+  if (data.project2_title) drawProj(data.project2_title, data.project2_tech || "", data.project2_desc || "");
+  ry += 4;
 
-  // ── Experience ────────────────────────────────────────────────────────────
-  if (data.company) {
-    y = sectionHeader("Experience", y);
+  // References
+  if (data.ref1_name) {
+    ry = mainHeader("References", ry);
+    const refW = RIGHT_CONTENT_W / 2 - 5;
+    
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(40, 40, 50);
-    doc.text(data.role, MARGIN, y);
-    doc.text(data.duration, W - MARGIN, y, { align: "right" });
-    y += 5;
-    doc.setFont("helvetica", "oblique");
     doc.setFontSize(9);
-    doc.text(data.company, MARGIN, y);
-    y += 5;
-    doc.setFont("helvetica", "normal");
-    const lines = doc.splitTextToSize(`• ${data.work}`, CONTENT_W);
-    doc.text(lines, MARGIN, y);
-    y += lines.length * 5 + 4;
-    y = drawLine(y);
+    doc.setTextColor(40, 40, 40);
+    doc.text(data.ref1_name.toUpperCase(), MAIN_X, ry);
+    if (data.ref2_name) doc.text(data.ref2_name.toUpperCase(), MAIN_X + refW + 10, ry);
+    ry += 4;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7.5);
+    doc.setTextColor(120, 120, 120);
+    doc.text(data.ref1_role || "", MAIN_X, ry);
+    if (data.ref2_role) doc.text(data.ref2_role || "", MAIN_X + refW + 10, ry);
+    ry += 4;
+
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(79, 70, 229);
+    doc.text(data.ref1_contact || "", MAIN_X, ry);
+    if (data.ref2_contact) doc.text(data.ref2_contact || "", MAIN_X + refW + 10, ry);
   }
 
-  // ── Achievements ─────────────────────────────────────────────────────────
-  y = sectionHeader("Achievements", y);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  [data.achievement1, data.achievement2].forEach(ach => {
-    if (ach) {
-      doc.text(`• ${ach}`, MARGIN, y);
-      y += 5;
-    }
-  });
-  y += 3;
-  y = drawLine(y);
-
-  // ── Strengths & Extra ────────────────────────────────────────────────────
-  const splitY = y;
-  y = sectionHeader("Strengths", y);
-  [data.strength1, data.strength2].forEach(s => {
-    if (s) {
-      doc.text(`• ${s}`, MARGIN, y);
-      y += 5;
-    }
-  });
-
-  doc.text("", W / 2, splitY); // Move to column 2
-  y = sectionHeader("Languages Known", splitY);
-  doc.setFont("helvetica", "oblique");
-  doc.text(data.spoken_languages, W / 2 + 10, y);
-
-  addFooter(doc, `Resume — ${data.name} — Generated on ${new Date().toLocaleDateString("en-IN")}`);
-  doc.save(`Resume_${(data.name || "Professional").replace(/\s+/g, "_")}.pdf`);
+  doc.save(`Resume_${(data.name || "Alex_Johnson").replace(/\s+/g, "_")}.pdf`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
