@@ -32,18 +32,18 @@ async function seedTestData() {
         offered_package: '12 LPA'
       },
       {
-         job_id: someJob._id,
-         student_id: someUser._id,
-         status: 'selected',
-         placement_year: 2024,
-         offered_package: '15 LPA'
+        job_id: someJob._id,
+        student_id: someUser._id,
+        status: 'selected',
+        placement_year: 2024,
+        offered_package: '15 LPA'
       },
       {
-         job_id: someJob._id,
-         student_id: someUser._id,
-         status: 'selected',
-         placement_year: 2025,
-         offered_package: '18 LPA'
+        job_id: someJob._id,
+        student_id: someUser._id,
+        status: 'selected',
+        placement_year: 2025,
+        offered_package: '18 LPA'
       }
     ];
 
