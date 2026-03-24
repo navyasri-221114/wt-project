@@ -8,5 +8,6 @@ router.post("/", authenticate, interviewController.scheduleInterview);
 router.get("/my", authenticate, interviewController.getMyInterviews);
 router.get("/:roomId", authenticate, interviewController.getInterviewByRoom);
 router.put("/:id/evaluate", authenticate, interviewController.evaluateInterview);
+router.delete("/:id", authenticate, interviewController.deleteInterview);
 
 export default router;

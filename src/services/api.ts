@@ -68,6 +68,7 @@ export const api = {
     getMy: () => api.request("/interviews/my"),
     getRoom: (roomId: string) => api.request(`/interviews/${roomId}`),
     evaluate: (id: string, data: { notes: string, rating: number, status: string }) => api.request(`/interviews/${id}/evaluate`, { method: "PUT", body: JSON.stringify(data) }),
+    delete: (id: string) => api.request(`/interviews/${id}`, { method: "DELETE" }),
   },
 
   admin: {

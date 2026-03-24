@@ -22,6 +22,7 @@ export default function CompanyDashboard() {
   const [schedulingApp, setSchedulingApp] = useState<any>(null);
   const [viewingResponses, setViewingResponses] = useState<any>(null);
   const [interviewDate, setInterviewDate] = useState('');
+  const [isScheduling, setIsScheduling] = useState(false);
   const selectedJobRef = React.useRef<any>(null);
 
   useEffect(() => {
@@ -104,15 +105,57 @@ export default function CompanyDashboard() {
 
   const handleArrangeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!interviewDate || !schedulingApp) return;
+    if (!interviewDate || !schedulingApp || isScheduling) return;
+    setIsScheduling(true);
     try {
       await api.interviews.schedule({ application_id: schedulingApp.id, scheduled_at: interviewDate });
       setSchedulingApp(null);
       setInterviewDate('');
       fetchInterviews();
       if (selectedJobRef.current) handleSelectJob(selectedJobRef.current);
+    } catch (err: any) {
+      alert(err.message || 'Failed to arrange interview');
+    } finally {
+      setIsScheduling(false);
+    }
+  };
+
+  const handleAIShortlist = async () => {
+    const countStr = prompt("How many candidates do you need to shortlist using AI?");
+    if (!countStr) return;
+    const count = parseInt(countStr);
+    if (isNaN(count) || count <= 0) return alert("Please enter a valid number");
+
+    let appsToShortlist = applicants.filter(a => a.status === 'applied');
+    if (appsToShortlist.length === 0) return alert("No new applicants to shortlist.");
+
+    // Sort by CGPA or mock AI Score for now.
+    appsToShortlist.sort((a, b) => (parseFloat(b.student_cgpa) || 0) - (parseFloat(a.student_cgpa) || 0));
+    const topApps = appsToShortlist.slice(0, count);
+
+    try {
+      await Promise.all(topApps.map(app => api.applications.updateStatus(app.id, 'shortlisted')));
+      alert(`AI Shortlisted ${topApps.length} candidates successfully!`);
+      if (selectedJob) handleSelectJob(selectedJob);
     } catch (err) {
-      alert('Failed to arrange interview');
+      alert("Failed to perform AI shortlisting");
+    }
+  };
+
+  const handleDeleteInterview = async (app: any) => {
+    if(!window.confirm("Are you sure you want to delete this interview for the student as well?")) return;
+    // find the corresponding interview
+    const interview = interviews.find(i => i.application_id === app.id || (i.application_id && i.application_id._id === app.id) || i.application_id === app.application_id);
+    if (!interview) {
+       alert("Could not locate interview record");
+       return;
+    }
+    try {
+      await api.interviews.delete(interview.id || interview._id);
+      fetchInterviews();
+      if (selectedJob) handleSelectJob(selectedJob);
+    } catch(err) {
+      alert("Failed to delete interview");
     }
   };
   const filteredJobs = jobs.filter(j => 
@@ -121,10 +164,8 @@ export default function CompanyDashboard() {
   );
 
   const filteredApplicants = applicants.filter(a => {
-    const matchesSearch = a.student_name.toLowerCase().includes(applicantSearch.toLowerCase()) ||
-      (a.student_email && a.student_email.toLowerCase().includes(applicantSearch.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || a.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    return matchesStatus;
   });
 
   return (
@@ -136,7 +177,12 @@ export default function CompanyDashboard() {
           <p className="text-slate-500 font-medium mt-1">Acquire and manage top-tier talent for your organization.</p>
         </div>
         <div className="flex bg-white p-1.5 rounded-[1.5rem] border border-slate-100 shadow-sm">
-          {/* New Posting button removed as per user request */}
+          <button 
+            onClick={() => setShowPostModal(true)} 
+            className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-sm hover:bg-slate-800 transition-colors"
+          >
+            <Plus size={18} /> New Posting
+          </button>
         </div>
       </div>
 
@@ -191,12 +237,6 @@ export default function CompanyDashboard() {
                     selectedJob?.id === job.id ? "bg-white/10 text-white" : "bg-sky-50 text-sky-600"
                   )}>
                     <Briefcase size={24} />
-                  </div>
-                  <div className={cn(
-                    "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight",
-                    selectedJob?.id === job.id ? "bg-white/10 text-sky-300" : "bg-green-50 text-green-600"
-                  )}>
-                    {job.vacancies} Left
                   </div>
                 </div>
 
@@ -255,27 +295,24 @@ export default function CompanyDashboard() {
                       Applicant Pipeline ({filteredApplicants.length})
                     </h3>
                     <div className="flex items-center gap-3 w-full md:w-auto">
+                      {applicants.some(a => a.status === 'applied') && (
+                        <button
+                          onClick={handleAIShortlist}
+                          className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all flex items-center gap-2"
+                        >
+                          <Sparkles size={14} /> AI Shortlist
+                        </button>
+                      )}
                       <select 
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs font-bold text-slate-600 outline-none focus:ring-4 focus:ring-indigo-500/10"
                       >
                         <option value="all">All Status</option>
-                        <option value="applied">Applied</option>
                         <option value="shortlisted">Shortlisted</option>
                         <option value="interview_scheduled">Interviewing</option>
                         <option value="rejected">Rejected</option>
                       </select>
-                      <div className="relative group w-full md:w-64">
-                        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-                        <input 
-                          type="text"
-                          placeholder="Filter talent..."
-                          value={applicantSearch}
-                          onChange={(e) => setApplicantSearch(e.target.value)}
-                          className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-600 text-xs"
-                        />
-                      </div>
                     </div>
                   </div>
 
@@ -344,9 +381,17 @@ export default function CompanyDashboard() {
                                   </Link>
                                   <button
                                     onClick={() => handleUpdateStatus(app.id, 'interviewed')}
-                                    className="px-6 py-3 bg-green-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-600 transition-all shadow-xl shadow-green-100 flex items-center gap-2"
+                                    className="px-4 py-3 bg-green-500 text-white rounded-2xl hover:bg-green-600 transition-all shadow-xl shadow-green-100"
+                                    title="Mark Done"
                                   >
-                                    <Check size={16} /> Mark Done
+                                    <Check size={16} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteInterview(app)}
+                                    className="px-4 py-3 bg-red-500 text-white rounded-2xl hover:bg-red-600 transition-all shadow-xl shadow-red-100"
+                                    title="Delete Interview"
+                                  >
+                                    <X size={16} />
                                   </button>
                                 </div>
                               ) : (
@@ -464,8 +509,8 @@ export default function CompanyDashboard() {
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Date & Time</label>
                   <input type="datetime-local" required value={interviewDate} onChange={e => setInterviewDate(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-5 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700" />
                 </div>
-                <button type="submit" className="w-full py-4 bg-sky-600 text-white font-black rounded-2xl shadow-xl shadow-sky-100 hover:bg-sky-700 transition-all active:scale-95">
-                  Confirm Schedule
+                <button disabled={isScheduling} type="submit" className="w-full py-4 bg-sky-600 text-white font-black rounded-2xl shadow-xl shadow-sky-100 hover:bg-sky-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {isScheduling ? 'Scheduling...' : 'Confirm Schedule'}
                 </button>
               </form>
             </motion.div>

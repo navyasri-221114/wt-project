@@ -21,6 +21,29 @@ export const interviewController = {
         return res.status(400).json({ error: "Missing required fields: application_id or scheduled_at" });
       }
 
+      // Check for overlapping interviews for the same company
+      const appToCheck = await ApplicationModel.findById(application_id).populate('job_id');
+      if (!appToCheck) return res.status(404).json({ error: "Application not found" });
+      
+      const jobId = (appToCheck.job_id as any)._id;
+      const scheduledTime = new Date(scheduled_at);
+      const oneHourBefore = new Date(scheduledTime.getTime() - 60 * 60 * 1000);
+      const oneHourAfter = new Date(scheduledTime.getTime() + 60 * 60 * 1000);
+
+      // find applications for the same job
+      const sameJobApps = await ApplicationModel.find({ job_id: jobId });
+      const sameJobAppIds = sameJobApps.map(a => a._id);
+
+      const overlapping = await InterviewModel.findOne({
+        application_id: { $in: sameJobAppIds },
+        scheduled_at: { $gte: oneHourBefore, $lte: oneHourAfter },
+        status: 'scheduled'
+      });
+
+      if (overlapping) {
+        return res.status(400).json({ error: "Overlapping interview exists for this job role. Please choose another time." });
+      }
+
       // 1. Create Interview
       const interview = await InterviewModel.create({
         application_id,
@@ -172,6 +195,25 @@ export const interviewController = {
       res.json({ message: "Evaluation saved", interview });
     } catch (err: any) {
       res.status(500).json({ error: "Failed to save evaluation", details: err.message });
+    }
+  },
+
+  deleteInterview: async (req: AuthRequest, res: Response) => {
+    if (req.user?.role !== 'company' && req.user?.role !== 'admin') {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    try {
+      const { id } = req.params;
+      const interview = await InterviewModel.findById(id);
+      if (!interview) return res.status(404).json({ error: "Interview not found" });
+
+      // Update application status back to shortlisted
+      await ApplicationModel.findByIdAndUpdate(interview.application_id, { status: 'shortlisted' });
+      await InterviewModel.findByIdAndDelete(id);
+
+      res.json({ message: "Interview deleted successfully" });
+    } catch (err: any) {
+      res.status(500).json({ error: "Failed to delete interview", details: err.message });
     }
   }
 };
