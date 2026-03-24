@@ -15,8 +15,8 @@ async function seedTestData() {
     console.log('🌱 Seed: Connected to database');
 
     // 1. Get some existing jobs and users to link to
-    const someJob = await mongoose.model('Job').findOne();
-    const someUser = await mongoose.model('User').findOne({ role: 'student' });
+    const someJob = await JobModel.findOne();
+    const someUser = await UserModel.findOne({ role: 'student' });
 
     if (!someJob || !someUser) {
       console.log('⚠️ Seed: No job or student found to link data. Please create a job and a student first!');
