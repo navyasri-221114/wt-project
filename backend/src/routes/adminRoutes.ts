@@ -11,5 +11,6 @@ router.put("/keys/:id/status", authenticate, adminController.updateKeyStatus);
 router.get("/stats", authenticate, adminController.getStats);
 router.get("/analytics", authenticate, adminController.getStudentAnalytics);
 router.get("/placements/years", authenticate, getPlacementAnalytics);
+router.get("/public-stats", adminController.getPublicStats);
 
 export default router;

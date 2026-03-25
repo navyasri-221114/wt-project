@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Response, Request } from "express";
 import { AuthRequest } from "../middleware/auth.js";
 import { ActivationKeyModel } from "../models/ActivationKey.js";
 import { UserModel } from "../models/User.js";
@@ -64,6 +64,30 @@ export const adminController = {
       });
     } catch (err: any) {
       res.status(500).json({ error: "Failed to fetch stats", details: err.message });
+    }
+  },
+
+  getPublicStats: async (req: Request, res: Response) => {
+    try {
+      const totalStudents = await UserModel.countDocuments({ role: 'student' });
+      const totalCompanies = await UserModel.countDocuments({ role: 'company' });
+      const totalJobs = await JobModel.countDocuments();
+      const totalApplications = await ApplicationModel.countDocuments();
+      const totalInterviews = await InterviewModel.countDocuments();
+      
+      const selectedCount = await ApplicationModel.countDocuments({ status: 'selected' });
+      const placementRate = totalStudents > 0 ? (selectedCount / totalStudents) * 100 : 0;
+
+      res.json({ 
+        totalStudents, 
+        totalCompanies, 
+        totalJobs, 
+        totalApplications, 
+        totalInterviews, 
+        placementRate 
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: "Failed to fetch public stats", details: err.message });
     }
   },
 

@@ -26,8 +26,8 @@ export default function AuthPage({ setUser }: { setUser: any }) {
       const email = decoded.email;
       const name = decoded.name;
 
-      if (!email || !email.toLowerCase().includes('rgukt')) {
-        setError("Authorization blocked: Only institutional emails containing 'rgukt' are allowed.");
+      if (!email) {
+        setError("Authorization blocked: No email provided.");
         return;
       }
 

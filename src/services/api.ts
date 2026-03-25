@@ -73,6 +73,7 @@ export const api = {
 
   admin: {
     getStats: () => api.request("/admin/stats"),
+    getPublicStats: () => api.request("/admin/public-stats"),
     getKeys: () => api.request("/admin/keys"),
     generateKey: () => api.request("/admin/keys", { method: "POST" }),
     updateKeyStatus: (id: string, status: string) => api.request(`/admin/keys/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),

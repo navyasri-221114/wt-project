@@ -1,9 +1,41 @@
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { Briefcase, Users, ShieldCheck, TrendingUp, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { motion, useMotionValue, useTransform, animate } from 'motion/react';
+import { Briefcase, Users, ShieldCheck, TrendingUp, ArrowRight, CheckCircle2, Activity } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { api } from '../services/api';
+
+function AnimatedCounter({ value, suffix = "", prefix = "" }: { value: number, suffix?: string, prefix?: string }) {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, Math.round);
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    const animation = animate(count, value, { duration: 2, ease: "easeOut" });
+    const unsubscribe = rounded.on("change", (latest) => setDisplayValue(latest));
+    return () => {
+      animation.stop();
+      unsubscribe();
+    };
+  }, [value, count, rounded]);
+
+  return <>{prefix}{displayValue}{suffix}</>;
+}
 
 export default function LandingPage() {
+  const [stats, setStats] = useState<any>(null);
+
+  useEffect(() => {
+    api.admin.getPublicStats().then(setStats).catch(console.error);
+  }, []);
+
+  const statItems = [
+    { label: 'Students Registered', value: stats?.totalStudents || 0, suffix: '+' },
+    { label: 'Partner Companies', value: stats?.totalCompanies || 0, suffix: '+' },
+    { label: 'Jobs & Opportunities', value: stats?.totalJobs || 0, suffix: '+' },
+    { label: 'Placement Rate', value: stats?.placementRate || 0, suffix: '%' },
+  ];
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -34,8 +66,8 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="px-4 py-1.5 bg-sky-50 text-sky-600 text-xs font-semibold rounded-full uppercase tracking-wider">
-              The Future of Campus Recruitment
+            <span className="px-4 py-1.5 bg-sky-50 text-sky-600 text-xs font-semibold rounded-full uppercase tracking-wider relative overflow-hidden inline-flex animate-pulse">
+              <Activity size={14} className="mr-2" /> Live Placement Analytics
             </span>
             <h1 className="mt-8 text-5xl md:text-7xl font-bold text-slate-900 tracking-tight">
               Bridge the gap between <br />
@@ -61,7 +93,7 @@ export default function LandingPage() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="mt-20 relative max-w-5xl mx-auto"
           >
-            <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 bg-slate-50 p-4 transform hover:scale-[1.01] transition-transform duration-500">
               <img
                 src="https://picsum.photos/seed/dashboard/1200/800"
                 alt="Platform Preview"
@@ -69,38 +101,56 @@ export default function LandingPage() {
                 referrerPolicy="no-referrer"
               />
             </div>
-            <div className="absolute -bottom-6 -right-6 w-64 bg-white p-6 rounded-2xl shadow-xl border border-slate-100 hidden lg:block">
+            <motion.div 
+              initial={{ scale: 0, x: 20 }}
+              animate={{ scale: 1, x: 0 }}
+              transition={{ type: "spring", delay: 1, bounce: 0.5 }}
+              className="absolute -bottom-6 -right-6 w-64 bg-white p-6 rounded-2xl shadow-xl border border-slate-100 hidden lg:block"
+            >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
                   <TrendingUp size={20} />
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500">Placement Rate</p>
-                  <p className="text-lg font-bold text-slate-900">94.2%</p>
+                  <p className="text-xs text-slate-500">Live Placement Rate</p>
+                  <p className="text-lg font-bold text-slate-900">
+                    {stats ? <AnimatedCounter value={stats.placementRate || 0} suffix="%" /> : "Loading..."}
+                  </p>
                 </div>
               </div>
               <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-green-500 w-[94%]"></div>
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: stats ? `${stats.placementRate}%` : "0%" }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                  className="h-full bg-green-500" 
+                />
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section id="stats" className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4">
+      <section id="stats" className="py-20 bg-slate-900 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-sky-400 via-slate-900 to-slate-900"></div>
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { label: 'Students Placed', value: '5,000+' },
-              { label: 'Partner Companies', value: '250+' },
-              { label: 'Highest Package', value: '₹45 LPA' },
-              { label: 'Avg. Package', value: '₹8.5 LPA' },
-            ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
-                <p className="text-sm text-slate-500 mt-1">{stat.label}</p>
-              </div>
+            {statItems.map((stat, i) => (
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                className="text-center p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm"
+              >
+                <p className="text-4xl md:text-5xl font-black text-white bg-clip-text text-transparent bg-gradient-to-br from-white to-slate-400">
+                  {stats ? <AnimatedCounter value={stat.value} suffix={stat.suffix} /> : "..."}
+                </p>
+                <p className="text-sm font-medium text-sky-400 mt-3 uppercase tracking-wider">{stat.label}</p>
+              </motion.div>
             ))}
           </div>
         </div>
