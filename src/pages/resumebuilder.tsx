@@ -10,15 +10,22 @@ type ChatMsg = { role: "user" | "assistant"; text: string };
 export default function ResumeBuilder() {
   const [activeStep, setActiveStep] = useState(0);
   const [exporting, setExporting] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMsg[]>([
-    { role: "assistant", text: "Hi! 👋 I'm your AI Resume Assistant — just like ChatGPT, but built for resumes.\n\nTell me about yourself! You can say things like:\n\n• \"I'm a CSE student interested in AI/ML, write a 6-line summary\"\n• \"Suggest skills for an ECE student\"\n• \"Help me brainstorm projects for my resume\"\n\nI'll chat with you and fill your resume automatically as we go!" }
-  ]);
+  const [chatMessages, setChatMessages] = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [suggestingField, setSuggestingField] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  // Sections the student wants to hide from their resume
+  const [hiddenSections, setHiddenSections] = useState<Set<string>>(new Set());
+  const toggleSection = (section: string) => {
+    setHiddenSections(prev => {
+      const next = new Set(prev);
+      if (next.has(section)) next.delete(section); else next.add(section);
+      return next;
+    });
+  };
   const [form, setForm] = useState({
-
+    templateStyle: "modern",
     name: "Alex Johnson",
     job_title: "Full Stack Developer",
     phone: "+91 98765 43210",
@@ -120,10 +127,25 @@ export default function ResumeBuilder() {
     setChatInput("");
     setChatLoading(true);
     try {
-      const { reply, resumeData } = await chatWithAI(newMessages, form);
+      const { reply, resumeData, action } = await chatWithAI(newMessages, form);
       setChatMessages(prev => [...prev, { role: "assistant", text: reply }]);
+      
+      let currentFormState = form;
       if (resumeData) {
-        setForm(prev => ({ ...prev, ...resumeData }));
+        currentFormState = { ...form, ...resumeData };
+        setForm(currentFormState);
+      }
+
+      // Automatically trigger download if AI decided it's time
+      if (action === "download") {
+        setExporting(true);
+        try { 
+            await exportResumePDF(currentFormState); 
+        } catch (e) {
+            console.error("Auto export failed:", e);
+        } finally { 
+            setExporting(false); 
+        }
       }
     } catch (err) {
       setChatMessages(prev => [...prev, { role: "assistant", text: "Something went wrong. Please try again!" }]);
@@ -264,54 +286,59 @@ ADDITIONAL
                 className="space-y-6"
               >
                 {activeStep === 0 && (
-                  <div className="flex flex-col h-[580px]">
-                    {/* Chat Header */}
-                    <div className="flex items-center gap-3 pb-4 border-b border-slate-100 mb-4">
-                      <div className="p-2.5 bg-gradient-to-br from-sky-500 to-indigo-600 text-white rounded-xl shadow-lg">
-                        <Bot size={22} />
+                  <div className="flex flex-col" style={{ height: '580px', minHeight: 0 }}>
+
+                    {/* Premium Chat Header */}
+                    <div className="flex items-center gap-4 pb-4 mb-4 border-b border-slate-100">
+                      <div className="relative">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-xl shadow-indigo-200">
+                          <Bot size={24} className="text-white" />
+                        </div>
+                        <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white"></span>
                       </div>
                       <div>
-                        <h3 className="font-black text-slate-900 text-lg">AI Resume Assistant</h3>
-                        <p className="text-xs text-sky-500 font-semibold">Powered by Gemini AI • Chat to build your resume</p>
+                        <h3 className="font-black text-slate-900 leading-tight">AI Resume Assistant</h3>
+                        <p className="text-xs text-slate-400 font-medium">Chat to build your resume instantly</p>
                       </div>
                       <button
                         onClick={() => setActiveStep(1)}
-                        className="ml-auto flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-sky-600 transition-all"
+                        className="ml-auto flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-xs font-black rounded-xl hover:bg-indigo-600 transition-all duration-300"
                       >
                         Open Editor <ChevronRight size={14} />
                       </button>
                     </div>
 
                     {/* Messages */}
-                    <div className="flex-1 overflow-y-auto space-y-6 pr-2 custom-scrollbar">
+                    <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1 custom-scrollbar">
                       {chatMessages.map((msg, i) => (
                         <motion.div
                           key={i}
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          transition={{ duration: 0.3 }}
-                          className={cn("flex gap-4", msg.role === "user" ? "justify-end" : "justify-start")}
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.25, ease: "easeOut" }}
+                          className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                         >
+                          {/* Bot Avatar */}
                           {msg.role === "assistant" && (
-                            <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-200">
-                              <Bot size={20} className="text-white" />
+                            <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 mt-1">
+                              <Bot size={17} className="text-white" />
                             </div>
                           )}
-                          <div className={cn(
-                            "max-w-[85%] px-5 py-4 rounded-[1.5rem] text-[15px] leading-relaxed font-medium shadow-sm transition-all",
+
+                          {/* Bubble */}
+                          <div className={`max-w-[82%] px-4 py-3 text-sm leading-relaxed shadow-sm ${
                             msg.role === "user"
-                              ? "bg-slate-900 text-white rounded-br-none"
-                              : "bg-white border border-slate-100 text-slate-700 rounded-bl-none"
-                          )}>
+                              ? "bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-2xl rounded-tr-sm"
+                              : "bg-white border border-slate-100 text-slate-700 rounded-2xl rounded-tl-sm"
+                          }`}>
                             <div className="whitespace-pre-wrap">
                               {msg.text.split('\n').map((line, idx) => {
-                                // Simple bold formatter
                                 const parts = line.split(/(\*\*.*?\*\*)/g);
                                 return (
-                                  <p key={idx} className={cn(idx > 0 && "mt-2")}>
+                                  <p key={idx} className={idx > 0 && line.trim() ? "mt-1.5" : ""}>
                                     {parts.map((part, pIdx) => {
                                       if (part.startsWith('**') && part.endsWith('**')) {
-                                        return <strong key={pIdx} className="font-black text-sky-600">{part.slice(2, -2)}</strong>;
+                                        return <strong key={pIdx} className="font-black text-indigo-600">{part.slice(2, -2)}</strong>;
                                       }
                                       return part;
                                     })}
@@ -320,41 +347,52 @@ ADDITIONAL
                               })}
                             </div>
                           </div>
+
+                          {/* User Avatar */}
+                          {msg.role === "user" && (
+                            <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center mt-1">
+                              <User size={17} className="text-white" />
+                            </div>
+                          )}
                         </motion.div>
                       ))}
+
+                      {/* Typing Indicator */}
                       {chatLoading && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4 justify-start">
-                          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-200 flex-shrink-0">
-                            <Bot size={20} className="text-white" />
+                        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex gap-3 justify-start">
+                          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 flex-shrink-0 mt-1">
+                            <Bot size={17} className="text-white" />
                           </div>
-                          <div className="bg-white border border-slate-100 px-6 py-5 rounded-[1.5rem] rounded-bl-none flex items-center gap-2 shadow-sm">
-                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                            <div className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                          <div className="bg-white border border-slate-100 px-5 py-4 rounded-2xl rounded-tl-sm flex items-center gap-1.5 shadow-sm">
+                            <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '120ms' }} />
+                            <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '240ms' }} />
                           </div>
                         </motion.div>
                       )}
                       <div ref={chatEndRef} />
                     </div>
 
+
                     {/* Input Box */}
-                    <div className="mt-6">
-                      <div className="flex gap-3 bg-slate-50 p-2 rounded-[2rem] border border-slate-200 focus-within:border-sky-500 focus-within:ring-4 focus-within:ring-sky-500/10 transition-all">
+                    <div className="pt-3">
+                      <div className="flex gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200 focus-within:border-indigo-400 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all">
                         <input
                           value={chatInput}
                           onChange={e => setChatInput(e.target.value)}
                           onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleChatSend()}
-                          placeholder="Ask me anything or say 'I am a CSE student'..."
-                          className="flex-1 bg-transparent px-4 py-3 outline-none font-medium text-slate-700 text-[15px] placeholder:text-slate-400"
+                          placeholder="Ask me to build or improve your resume..."
+                          className="flex-1 bg-transparent px-4 py-2.5 outline-none font-medium text-slate-700 text-sm placeholder:text-slate-400"
                         />
                         <button
                           onClick={handleChatSend}
                           disabled={chatLoading || !chatInput.trim()}
-                          className="w-12 h-12 flex items-center justify-center bg-sky-600 text-white rounded-full hover:bg-sky-700 transition-all disabled:opacity-50 shadow-lg shadow-sky-100 flex-shrink-0"
+                          className="w-11 h-11 flex items-center justify-center bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-xl hover:from-violet-700 hover:to-indigo-700 transition-all disabled:opacity-40 shadow-lg shadow-indigo-100 flex-shrink-0"
                         >
-                          <Send size={20} />
+                          <Send size={17} />
                         </button>
                       </div>
+                      <p className="text-center text-xs text-slate-400 font-medium mt-2">AI may make mistakes. Always verify important info.</p>
                     </div>
                   </div>
                 )}
@@ -483,137 +521,454 @@ ADDITIONAL
 
         {/* Right Side - Live Preview */}
         <div className="xl:w-1/2">
+          {/* Section visibility controls */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {[
+              ['experience', 'Experience'],
+              ['references', 'References'],
+              ['achievements', 'Achievements'],
+              ['certifications', 'Certifications']
+            ].map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => toggleSection(key)}
+                className={`px-3 py-1 text-xs font-bold rounded-full border transition-all ${
+                  hiddenSections.has(key)
+                    ? 'bg-red-50 text-red-500 border-red-200 line-through opacity-60'
+                    : 'bg-white text-slate-600 border-slate-200 hover:border-red-300 hover:text-red-500'
+                }`}
+              >
+                {hiddenSections.has(key) ? `+ Show ${label}` : `✕ Hide ${label}`}
+              </button>
+            ))}
+          </div>
           <div className="sticky top-28">
-            <div className="bg-white min-h-[842px] w-full shadow-2xl overflow-hidden border border-slate-100 font-sans flex text-slate-900 rounded-sm">
-              
-              {/* LEFT SIDEBAR (30-35%) */}
-              <div className="w-[32%] bg-[#f5f5f5] p-8 flex flex-col border-r border-slate-100">
-                <div className="mb-8">
-                  <h2 className="text-2xl font-black uppercase leading-tight tracking-tight">
+            {/* A4 Page — grey background, paper-white page */}
+            <div className="bg-slate-200 p-6 rounded-xl overflow-y-auto" style={{ maxHeight: '90vh' }}>
+              <div
+                id="resume-preview"
+                className="bg-white shadow-2xl font-sans text-slate-900 mx-auto"
+                style={{ width: '794px', minWidth: '794px', position: 'relative' }}
+              >
+            
+            {form.templateStyle === "corporate" ? (
+              // ── CORPORATE LAYOUT (Single Column Centered) ──
+              <div className="flex-1 p-12">
+                {/* Header */}
+                <div className="text-center mb-8 border-b-2 border-slate-900 pb-6">
+                  <h2 className="text-3xl font-black uppercase tracking-tight text-slate-900 mb-1">
                     <Editable text={form.name} name="name" setForm={setForm} form={form} />
                   </h2>
-                  <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">
+                  <p className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-3">
                     <Editable text={form.job_title} name="job_title" setForm={setForm} form={form} placeholder="Role / Title" />
+                  </p>
+                  <p className="text-xs font-semibold text-slate-500">
+                    <Editable text={form.phone} name="phone" setForm={setForm} form={form} /> |  
+                    <Editable text={form.email} name="email" setForm={setForm} form={form} /> | 
+                    <Editable text={form.location} name="location" setForm={setForm} form={form} />
+                  </p>
+                  <p className="text-xs font-semibold text-sky-700 mt-1">
+                    <Editable text={form.linkedin} name="linkedin" setForm={setForm} form={form} /> | 
+                    <Editable text={form.portfolio} name="portfolio" setForm={setForm} form={form} />
                   </p>
                 </div>
 
-                <div className="space-y-6">
-                  {/* Contact */}
-                  <div className="space-y-3">
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Contact</h3>
-                    <div className="space-y-2 text-[11px] font-medium text-slate-600">
-                      <div className="flex items-center gap-2"><Phone size={12} /> <Editable text={form.phone} name="phone" setForm={setForm} form={form} /></div>
-                      <div className="flex items-center gap-2"><Mail size={12} /> <Editable text={form.email} name="email" setForm={setForm} form={form} /></div>
-                      <div className="flex items-center gap-2"><Briefcase size={12} /> <Editable text={form.location} name="location" setForm={setForm} form={form} /></div>
-                      <div className="flex items-center gap-2"><LinkIcon size={12} /> <Editable text={form.linkedin} name="linkedin" setForm={setForm} form={form} /></div>
-                    </div>
-                  </div>
+                {/* Profile Summary */}
+                <div className="mb-6">
+                  <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-900 border-b border-slate-300 pb-1 mb-2">Professional Summary</h3>
+                  <p className="text-[11px] text-slate-700 leading-relaxed font-medium">
+                     <Editable text={form.objective} name="objective" setForm={setForm} form={form} />
+                  </p>
+                </div>
 
-                  {/* Education */}
-                  <div className="space-y-3">
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Education</h3>
-                    <div className="space-y-4">
-                      <div className="space-y-1">
-                         <p className="text-[11px] font-black uppercase tracking-tight text-slate-800"><Editable text={form.degree} name="degree" setForm={setForm} form={form} /></p>
-                         <p className="text-[10px] font-bold text-slate-500 italic"><Editable text={form.college} name="college" setForm={setForm} form={form} /></p>
-                         <div className="flex justify-between text-[10px] font-bold text-sky-600 mt-1">
-                            <span><Editable text={form.year} name="year" setForm={setForm} form={form} /></span>
-                            <span>GPA: <Editable text={form.cgpa} name="cgpa" setForm={setForm} form={form} /></span>
-                         </div>
+                {/* Technical Skills */}
+                <div className="mb-6">
+                  <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-900 border-b border-slate-300 pb-1 mb-2">Technical Skills</h3>
+                  <div className="text-[11px] font-medium text-slate-700 leading-relaxed space-y-1">
+                    {form.languages && <div><span className="font-bold">Languages:</span> <Editable text={form.languages} name="languages" setForm={setForm} form={form} /></div>}
+                    {form.web_tech && <div><span className="font-bold">Frameworks:</span> <Editable text={form.web_tech} name="web_tech" setForm={setForm} form={form} /></div>}
+                    {form.tools && <div><span className="font-bold">Developer Tools:</span> <Editable text={form.tools} name="tools" setForm={setForm} form={form} /></div>}
+                  </div>
+                </div>
+
+                {/* Experience */}
+                {form.company && (
+                  <div className="mb-6">
+                    <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-900 border-b border-slate-300 pb-1 mb-3">Professional Experience</h3>
+                    <div className="flex justify-between items-baseline">
+                      <h4 className="text-[12px] font-bold text-slate-900"><Editable text={form.role} name="role" setForm={setForm} form={form} /></h4>
+                      <span className="text-[10px] font-bold text-slate-500"><Editable text={form.duration} name="duration" setForm={setForm} form={form} /></span>
+                    </div>
+                    <p className="text-[11px] font-black text-sky-700 mb-1"><Editable text={form.company} name="company" setForm={setForm} form={form} /></p>
+                    <p className="text-[11px] text-slate-700 leading-relaxed font-medium pl-3 border-l-2 border-slate-200"><Editable text={form.work} name="work" setForm={setForm} form={form} /></p>
+                  </div>
+                )}
+
+                {/* Projects */}
+                <div className="mb-6">
+                  <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-900 border-b border-slate-300 pb-1 mb-3">Projects</h3>
+                  <div className="space-y-4">
+                    {form.project1_title && (
+                      <div>
+                        <div className="flex justify-between items-baseline mb-0.5">
+                          <h4 className="text-[12px] font-bold text-slate-900"><Editable text={form.project1_title} name="project1_title" setForm={setForm} form={form} /></h4>
+                          <span className="text-[9px] font-black text-slate-500 tracking-widest"><Editable text={form.project1_tech} name="project1_tech" setForm={setForm} form={form} /></span>
+                        </div>
+                        <p className="text-[11px] text-slate-700 leading-relaxed font-medium">• <Editable text={form.project1_desc} name="project1_desc" setForm={setForm} form={form} /></p>
                       </div>
+                    )}
+                    {form.project2_title && (
+                      <div>
+                        <div className="flex justify-between items-baseline mb-0.5">
+                          <h4 className="text-[12px] font-bold text-slate-900"><Editable text={form.project2_title} name="project2_title" setForm={setForm} form={form} /></h4>
+                          <span className="text-[9px] font-black text-slate-500 tracking-widest"><Editable text={form.project2_tech} name="project2_tech" setForm={setForm} form={form} /></span>
+                        </div>
+                        <p className="text-[11px] text-slate-700 leading-relaxed font-medium">• <Editable text={form.project2_desc} name="project2_desc" setForm={setForm} form={form} /></p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Education */}
+                <div className="mb-6">
+                  <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-900 border-b border-slate-300 pb-1 mb-3">Education</h3>
+                  <div className="flex justify-between items-baseline">
+                    <h4 className="text-[12px] font-bold text-slate-900"><Editable text={form.degree} name="degree" setForm={setForm} form={form} /></h4>
+                    <span className="text-[10px] font-bold text-slate-500"><Editable text={form.year} name="year" setForm={setForm} form={form} /></span>
+                  </div>
+                  <div className="flex justify-between items-baseline mt-0.5">
+                    <p className="text-[11px] font-bold text-sky-700"><Editable text={form.college} name="college" setForm={setForm} form={form} /></p>
+                    <span className="text-[10px] font-black text-slate-600">GPA: <Editable text={form.cgpa} name="cgpa" setForm={setForm} form={form} /></span>
+                  </div>
+                </div>
+
+              </div>
+            ) : form.templateStyle === "minimal" ? (
+              // ── MINIMAL LAYOUT (Left Aligned, Maximum Whitespace) ──
+              <div className="flex-1 p-14 font-serif">
+                {/* Header */}
+                <div className="mb-8">
+                  <h2 className="text-[32px] font-normal tracking-tight text-slate-900 mb-2">
+                    <Editable text={form.name} name="name" setForm={setForm} form={form} />
+                  </h2>
+                  <p className="text-[12px] font-medium text-slate-500 flex flex-wrap gap-2">
+                    <Editable text={form.phone} name="phone" setForm={setForm} form={form} /> • 
+                    <Editable text={form.email} name="email" setForm={setForm} form={form} /> • 
+                    <Editable text={form.linkedin} name="linkedin" setForm={setForm} form={form} />
+                  </p>
+                </div>
+
+                {/* Profile Summary */}
+                <div className="mb-8">
+                  <p className="text-[11px] text-slate-700 leading-relaxed font-sans font-light">
+                     <Editable text={form.objective} name="objective" setForm={setForm} form={form} />
+                  </p>
+                </div>
+
+                {/* Experience */}
+                {form.company && (
+                  <div className="mb-8">
+                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">Experience</h3>
+                    <div className="mb-4">
+                      <h4 className="text-[14px] font-semibold text-slate-900"><Editable text={form.role} name="role" setForm={setForm} form={form} /></h4>
+                      <div className="flex justify-between items-baseline mb-2">
+                        <p className="text-[11px] text-slate-600"><Editable text={form.company} name="company" setForm={setForm} form={form} /></p>
+                        <span className="text-[10px] text-slate-400 font-sans"><Editable text={form.duration} name="duration" setForm={setForm} form={form} /></span>
+                      </div>
+                      <p className="text-[11px] text-slate-700 leading-relaxed font-sans font-light">• <Editable text={form.work} name="work" setForm={setForm} form={form} /></p>
                     </div>
                   </div>
+                )}
 
-                  {/* Skills */}
-                  <div className="space-y-3">
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Skills</h3>
-                    <div className="space-y-1 text-[10px] font-bold text-slate-700">
-                      {form.languages && <div className="flex items-start gap-1 pb-1">• <Editable text={form.languages} name="languages" setForm={setForm} form={form} /></div>}
-                      {form.web_tech && <div className="flex items-start gap-1 pb-1">• <Editable text={form.web_tech} name="web_tech" setForm={setForm} form={form} /></div>}
-                      {form.tools && <div className="flex items-start gap-1">• <Editable text={form.tools} name="tools" setForm={setForm} form={form} /></div>}
+                {/* Projects */}
+                <div className="mb-8">
+                  <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">Projects</h3>
+                  <div className="space-y-4">
+                    {form.project1_title && (
+                      <div>
+                        <h4 className="text-[13px] font-semibold text-slate-900 mb-0.5"><Editable text={form.project1_title} name="project1_title" setForm={setForm} form={form} /></h4>
+                        <p className="text-[11px] text-slate-700 leading-relaxed font-sans font-light"><Editable text={form.project1_desc} name="project1_desc" setForm={setForm} form={form} /></p>
+                      </div>
+                    )}
+                    {form.project2_title && (
+                      <div>
+                        <h4 className="text-[13px] font-semibold text-slate-900 mb-0.5"><Editable text={form.project2_title} name="project2_title" setForm={setForm} form={form} /></h4>
+                        <p className="text-[11px] text-slate-700 leading-relaxed font-sans font-light"><Editable text={form.project2_desc} name="project2_desc" setForm={setForm} form={form} /></p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Education */}
+                <div className="mb-8">
+                  <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">Education</h3>
+                  <div>
+                    <h4 className="text-[14px] font-semibold text-slate-900"><Editable text={form.degree} name="degree" setForm={setForm} form={form} /></h4>
+                    <div className="flex justify-between items-baseline mt-1">
+                      <p className="text-[11px] text-slate-600"><Editable text={form.college} name="college" setForm={setForm} form={form} /></p>
+                      <span className="text-[10px] text-slate-400 font-sans"><Editable text={form.year} name="year" setForm={setForm} form={form} /></span>
                     </div>
                   </div>
+                </div>
 
-                  {/* Languages */}
-                  <div className="space-y-3">
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Languages</h3>
-                    <p className="text-[10px] font-bold text-slate-600 italic leading-relaxed">
-                      <Editable text={form.spoken_languages} name="spoken_languages" setForm={setForm} form={form} />
+                {/* Skills */}
+                <div className="mb-8">
+                  <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">Skills</h3>
+                  <p className="text-[11px] text-slate-700 font-sans font-light leading-relaxed">
+                    <Editable text={form.languages} name="languages" setForm={setForm} form={form} /> • <Editable text={form.web_tech} name="web_tech" setForm={setForm} form={form} /> • <Editable text={form.tools} name="tools" setForm={setForm} form={form} />
+                  </p>
+                </div>
+              </div>
+            ) : form.templateStyle === "technical" ? (
+              // ── TECHNICAL LAYOUT (Dense, Monospace Accents, Brackets) ──
+              <div className="flex-1 p-10 font-mono text-[11px]">
+                {/* Header */}
+                <div className="border-b-2 border-slate-800 pb-4 mb-6">
+                  <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tighter">
+                    <Editable text={form.name} name="name" setForm={setForm} form={form} />
+                  </h2>
+                  <div className="flex justify-between items-baseline">
+                    <p className="text-[13px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5">
+                      <Editable text={form.job_title} name="job_title" setForm={setForm} form={form} placeholder="Role / Title" />
+                    </p>
+                    <p className="text-[10px] font-medium text-slate-500">
+                      <Editable text={form.email} name="email" setForm={setForm} form={form} /> | <Editable text={form.phone} name="phone" setForm={setForm} form={form} /> | <Editable text={form.portfolio} name="portfolio" setForm={setForm} form={form} />
                     </p>
                   </div>
                 </div>
-              </div>
 
-              {/* RIGHT MAIN CONTENT (65-70%) */}
-              <div className="flex-1 bg-white p-10 flex flex-col">
-                {/* Profile Section */}
-                <div className="mb-10">
-                   <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Profile</h3>
-                   <p className="text-xs text-slate-600 italic leading-relaxed">
-                     <Editable text={form.objective} name="objective" setForm={setForm} form={form} />
-                   </p>
-                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {/* Left Column */}
+                  <div className="md:col-span-2 space-y-6">
+                    {/* Summary */}
+                    <div>
+                      <h3 className="font-bold text-slate-900 mb-2 uppercase">{"[ SUMMARY ]"}</h3>
+                      <p className="text-[10px] text-slate-700 leading-relaxed">
+                        <Editable text={form.objective} name="objective" setForm={setForm} form={form} />
+                      </p>
+                    </div>
 
-                {/* Work Experience with Timeline */}
-                <div className="mb-10">
-                   <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-6">Work Experience</h3>
-                   <div className="relative pl-6 space-y-8 border-l border-slate-200">
-                      <div className="relative">
-                         <div className="absolute -left-[30px] top-1.5 w-3.5 h-3.5 bg-slate-900 rounded-full border-4 border-white ring-1 ring-slate-200 shadow-sm" />
-                         <div className="flex justify-between items-start mb-1">
+                    {/* Experience */}
+                    {form.company && (
+                      <div>
+                        <h3 className="font-bold text-slate-900 mb-3 uppercase">{"[ EXPERIENCE ]"}</h3>
+                        <div className="mb-4">
+                          <div className="flex justify-between items-start mb-1">
                             <div>
-                               <h4 className="text-[13px] font-black uppercase text-slate-800"><Editable text={form.role} name="role" setForm={setForm} form={form} /></h4>
-                               <p className="text-[11px] font-bold text-slate-400 italic"><Editable text={form.company} name="company" setForm={setForm} form={form} /></p>
+                              <h4 className="text-[12px] font-bold text-slate-900"><Editable text={form.role} name="role" setForm={setForm} form={form} /></h4>
+                              <p className="text-[10px] text-sky-700 font-bold"><Editable text={form.company} name="company" setForm={setForm} form={form} /></p>
                             </div>
-                            <span className="text-[10px] font-black bg-slate-100 px-2 py-0.5 rounded text-slate-500 uppercase">
-                               <Editable text={form.duration} name="duration" setForm={setForm} form={form} />
-                            </span>
-                         </div>
-                         <p className="text-xs text-slate-600 mt-2 leading-relaxed">• <Editable text={form.work} name="work" setForm={setForm} form={form} /></p>
+                            <span className="text-[9px] bg-slate-100 text-slate-600 px-1 py-0.5"><Editable text={form.duration} name="duration" setForm={setForm} form={form} /></span>
+                          </div>
+                          <p className="text-[10px] text-slate-700 leading-relaxed mt-2">&gt; <Editable text={form.work} name="work" setForm={setForm} form={form} /></p>
+                        </div>
                       </div>
-                   </div>
+                    )}
+
+                    {/* Projects */}
+                    <div>
+                      <h3 className="font-bold text-slate-900 mb-3 uppercase">{"[ PROJECTS ]"}</h3>
+                      <div className="space-y-4">
+                        {form.project1_title && (
+                          <div className="border border-slate-200 p-3 bg-slate-50">
+                            <div className="flex justify-between items-baseline mb-2">
+                              <h4 className="text-[11px] font-bold text-slate-900"><Editable text={form.project1_title} name="project1_title" setForm={setForm} form={form} /></h4>
+                              <span className="text-[9px] text-sky-700 font-bold"><Editable text={form.project1_tech} name="project1_tech" setForm={setForm} form={form} /></span>
+                            </div>
+                            <p className="text-[10px] text-slate-700 leading-relaxed">&gt; <Editable text={form.project1_desc} name="project1_desc" setForm={setForm} form={form} /></p>
+                          </div>
+                        )}
+                        {form.project2_title && (
+                          <div className="border border-slate-200 p-3 bg-slate-50">
+                            <div className="flex justify-between items-baseline mb-2">
+                              <h4 className="text-[11px] font-bold text-slate-900"><Editable text={form.project2_title} name="project2_title" setForm={setForm} form={form} /></h4>
+                              <span className="text-[9px] text-sky-700 font-bold"><Editable text={form.project2_tech} name="project2_tech" setForm={setForm} form={form} /></span>
+                            </div>
+                            <p className="text-[10px] text-slate-700 leading-relaxed">&gt; <Editable text={form.project2_desc} name="project2_desc" setForm={setForm} form={form} /></p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-6">
+                    {/* Education */}
+                    <div>
+                      <h3 className="font-bold text-slate-900 mb-3 uppercase">{"[ EDUCATION ]"}</h3>
+                      <div className="mb-4">
+                        <h4 className="text-[11px] font-bold text-slate-900 mb-1"><Editable text={form.degree} name="degree" setForm={setForm} form={form} /></h4>
+                        <p className="text-[10px] text-slate-600 mb-1"><Editable text={form.college} name="college" setForm={setForm} form={form} /></p>
+                        <p className="text-[9px] text-slate-500 mb-1"><Editable text={form.year} name="year" setForm={setForm} form={form} /></p>
+                        <p className="text-[10px] font-bold text-sky-700">GPA: <Editable text={form.cgpa} name="cgpa" setForm={setForm} form={form} /></p>
+                      </div>
+                    </div>
+
+                    {/* Skills */}
+                    <div>
+                      <h3 className="font-bold text-slate-900 mb-3 uppercase">{"[ SKILLS ]"}</h3>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-500 mb-1 uppercase">Languages</p>
+                          <p className="text-[10px] text-slate-800"><Editable text={form.languages} name="languages" setForm={setForm} form={form} /></p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-500 mb-1 uppercase">Tech / Frameworks</p>
+                          <p className="text-[10px] text-slate-800"><Editable text={form.web_tech} name="web_tech" setForm={setForm} form={form} /></p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-500 mb-1 uppercase">Tools</p>
+                          <p className="text-[10px] text-slate-800"><Editable text={form.tools} name="tools" setForm={setForm} form={form} /></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Projects Section */}
-                <div className="mb-10">
-                   <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-6">Projects</h3>
-                   <div className="grid grid-cols-1 gap-6">
-                      <div className="p-4 bg-slate-50 rounded border border-slate-100">
-                         <div className="flex justify-between items-center mb-1">
-                            <h4 className="text-[12px] font-black uppercase text-slate-800"><Editable text={form.project1_title} name="project1_title" setForm={setForm} form={form} /></h4>
-                            <span className="text-[9px] font-black text-sky-600 uppercase tracking-wider"><Editable text={form.project1_tech} name="project1_tech" setForm={setForm} form={form} /></span>
-                         </div>
-                         <p className="text-[11px] text-slate-600 leading-relaxed"><Editable text={form.project1_desc} name="project1_desc" setForm={setForm} form={form} /></p>
-                      </div>
-                      <div className="p-4 bg-slate-50 rounded border border-slate-100">
-                         <div className="flex justify-between items-center mb-1">
-                            <h4 className="text-[12px] font-black uppercase text-slate-800"><Editable text={form.project2_title} name="project2_title" setForm={setForm} form={form} /></h4>
-                            <span className="text-[9px] font-black text-sky-600 uppercase tracking-wider"><Editable text={form.project2_tech} name="project2_tech" setForm={setForm} form={form} /></span>
-                         </div>
-                         <p className="text-[11px] text-slate-600 leading-relaxed"><Editable text={form.project2_desc} name="project2_desc" setForm={setForm} form={form} /></p>
-                      </div>
-                   </div>
-                </div>
-
-                {/* Reference Section (2-Column) */}
-                <div className="mt-auto">
-                   <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-6">References</h3>
-                   <div className="grid grid-cols-2 gap-8">
-                      <div className="space-y-1">
-                         <p className="text-[11px] font-black uppercase text-slate-800"><Editable text={form.ref1_name} name="ref1_name" setForm={setForm} form={form} /></p>
-                         <p className="text-[10px] font-bold text-slate-500 italic"><Editable text={form.ref1_role} name="ref1_role" setForm={setForm} form={form} /></p>
-                         <p className="text-[10px] font-black text-sky-600 uppercase mt-2 tracking-tighter"><Editable text={form.ref1_contact} name="ref1_contact" setForm={setForm} form={form} /></p>
-                      </div>
-                      <div className="space-y-1">
-                         <p className="text-[11px] font-black uppercase text-slate-800"><Editable text={form.ref2_name} name="ref2_name" setForm={setForm} form={form} /></p>
-                         <p className="text-[10px] font-bold text-slate-500 italic"><Editable text={form.ref2_role} name="ref2_role" setForm={setForm} form={form} /></p>
-                         <p className="text-[10px] font-black text-sky-600 uppercase mt-2 tracking-tighter"><Editable text={form.ref2_contact} name="ref2_contact" setForm={setForm} form={form} /></p>
-                      </div>
-                   </div>
-                 </div>
               </div>
+            ) : (
+              // ── MODERN LAYOUT (Split Column) ──
+              <div className="flex w-full h-full">
+                {/* LEFT SIDEBAR (30-35%) */}
+                <div className="w-[32%] bg-[#f5f5f5] p-8 flex flex-col border-r border-slate-100">
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-black uppercase leading-tight tracking-tight">
+                      <Editable text={form.name} name="name" setForm={setForm} form={form} />
+                    </h2>
+                    <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">
+                      <Editable text={form.job_title} name="job_title" setForm={setForm} form={form} placeholder="Role / Title" />
+                    </p>
+                  </div>
 
+                  <div className="space-y-6">
+                    {/* Contact */}
+                    <div className="space-y-3">
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Contact</h3>
+                      <div className="space-y-2 text-[11px] font-medium text-slate-600">
+                        <div className="flex items-center gap-2"><Phone size={12} /> <Editable text={form.phone} name="phone" setForm={setForm} form={form} /></div>
+                        <div className="flex items-center gap-2"><Mail size={12} /> <Editable text={form.email} name="email" setForm={setForm} form={form} /></div>
+                        <div className="flex items-center gap-2"><Briefcase size={12} /> <Editable text={form.location} name="location" setForm={setForm} form={form} /></div>
+                        <div className="flex items-center gap-2"><LinkIcon size={12} /> <Editable text={form.linkedin} name="linkedin" setForm={setForm} form={form} /></div>
+                      </div>
+                    </div>
+
+                    {/* Education */}
+                    <div className="space-y-3">
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Education</h3>
+                      <div className="space-y-4">
+                        <div className="space-y-1">
+                          <p className="text-[11px] font-black uppercase tracking-tight text-slate-800"><Editable text={form.degree} name="degree" setForm={setForm} form={form} /></p>
+                          <p className="text-[10px] font-bold text-slate-500 italic"><Editable text={form.college} name="college" setForm={setForm} form={form} /></p>
+                          <div className="flex justify-between text-[10px] font-bold text-sky-600 mt-1">
+                              <span><Editable text={form.year} name="year" setForm={setForm} form={form} /></span>
+                              <span>GPA: <Editable text={form.cgpa} name="cgpa" setForm={setForm} form={form} /></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Skills */}
+                    <div className="space-y-3">
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Skills</h3>
+                      <div className="space-y-1 text-[10px] font-bold text-slate-700">
+                        {form.languages && <div className="flex items-start gap-1 pb-1">• <Editable text={form.languages} name="languages" setForm={setForm} form={form} /></div>}
+                        {form.web_tech && <div className="flex items-start gap-1 pb-1">• <Editable text={form.web_tech} name="web_tech" setForm={setForm} form={form} /></div>}
+                        {form.tools && <div className="flex items-start gap-1">• <Editable text={form.tools} name="tools" setForm={setForm} form={form} /></div>}
+                      </div>
+                    </div>
+
+                    {/* Languages */}
+                    <div className="space-y-3">
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-200 pb-1">Languages</h3>
+                      <p className="text-[10px] font-bold text-slate-600 italic leading-relaxed">
+                        <Editable text={form.spoken_languages} name="spoken_languages" setForm={setForm} form={form} />
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* RIGHT MAIN CONTENT (65-70%) */}
+                <div className="flex-1 bg-white p-10 flex flex-col">
+                  {/* Profile Section */}
+                  <div className="mb-10">
+                    <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Profile</h3>
+                    <p className="text-xs text-slate-600 italic leading-relaxed font-medium">
+                      <Editable text={form.objective} name="objective" setForm={setForm} form={form} />
+                    </p>
+                  </div>
+
+                  {/* Work Experience with Timeline */}
+                  <div className="mb-10">
+                    <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-6">Work Experience</h3>
+                    <div className="relative pl-6 space-y-8 border-l border-slate-200">
+                        <div className="relative">
+                          <div className="absolute -left-[30px] top-1.5 w-3.5 h-3.5 bg-slate-900 rounded-full border-4 border-white ring-1 ring-slate-200 shadow-sm" />
+                          <div className="flex justify-between items-start mb-1">
+                              <div>
+                                <h4 className="text-[13px] font-black uppercase text-slate-800"><Editable text={form.role} name="role" setForm={setForm} form={form} /></h4>
+                                <p className="text-[11px] font-bold text-slate-400 italic"><Editable text={form.company} name="company" setForm={setForm} form={form} /></p>
+                              </div>
+                              <span className="text-[10px] font-black bg-slate-100 px-2 py-0.5 rounded text-slate-500 uppercase">
+                                <Editable text={form.duration} name="duration" setForm={setForm} form={form} />
+                              </span>
+                          </div>
+                          <p className="text-[11px] font-medium text-slate-600 mt-2 leading-relaxed">• <Editable text={form.work} name="work" setForm={setForm} form={form} /></p>
+                        </div>
+                    </div>
+                  </div>
+
+                  {/* Projects Section */}
+                  <div className="mb-10">
+                    <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-6">Projects</h3>
+                    <div className="grid grid-cols-1 gap-6">
+                        <div className="p-4 bg-slate-50 rounded border border-slate-100">
+                          <div className="flex justify-between items-center mb-1">
+                              <h4 className="text-[12px] font-black uppercase text-slate-800"><Editable text={form.project1_title} name="project1_title" setForm={setForm} form={form} /></h4>
+                              <span className="text-[9px] font-black text-sky-600 uppercase tracking-wider"><Editable text={form.project1_tech} name="project1_tech" setForm={setForm} form={form} /></span>
+                          </div>
+                          <p className="text-[11px] font-medium text-slate-600 leading-relaxed"><Editable text={form.project1_desc} name="project1_desc" setForm={setForm} form={form} /></p>
+                        </div>
+                        <div className="p-4 bg-slate-50 rounded border border-slate-100">
+                          <div className="flex justify-between items-center mb-1">
+                              <h4 className="text-[12px] font-black uppercase text-slate-800"><Editable text={form.project2_title} name="project2_title" setForm={setForm} form={form} /></h4>
+                              <span className="text-[9px] font-black text-sky-600 uppercase tracking-wider"><Editable text={form.project2_tech} name="project2_tech" setForm={setForm} form={form} /></span>
+                          </div>
+                          <p className="text-[11px] font-medium text-slate-600 leading-relaxed"><Editable text={form.project2_desc} name="project2_desc" setForm={setForm} form={form} /></p>
+                        </div>
+                    </div>
+                  </div>
+
+                  {/* Reference Section (2-Column) */}
+                  {!hiddenSections.has('references') && (
+                    <div className="mt-auto">
+                      <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-900 border-b-2 border-slate-900 pb-2 mb-6">References</h3>
+                      <div className="grid grid-cols-2 gap-8">
+                          <div className="space-y-1">
+                            <p className="text-[11px] font-black uppercase text-slate-800"><Editable text={form.ref1_name} name="ref1_name" setForm={setForm} form={form} /></p>
+                            <p className="text-[10px] font-bold text-slate-500 italic"><Editable text={form.ref1_role} name="ref1_role" setForm={setForm} form={form} /></p>
+                            <p className="text-[10px] font-black text-sky-600 uppercase mt-2 tracking-tighter"><Editable text={form.ref1_contact} name="ref1_contact" setForm={setForm} form={form} /></p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-[11px] font-black uppercase text-slate-800"><Editable text={form.ref2_name} name="ref2_name" setForm={setForm} form={form} /></p>
+                            <p className="text-[10px] font-bold text-slate-500 italic"><Editable text={form.ref2_role} name="ref2_role" setForm={setForm} form={form} /></p>
+                            <p className="text-[10px] font-black text-sky-600 uppercase mt-2 tracking-tighter"><Editable text={form.ref2_contact} name="ref2_contact" setForm={setForm} form={form} /></p>
+                          </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Page break indicator */}
+            <div className="text-center py-0" style={{ pageBreakBefore: 'always' }}>
+              <div className="border-t-2 border-dashed border-slate-300 w-full relative">
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-slate-200 text-slate-400 text-[10px] px-2 rounded font-bold">Page 2 starts here if content overflows</span>
+              </div>
             </div>
+
+              </div>{/* end resume-preview */}
+            </div>{/* end grey bg */}
           </div>
         </div>
       </div>
@@ -626,7 +981,7 @@ function Editable({ text, name, setForm, form, placeholder = "" }: { text: strin
     <span
       contentEditable
       suppressContentEditableWarning
-      onBlur={(e) => setForm({ ...form, [name]: e.currentTarget.innerText })}
+      onBlur={(e) => setForm((prev: any) => ({ ...prev, [name]: e.currentTarget.innerText }))}
       className="outline-none focus:bg-sky-50 px-0.5 rounded transition-all min-w-[20px] inline-block"
     >
       {text || placeholder}

@@ -177,217 +177,639 @@ export function exportResumePDF(data: any) {
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   
-  const SIDEBAR_W = W * 0.33;
-  const MAIN_X = SIDEBAR_W + 10;
-  const RIGHT_CONTENT_W = W - MAIN_X - 10;
-  
-  // ── Backgrounds ────────────────────────────────────────────────────────────
-  // Sidebar Background
-  doc.setFillColor(245, 245, 245);
-  doc.rect(0, 0, SIDEBAR_W, H, "F");
-  
-  // Main Content Background (already white)
-  
-  let ly = 20; // Left Y
-  let ry = 25; // Right Y
-  const MARGIN_L = 10;
+  if (data.templateStyle === "corporate") {
+    // ── CORPORATE LAYOUT (Single Column Centered) ──
+    const MARGIN = 20;
+    const CONTENT_W = W - MARGIN * 2;
+    let y = 25;
 
-  // ── LEFT SIDEBAR ───────────────────────────────────────────────────────────
-  // Name & Title
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.setTextColor(20, 20, 20);
-  const nameLines = doc.splitTextToSize(data.name?.toUpperCase() || "YOUR NAME", SIDEBAR_W - MARGIN_L * 2);
-  doc.text(nameLines, MARGIN_L, ly);
-  ly += nameLines.length * 7 + 2;
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(100, 100, 100);
-  doc.text(data.job_title?.toUpperCase() || "PROFESSIONAL", MARGIN_L, ly);
-  ly += 12;
-
-  const sidebarHeader = (title: string, yPos: number) => {
+    // Header (Center aligned)
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    doc.setTextColor(150, 150, 150);
-    doc.text(title.toUpperCase(), MARGIN_L, yPos);
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.2);
-    doc.line(MARGIN_L, yPos + 1.5, SIDEBAR_W - MARGIN_L, yPos + 1.5);
-    return yPos + 7;
-  };
-
-  // Contact
-  ly = sidebarHeader("Contact", ly);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(60, 60, 60);
-  const contacts = [
-    { label: "Phone", val: data.phone },
-    { label: "Email", val: data.email },
-    { label: "Location", val: data.location },
-    { label: "LinkedIn", val: data.linkedin },
-    { label: "GitHub", val: data.portfolio }
-  ];
-  contacts.forEach(c => {
-    if (c.val && c.val !== "—" && c.val !== "") {
-      doc.setFont("helvetica", "bold");
-      doc.text(c.label, MARGIN_L, ly);
-      doc.setFont("helvetica", "normal");
-      const lines = doc.splitTextToSize(c.val, SIDEBAR_W - MARGIN_L * 2);
-      doc.text(lines, MARGIN_L, ly + 4);
-      ly += 4 + lines.length * 4;
-    }
-  });
-  ly += 5;
-
-  // Education
-  ly = sidebarHeader("Education", ly);
-  if (data.degree) {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.setTextColor(40, 40, 40);
-    const degLines = doc.splitTextToSize(data.degree, SIDEBAR_W - MARGIN_L * 2);
-    doc.text(degLines, MARGIN_L, ly);
-    ly += degLines.length * 4;
-    
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(7.5);
-    doc.setTextColor(100, 100, 100);
-    doc.text(data.college || "", MARGIN_L, ly);
-    ly += 4;
-    
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(79, 70, 229);
-    doc.text(`${data.year || ""} | GPA: ${data.cgpa || ""}`, MARGIN_L, ly);
-    ly += 10;
-  }
-
-  // Skills
-  ly = sidebarHeader("Skills", ly);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(60, 60, 60);
-  [data.languages, data.web_tech, data.tools].forEach(s => {
-    if (s && s !== "—" && s !== "") {
-      const sLines = doc.splitTextToSize(`• ${s}`, SIDEBAR_W - MARGIN_L * 2);
-      doc.text(sLines, MARGIN_L, ly);
-      ly += sLines.length * 4 + 1;
-    }
-  });
-  ly += 5;
-
-  // Languages
-  if (data.spoken_languages) {
-    ly = sidebarHeader("Languages", ly);
-    doc.setFont("helvetica", "italic");
-    doc.text(data.spoken_languages, MARGIN_L, ly);
-  }
-
-  // ── RIGHT MAIN CONTENT ─────────────────────────────────────────────────────
-  const mainHeader = (title: string, yPos: number) => {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(22);
     doc.setTextColor(20, 20, 20);
-    doc.text(title.toUpperCase(), MAIN_X, yPos);
-    doc.setDrawColor(20, 20, 20);
-    doc.setLineWidth(0.5);
-    doc.line(MAIN_X, yPos + 2, W - 10, yPos + 2);
-    return yPos + 10;
-  };
-
-  // Profile
-  ry = mainHeader("Profile", ry);
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(9);
-  doc.setTextColor(80, 80, 80);
-  const objLines = doc.splitTextToSize(data.objective || "", RIGHT_CONTENT_W);
-  doc.text(objLines, MAIN_X, ry);
-  ry += objLines.length * 5 + 10;
-
-  // Experience (Timeline)
-  if (data.company) {
-    ry = mainHeader("Work Experience", ry);
-    // Timeline Line
-    doc.setDrawColor(230, 230, 230);
-    doc.setLineWidth(0.3);
-    doc.line(MAIN_X + 2, ry, MAIN_X + 2, ry + 25);
-    
-    // Dot
-    doc.setFillColor(20, 20, 20);
-    doc.circle(MAIN_X + 2, ry + 1, 1, "F");
+    const name = data.name?.toUpperCase() || "YOUR NAME";
+    doc.text(name, W / 2, y, { align: "center" });
+    y += 6;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(40, 40, 40);
-    doc.text(data.role?.toUpperCase() || "", MAIN_X + 6, ry + 2);
-    
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text(data.duration || "", W - 10, ry + 2, { align: "right" });
-    ry += 6;
+    doc.setTextColor(80, 80, 80);
+    doc.text(data.job_title?.toUpperCase() || "PROFESSIONAL", W / 2, y, { align: "center" });
+    y += 6;
 
-    doc.setFont("helvetica", "bold");
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
-    doc.text(data.company || "", MAIN_X + 6, ry);
-    ry += 6;
+    const contactLinks = [data.phone, data.email, data.location].filter(Boolean).join("  |  ");
+    doc.text(contactLinks, W / 2, y, { align: "center" });
+    y += 5;
+    const webLinks = [data.linkedin, data.portfolio].filter(Boolean).join("  |  ");
+    doc.text(webLinks, W / 2, y, { align: "center" });
+    y += 12;
+
+    const sectionHeader = (title: string, yPos: number) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(20, 20, 20);
+      doc.text(title.toUpperCase(), MARGIN, yPos);
+      doc.setDrawColor(40, 40, 40);
+      doc.setLineWidth(0.4);
+      doc.line(MARGIN, yPos + 2, W - MARGIN, yPos + 2);
+      return yPos + 8;
+    };
+
+    // Summary
+    if (data.objective) {
+      y = sectionHeader("Professional Summary", y);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(60, 60, 60);
+      const lines = doc.splitTextToSize(data.objective, CONTENT_W);
+      doc.text(lines, MARGIN, y);
+      y += lines.length * 5 + 6;
+    }
+
+    // Skills
+    if (data.languages || data.web_tech || data.tools) {
+      y = sectionHeader("Technical Skills", y);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(60, 60, 60);
+
+      const addSkillLine = (label: string, skills: string) => {
+        if (!skills) return;
+        doc.setFont("helvetica", "bold");
+        doc.text(`${label}: `, MARGIN, y);
+        const lw = doc.getTextWidth(`${label}: `);
+        doc.setFont("helvetica", "normal");
+        const lines = doc.splitTextToSize(skills, CONTENT_W - lw);
+        doc.text(lines, MARGIN + lw, y);
+        y += lines.length * 5 + 2;
+      };
+
+      addSkillLine("Languages", data.languages);
+      addSkillLine("Frameworks", data.web_tech);
+      addSkillLine("Tools", data.tools);
+      y += 4;
+    }
+
+    // Experience
+    if (data.company) {
+      y = sectionHeader("Professional Experience", y);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.5);
+      doc.setTextColor(30, 30, 30);
+      doc.text(data.role, MARGIN, y);
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text(data.duration, W - MARGIN, y, { align: "right" });
+      y += 5;
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(9.5);
+      doc.setTextColor(79, 70, 229); // brand color
+      doc.text(data.company, MARGIN, y);
+      y += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(60, 60, 60);
+      const lines = doc.splitTextToSize(`• ${data.work}`, CONTENT_W - 5);
+      doc.text(lines, MARGIN + 5, y);
+      y += lines.length * 5 + 6;
+    }
+
+    // Projects
+    if (data.project1_title || data.project2_title) {
+      y = sectionHeader("Projects", y);
+      
+      const drawProj = (title: string, tech: string, desc: string) => {
+        if (!title) return;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(30, 30, 30);
+        doc.text(title, MARGIN, y);
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(8.5);
+        doc.setTextColor(100, 100, 100);
+        doc.text(tech, W - MARGIN, y, { align: "right" });
+        y += 5;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9.5);
+        doc.setTextColor(60, 60, 60);
+        const lines = doc.splitTextToSize(`• ${desc}`, CONTENT_W - 5);
+        doc.text(lines, MARGIN + 5, y);
+        y += lines.length * 5 + 4;
+      };
+
+      drawProj(data.project1_title, data.project1_tech, data.project1_desc);
+      drawProj(data.project2_title, data.project2_tech, data.project2_desc);
+      y += 2;
+    }
+
+    // Education
+    if (data.degree) {
+      y = sectionHeader("Education", y);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(30, 30, 30);
+      doc.text(data.degree, MARGIN, y);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text(data.year, W - MARGIN, y, { align: "right" });
+      y += 5;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(79, 70, 229);
+      doc.text(data.college, MARGIN, y);
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(60, 60, 60);
+      doc.text(`GPA: ${data.cgpa}`, W - MARGIN, y, { align: "right" });
+    }
+
+  } else if (data.templateStyle === "minimal") {
+    // ── MINIMAL LAYOUT (Left Aligned whitespace heavy) ──
+    const MARGIN = 25;
+    const CONTENT_W = W - MARGIN * 2;
+    let y = 30;
+
+    // Header (Left aligned)
+    doc.setFont("times", "normal"); // serif
+    doc.setFontSize(26);
+    doc.setTextColor(20, 20, 20);
+    const name = data.name || "Your Name";
+    doc.text(name, MARGIN, y);
+    y += 8;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
-    doc.setTextColor(80, 80, 80);
-    const expLines = doc.splitTextToSize(`• ${data.work || ""}`, RIGHT_CONTENT_W - 6);
-    doc.text(expLines, MAIN_X + 6, ry);
-    ry += expLines.length * 5 + 12;
-  }
+    doc.setTextColor(90, 90, 90);
+    const contactLinks = [data.phone, data.email, data.location, data.linkedin].filter(Boolean).join("   •   ");
+    doc.text(contactLinks, MARGIN, y);
+    y += 15;
 
-  // Projects
-  ry = mainHeader("Projects", ry);
-  const drawProj = (title: string, tech: string, desc: string) => {
-    doc.setFont("helvetica", "bold");
+    // Summary
+    if (data.objective) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(50, 50, 50);
+      const lines = doc.splitTextToSize(data.objective, CONTENT_W);
+      doc.text(lines, MARGIN, y);
+      y += lines.length * 5 + 10;
+    }
+
+    const sectionHeader = (title: string, yPos: number) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(150, 150, 150);
+      doc.text(title.toUpperCase(), MARGIN, yPos);
+      return yPos + 6;
+    };
+
+    // Experience
+    if (data.company) {
+      y = sectionHeader("EXPERIENCE", y);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(30, 30, 30);
+      doc.text(data.role, MARGIN, y);
+      y += 5;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(80, 80, 80);
+      doc.text(data.company, MARGIN, y);
+      doc.setFontSize(8.5);
+      doc.setTextColor(150, 150, 150);
+      doc.text(data.duration, W - MARGIN, y, { align: "right" });
+      y += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(50, 50, 50);
+      const lines = doc.splitTextToSize(`• ${data.work}`, CONTENT_W - 5);
+      doc.text(lines, MARGIN + 5, y);
+      y += lines.length * 5 + 8;
+    }
+
+    // Projects
+    if (data.project1_title || data.project2_title) {
+      y = sectionHeader("PROJECTS", y);
+      
+      const drawProj = (title: string, desc: string) => {
+        if (!title) return;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10.5);
+        doc.setTextColor(30, 30, 30);
+        doc.text(title, MARGIN, y);
+        y += 5;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9.5);
+        doc.setTextColor(50, 50, 50);
+        const lines = doc.splitTextToSize(desc, CONTENT_W);
+        doc.text(lines, MARGIN, y);
+        y += lines.length * 5 + 6;
+      };
+
+      drawProj(data.project1_title, data.project1_desc);
+      drawProj(data.project2_title, data.project2_desc);
+      y += 2;
+    }
+
+    // Education
+    if (data.degree) {
+      y = sectionHeader("EDUCATION", y);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(30, 30, 30);
+      doc.text(data.degree, MARGIN, y);
+      y += 5;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(80, 80, 80);
+      doc.text(data.college, MARGIN, y);
+      doc.setFontSize(8.5);
+      doc.setTextColor(150, 150, 150);
+      doc.text(data.year, W - MARGIN, y, { align: "right" });
+      y += 8;
+    }
+
+    // Skills
+    if (data.languages || data.web_tech || data.tools) {
+      y = sectionHeader("SKILLS", y);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(50, 50, 50);
+      const skillsTxt = [data.languages, data.web_tech, data.tools].filter(Boolean).join("  •  ");
+      const lines = doc.splitTextToSize(skillsTxt, CONTENT_W);
+      doc.text(lines, MARGIN, y);
+      y += lines.length * 5 + 6;
+    }
+
+  } else if (data.templateStyle === "technical") {
+    // ── TECHNICAL LAYOUT (Dense Monospace) ──
+    const MARGIN = 15;
+    const CONTENT_W = W - MARGIN * 2;
+    let y = 20;
+
+    doc.setFont("courier", "bold");
+    doc.setFontSize(24);
+    doc.setTextColor(20, 20, 20);
+    const name = data.name || "USER_NAME";
+    doc.text(name, MARGIN, y);
+    y += 6;
+
+    doc.setFont("courier", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(40, 40, 40);
-    doc.text(title.toUpperCase(), MAIN_X, ry);
-    doc.setFontSize(8);
     doc.setTextColor(79, 70, 229);
-    doc.text(tech, W - 10, ry, { align: "right" });
-    ry += 5;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8.5);
-    doc.setTextColor(80, 80, 80);
-    const lines = doc.splitTextToSize(`• ${desc}`, RIGHT_CONTENT_W);
-    doc.text(lines, MAIN_X, ry);
-    ry += lines.length * 4.5 + 6;
-  };
-
-  if (data.project1_title) drawProj(data.project1_title, data.project1_tech || "", data.project1_desc || "");
-  if (data.project2_title) drawProj(data.project2_title, data.project2_tech || "", data.project2_desc || "");
-  ry += 4;
-
-  // References
-  if (data.ref1_name) {
-    ry = mainHeader("References", ry);
-    const refW = RIGHT_CONTENT_W / 2 - 5;
-    
-    doc.setFont("helvetica", "bold");
+    doc.text(`> ${data.job_title || "ROLE_UNSPECIFIED"}`, MARGIN, y);
+    doc.setFont("courier", "normal");
     doc.setFontSize(9);
-    doc.setTextColor(40, 40, 40);
-    doc.text(data.ref1_name.toUpperCase(), MAIN_X, ry);
-    if (data.ref2_name) doc.text(data.ref2_name.toUpperCase(), MAIN_X + refW + 10, ry);
-    ry += 4;
+    doc.setTextColor(100, 100, 100);
+    doc.text(`${data.email || ""} | ${data.phone || ""} | ${data.github || "github.com"}`, W - MARGIN, y, { align: "right" });
+    y += 4;
+    doc.setDrawColor(40, 40, 40);
+    doc.setLineWidth(0.5);
+    doc.line(MARGIN, y, W - MARGIN, y);
+    y += 8;
+
+    const colWidth = (CONTENT_W - 10) / 3;
+    const rightX = MARGIN + colWidth * 2 + 10;
+    
+    // LEFT COL (Summary, Experience, Projects)
+    let leftY = y;
+    const secHead = (txt: string, xPos: number, yPos: number) => {
+      doc.setFont("courier", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(20, 20, 20);
+      doc.text(`[ ${txt.toUpperCase()} ]`, xPos, yPos);
+      return yPos + 6;
+    };
+
+    if (data.objective) {
+      leftY = secHead("SUMMARY", MARGIN, leftY);
+      doc.setFont("courier", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(60, 60, 60);
+      const lines = doc.splitTextToSize(data.objective, colWidth * 2);
+      doc.text(lines, MARGIN, leftY);
+      leftY += lines.length * 4 + 6;
+    }
+
+    if (data.company) {
+      leftY = secHead("EXPERIENCE", MARGIN, leftY);
+      doc.setFont("courier", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(30, 30, 30);
+      doc.text(data.role, MARGIN, leftY);
+      doc.setFont("courier", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text(data.duration, MARGIN + colWidth * 2, leftY, { align: "right" });
+      leftY += 4;
+      doc.setFont("courier", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(79, 70, 229);
+      doc.text(data.company, MARGIN, leftY);
+      leftY += 5;
+      doc.setFont("courier", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(60, 60, 60);
+      const lines = doc.splitTextToSize(`> ${data.work}`, colWidth * 2 - 4);
+      doc.text(lines, MARGIN + 4, leftY);
+      leftY += lines.length * 4 + 6;
+    }
+
+    if (data.project1_title || data.project2_title) {
+      leftY = secHead("PROJECTS", MARGIN, leftY);
+      const pDraw = (t: string, tech: string, d: string) => {
+        if (!t) return;
+        doc.setFont("courier", "bold");
+        doc.setFontSize(9.5);
+        doc.setTextColor(30, 30, 30);
+        doc.text(t, MARGIN + 2, leftY);
+        doc.setFontSize(8);
+        doc.setTextColor(79, 70, 229);
+        doc.text(tech, MARGIN + colWidth * 2 - 2, leftY, { align: "right" });
+        leftY += 4;
+        doc.setFont("courier", "normal");
+        doc.setFontSize(8.5);
+        doc.setTextColor(60, 60, 60);
+        const lns = doc.splitTextToSize(`> ${d}`, colWidth * 2 - 6);
+        doc.text(lns, MARGIN + 4, leftY);
+        leftY += lns.length * 4 + 6;
+      };
+      doc.setDrawColor(220, 220, 220); // soft border
+      doc.setLineWidth(0.2);
+      doc.rect(MARGIN, leftY - 4, colWidth * 2, 80); // we won't draw rect dynamically accurately, skip it.
+      pDraw(data.project1_title, data.project1_tech, data.project1_desc);
+      pDraw(data.project2_title, data.project2_tech, data.project2_desc);
+    }
+
+    // RIGHT COL (Education, Skills)
+    let rightY = y;
+    if (data.degree) {
+      rightY = secHead("EDUCATION", rightX, rightY);
+      doc.setFont("courier", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(30, 30, 30);
+      const degLines = doc.splitTextToSize(data.degree, colWidth);
+      doc.text(degLines, rightX, rightY);
+      rightY += degLines.length * 4;
+      doc.setFont("courier", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(80, 80, 80);
+      const colLines = doc.splitTextToSize(data.college, colWidth);
+      doc.text(colLines, rightX, rightY);
+      rightY += colLines.length * 4;
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text(data.year, rightX, rightY);
+      rightY += 4;
+      doc.setFont("courier", "bold");
+      doc.setTextColor(79, 70, 229);
+      doc.text(`GPA: ${data.cgpa}`, rightX, rightY);
+      rightY += 8;
+    }
+
+    if (data.languages || data.web_tech || data.tools) {
+      rightY = secHead("SKILLS", rightX, rightY);
+      const skDraw = (lbl: string, s: string) => {
+        if (!s) return;
+        doc.setFont("courier", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(lbl, rightX, rightY);
+        rightY += 4;
+        doc.setFont("courier", "normal");
+        doc.setFontSize(8.5);
+        doc.setTextColor(30, 30, 30);
+        const lns = doc.splitTextToSize(s, colWidth);
+        doc.text(lns, rightX, rightY);
+        rightY += lns.length * 4 + 4;
+      };
+      skDraw("LANGUAGES", data.languages);
+      skDraw("FRAMEWORKS", data.web_tech);
+      skDraw("TOOLS", data.tools);
+    }
+    
+  } else {
+    // ── MODERN LAYOUT (Split Column) ──
+    const SIDEBAR_W = W * 0.33;
+    const MAIN_X = SIDEBAR_W + 10;
+    const RIGHT_CONTENT_W = W - MAIN_X - 10;
+    
+    // Backgrounds
+    doc.setFillColor(245, 245, 245);
+    doc.rect(0, 0, SIDEBAR_W, H, "F");
+    
+    let ly = 20; // Left Y
+    let ry = 25; // Right Y
+    const MARGIN_L = 10;
+
+    // Name & Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(20, 20, 20);
+    const nameLines = doc.splitTextToSize(data.name?.toUpperCase() || "YOUR NAME", SIDEBAR_W - MARGIN_L * 2);
+    doc.text(nameLines, MARGIN_L, ly);
+    ly += nameLines.length * 7 + 2;
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(7.5);
-    doc.setTextColor(120, 120, 120);
-    doc.text(data.ref1_role || "", MAIN_X, ry);
-    if (data.ref2_role) doc.text(data.ref2_role || "", MAIN_X + refW + 10, ry);
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text(data.job_title?.toUpperCase() || "PROFESSIONAL", MARGIN_L, ly);
+    ly += 12;
+
+    const sidebarHeader = (title: string, yPos: number) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(150, 150, 150);
+      doc.text(title.toUpperCase(), MARGIN_L, yPos);
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.2);
+      doc.line(MARGIN_L, yPos + 1.5, SIDEBAR_W - MARGIN_L, yPos + 1.5);
+      return yPos + 7;
+    };
+
+    // Contact
+    ly = sidebarHeader("Contact", ly);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(60, 60, 60);
+    const contacts = [
+      { label: "Phone", val: data.phone },
+      { label: "Email", val: data.email },
+      { label: "Location", val: data.location },
+      { label: "LinkedIn", val: data.linkedin },
+      { label: "GitHub", val: data.portfolio }
+    ];
+    contacts.forEach(c => {
+      if (c.val && c.val !== "—" && c.val !== "") {
+        doc.setFont("helvetica", "bold");
+        doc.text(c.label, MARGIN_L, ly);
+        doc.setFont("helvetica", "normal");
+        const lines = doc.splitTextToSize(c.val, SIDEBAR_W - MARGIN_L * 2);
+        doc.text(lines, MARGIN_L, ly + 4);
+        ly += 4 + lines.length * 4;
+      }
+    });
+    ly += 5;
+
+    // Education
+    ly = sidebarHeader("Education", ly);
+    if (data.degree) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(40, 40, 40);
+      const degLines = doc.splitTextToSize(data.degree, SIDEBAR_W - MARGIN_L * 2);
+      doc.text(degLines, MARGIN_L, ly);
+      ly += degLines.length * 4;
+      
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(7.5);
+      doc.setTextColor(100, 100, 100);
+      doc.text(data.college || "", MARGIN_L, ly);
+      ly += 4;
+      
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(79, 70, 229);
+      doc.text(`${data.year || ""} | GPA: ${data.cgpa || ""}`, MARGIN_L, ly);
+      ly += 10;
+    }
+
+    // Skills
+    ly = sidebarHeader("Skills", ly);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(60, 60, 60);
+    [data.languages, data.web_tech, data.tools].forEach(s => {
+      if (s && s !== "—" && s !== "") {
+        const sLines = doc.splitTextToSize(`• ${s}`, SIDEBAR_W - MARGIN_L * 2);
+        doc.text(sLines, MARGIN_L, ly);
+        ly += sLines.length * 4 + 1;
+      }
+    });
+    ly += 5;
+
+    // Languages
+    if (data.spoken_languages) {
+      ly = sidebarHeader("Languages", ly);
+      doc.setFont("helvetica", "italic");
+      doc.text(data.spoken_languages, MARGIN_L, ly);
+    }
+
+    // ── RIGHT MAIN CONTENT ─────────────────────────────────────────────────────
+    const mainHeader = (title: string, yPos: number) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(20, 20, 20);
+      doc.text(title.toUpperCase(), MAIN_X, yPos);
+      doc.setDrawColor(20, 20, 20);
+      doc.setLineWidth(0.5);
+      doc.line(MAIN_X, yPos + 2, W - 10, yPos + 2);
+      return yPos + 10;
+    };
+
+    // Profile
+    ry = mainHeader("Profile", ry);
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(9);
+    doc.setTextColor(80, 80, 80);
+    const objLines = doc.splitTextToSize(data.objective || "", RIGHT_CONTENT_W);
+    doc.text(objLines, MAIN_X, ry);
+    ry += objLines.length * 5 + 10;
+
+    // Experience (Timeline)
+    if (data.company) {
+      ry = mainHeader("Work Experience", ry);
+      // Timeline Line
+      doc.setDrawColor(230, 230, 230);
+      doc.setLineWidth(0.3);
+      doc.line(MAIN_X + 2, ry, MAIN_X + 2, ry + 25);
+      
+      // Dot
+      doc.setFillColor(20, 20, 20);
+      doc.circle(MAIN_X + 2, ry + 1, 1, "F");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(40, 40, 40);
+      doc.text(data.role?.toUpperCase() || "", MAIN_X + 6, ry + 2);
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(data.duration || "", W - 10, ry + 2, { align: "right" });
+      ry += 6;
+
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(100, 100, 100);
+      doc.text(data.company || "", MAIN_X + 6, ry);
+      ry += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(80, 80, 80);
+      const expLines = doc.splitTextToSize(`• ${data.work || ""}`, RIGHT_CONTENT_W - 6);
+      doc.text(expLines, MAIN_X + 6, ry);
+      ry += expLines.length * 5 + 12;
+    }
+
+    // Projects
+    ry = mainHeader("Projects", ry);
+    const drawProj = (title: string, tech: string, desc: string) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(40, 40, 40);
+      doc.text(title.toUpperCase(), MAIN_X, ry);
+      doc.setFontSize(8);
+      doc.setTextColor(79, 70, 229);
+      doc.text(tech, W - 10, ry, { align: "right" });
+      ry += 5;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(80, 80, 80);
+      const lines = doc.splitTextToSize(`• ${desc}`, RIGHT_CONTENT_W);
+      doc.text(lines, MAIN_X, ry);
+      ry += lines.length * 4.5 + 6;
+    };
+
+    if (data.project1_title) drawProj(data.project1_title, data.project1_tech || "", data.project1_desc || "");
+    if (data.project2_title) drawProj(data.project2_title, data.project2_tech || "", data.project2_desc || "");
     ry += 4;
 
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(79, 70, 229);
-    doc.text(data.ref1_contact || "", MAIN_X, ry);
-    if (data.ref2_contact) doc.text(data.ref2_contact || "", MAIN_X + refW + 10, ry);
+    // References
+    if (data.ref1_name) {
+      ry = mainHeader("References", ry);
+      const refW = RIGHT_CONTENT_W / 2 - 5;
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(40, 40, 40);
+      doc.text(data.ref1_name.toUpperCase(), MAIN_X, ry);
+      if (data.ref2_name) doc.text(data.ref2_name.toUpperCase(), MAIN_X + refW + 10, ry);
+      ry += 4;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(120, 120, 120);
+      doc.text(data.ref1_role || "", MAIN_X, ry);
+      if (data.ref2_role) doc.text(data.ref2_role || "", MAIN_X + refW + 10, ry);
+      ry += 4;
+
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(79, 70, 229);
+      doc.text(data.ref1_contact || "", MAIN_X, ry);
+      if (data.ref2_contact) doc.text(data.ref2_contact || "", MAIN_X + refW + 10, ry);
+    }
   }
 
   doc.save(`Resume_${(data.name || "Alex_Johnson").replace(/\s+/g, "_")}.pdf`);
