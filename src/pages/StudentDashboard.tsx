@@ -19,13 +19,7 @@ export default function StudentDashboard() {
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showApplyModal, setShowApplyModal] = useState(false);
-  const [formData, setFormData] = useState({
-    bio: '',
-    experience: '',
-    why_us: '',
-    links: '',
-    resume: ''
-  });
+  const [formData, setFormData] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -55,6 +49,18 @@ export default function StudentDashboard() {
 
   const handleApply = async (job: any) => {
     setSelectedJob(job);
+    // Pre-populate defaults for dynamic fields
+    const defaults: Record<string, string> = {};
+    if (job.custom_form && job.custom_form.length > 0) {
+      job.custom_form.forEach((f: any) => { defaults[f.label] = ''; });
+    } else {
+      defaults['bio'] = '';
+      defaults['experience'] = '';
+      defaults['why_us'] = '';
+      defaults['links'] = '';
+      defaults['resume'] = '';
+    }
+    setFormData(defaults);
     setShowApplyModal(true);
   };
 
@@ -66,7 +72,7 @@ export default function StudentDashboard() {
     try {
       await api.applications.apply((selectedJob._id || selectedJob.id) as any, formData);
       setShowApplyModal(false);
-      setFormData({ bio: '', experience: '', why_us: '', links: '', resume: '' });
+      setFormData({});
       fetchData();
       alert("Application submitted successfully!");
     } catch (err: any) {
@@ -358,55 +364,93 @@ export default function StudentDashboard() {
               </div>
 
               <form onSubmit={handleApplySubmit} className="relative space-y-6 max-h-[60vh] overflow-y-auto pr-4 no-scrollbar">
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Professional Introduction</label>
-                  <textarea
-                    required value={formData.bio}
-                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                    placeholder="Briefly introduce yourself..."
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
-                  />
-                </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Relevant Experience & Skills</label>
-                  <textarea
-                    required value={formData.experience}
-                    onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                    placeholder="List your key skills..."
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Motivation</label>
-                  <textarea
-                    required value={formData.why_us}
-                    onChange={(e) => setFormData({ ...formData, why_us: e.target.value })}
-                    placeholder="Why this company?"
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Links</label>
-                  <input
-                    type="text" value={formData.links}
-                    onChange={(e) => setFormData({ ...formData, links: e.target.value })}
-                    placeholder="Portfolio/GitHub/LinkedIn"
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Resume Link</label>
-                  <input
-                    type="text" required value={formData.resume}
-                    onChange={(e) => setFormData({ ...formData, resume: e.target.value })}
-                    placeholder="Google Drive, Dropbox, or Portfolio URL"
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
-                  />
-                </div>
+                {selectedJob?.custom_form && selectedJob.custom_form.length > 0 ? (
+                  /* ── Company's custom form ── */
+                  selectedJob.custom_form.map((field: any) => (
+                    <div key={field.id} className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">
+                        {field.label}{field.required && <span className="text-red-400 ml-1">*</span>}
+                      </label>
+                      {field.type === 'boolean' ? (
+                        <div className="flex gap-4">
+                          {['Yes', 'No'].map(opt => (
+                            <label key={opt} className="flex items-center gap-2 cursor-pointer px-5 py-3 rounded-2xl border-2 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50 border-slate-100 bg-slate-50 font-bold text-slate-700 transition-all">
+                              <input
+                                type="radio"
+                                name={field.id}
+                                value={opt}
+                                required={field.required}
+                                checked={formData[field.label] === opt}
+                                onChange={() => setFormData({ ...formData, [field.label]: opt })}
+                                className="accent-sky-500"
+                              />
+                              {opt}
+                            </label>
+                          ))}
+                        </div>
+                      ) : (
+                        <input
+                          type={field.type === 'number' ? 'number' : field.type === 'url' ? 'url' : 'text'}
+                          required={field.required}
+                          value={formData[field.label] || ''}
+                          onChange={(e) => setFormData({ ...formData, [field.label]: e.target.value })}
+                          placeholder={`Enter ${field.label}`}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
+                        />
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  /* ── Default form (no custom_form configured) ── */
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Professional Introduction</label>
+                      <textarea
+                        required value={formData['bio'] || ''}
+                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                        placeholder="Briefly introduce yourself..."
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Relevant Experience & Skills</label>
+                      <textarea
+                        required value={formData['experience'] || ''}
+                        onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                        placeholder="List your key skills..."
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Motivation</label>
+                      <textarea
+                        required value={formData['why_us'] || ''}
+                        onChange={(e) => setFormData({ ...formData, why_us: e.target.value })}
+                        placeholder="Why this company?"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700 h-32 resize-none"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Links</label>
+                      <input
+                        type="text" value={formData['links'] || ''}
+                        onChange={(e) => setFormData({ ...formData, links: e.target.value })}
+                        placeholder="Portfolio/GitHub/LinkedIn"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Resume Link</label>
+                      <input
+                        type="text" required value={formData['resume'] || ''}
+                        onChange={(e) => setFormData({ ...formData, resume: e.target.value })}
+                        placeholder="Google Drive, Dropbox, or Portfolio URL"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all font-bold text-slate-700"
+                      />
+                    </div>
+                  </>
+                )}
 
                 <div className="pt-4">
                   <button

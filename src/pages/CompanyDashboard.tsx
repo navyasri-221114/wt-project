@@ -35,7 +35,11 @@ export default function CompanyDashboard() {
     salary: '',
     location: '',
     min_cgpa: 6.0,
-    vacancies: 1
+    vacancies: 1,
+    custom_form: [
+      { id: '1', label: 'Resume', type: 'file', required: true },
+      { id: '2', label: 'Expected Salary', type: 'text', required: false },
+    ]
   });
 
   useEffect(() => {
@@ -86,8 +90,10 @@ export default function CompanyDashboard() {
     e.preventDefault();
     try {
       await api.jobs.create(newJob);
-      setShowPostModal(false);
-      setNewJob({ title: '', description: '', requirements: '', salary: '', location: '', min_cgpa: 6.0, vacancies: 1 });
+      setNewJob({ title: '', description: '', requirements: '', salary: '', location: '', min_cgpa: 6.0, vacancies: 1, custom_form: [
+        { id: '1', label: 'Resume', type: 'file', required: true },
+        { id: '2', label: 'Expected Salary', type: 'text', required: false },
+      ] });
       fetchJobs();
     } catch (err) {
       alert("Failed to post job");
@@ -394,8 +400,26 @@ export default function CompanyDashboard() {
                                     <X size={16} />
                                   </button>
                                 </div>
+                              ) : app.status === 'interviewed' ? (
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => handleUpdateStatus(app.id, 'selected')}
+                                    className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 flex items-center gap-2"
+                                  >
+                                    <Sparkles size={16}/> Hire / Select
+                                  </button>
+                                  <button
+                                    onClick={() => handleUpdateStatus(app.id, 'rejected')}
+                                    className="px-4 py-3 bg-red-50 text-red-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-xl"
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
                               ) : (
-                                <span className="px-6 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                <span className={cn(
+                                   "px-6 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest",
+                                   app.status === 'selected' ? "text-indigo-600 bg-indigo-50 border-indigo-100" : "text-slate-400"
+                                )}>
                                   {app.status}
                                 </span>
                               )}
@@ -457,7 +481,7 @@ export default function CompanyDashboard() {
                 </button>
               </div>
 
-              <form onSubmit={handlePostJob} className="relative grid grid-cols-2 gap-6">
+              <form onSubmit={handlePostJob} className="relative grid grid-cols-2 gap-6 max-h-[70vh] overflow-y-auto pr-4 custom-scrollbar">
                 <div className="col-span-2">
                   <InputGroup label="Job Title" name="title" value={newJob.title} onChange={(e: any) => setNewJob({ ...newJob, title: e.target.value })} icon={Briefcase} placeholder="e.g. Lead Product Architect" />
                 </div>
@@ -469,6 +493,36 @@ export default function CompanyDashboard() {
                 <InputGroup label="Preferred HQ" name="location" value={newJob.location} onChange={(e: any) => setNewJob({ ...newJob, location: e.target.value })} icon={MapPin} placeholder="Global / Bengaluru..." />
                 <InputGroup label="Min. CGPA" name="min_cgpa" type="number" value={newJob.min_cgpa} onChange={(e: any) => setNewJob({ ...newJob, min_cgpa: parseFloat(e.target.value) })} icon={ShieldCheck} placeholder="e.g. 7.5" />
                 <InputGroup label="Vacancies" name="vacancies" type="number" value={newJob.vacancies} onChange={(e: any) => setNewJob({ ...newJob, vacancies: parseInt(e.target.value) })} icon={Users} placeholder="e.g. 1" />
+
+                {/* Sleek Custom Form Builder */}
+                <div className="col-span-2 space-y-3 pt-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Application Form Fields</label>
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => setNewJob({...newJob, custom_form: [...(newJob.custom_form||[]), {id: Date.now().toString(), label:'LinkedIn', type:'url', required:true}]})} className="text-[9px] font-black bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg uppercase transition-colors">+ LinkedIn</button>
+                      <button type="button" onClick={() => setNewJob({...newJob, custom_form: [...(newJob.custom_form||[]), {id: Date.now().toString(), label:'Portfolio/Github', type:'url', required:false}]})} className="text-[9px] font-black bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg uppercase transition-colors">+ Portfolio</button>
+                      <button type="button" onClick={() => setNewJob({...newJob, custom_form: [...(newJob.custom_form||[]), {id: Date.now().toString(), label:'Custom Question', type:'text', required:true}]})} className="text-[9px] font-black bg-sky-50 hover:bg-sky-100 text-sky-600 px-3 py-1.5 rounded-lg uppercase transition-colors">+ Custom</button>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {newJob.custom_form?.map((field: any, idx: number) => (
+                      <div key={field.id} className="flex items-center gap-2 bg-slate-50 border border-slate-200 pl-3 pr-1 py-1 rounded-xl w-[calc(50%-0.25rem)]">
+                        <input type="text" value={field.label} onChange={e => {
+                          const nf = [...newJob.custom_form]; nf[idx].label = e.target.value; setNewJob({...newJob, custom_form: nf});
+                        }} className="bg-transparent border-none outline-none text-xs font-bold text-slate-700 w-full" placeholder="Field name" />
+                        <label className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase cursor-pointer">
+                          <input type="checkbox" checked={field.required} onChange={e => {
+                            const nf = [...newJob.custom_form]; nf[idx].required = e.target.checked; setNewJob({...newJob, custom_form: nf});
+                          }} className="w-3 h-3 rounded text-sky-500" />
+                          Req
+                        </label>
+                        <button type="button" onClick={() => {
+                          const nf = [...newJob.custom_form]; nf.splice(idx, 1); setNewJob({...newJob, custom_form: nf});
+                        }} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><X size={12}/></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 <div className="col-span-2 pt-6">
                   <button type="submit" className="w-full py-5 bg-sky-600 text-white font-black rounded-3xl shadow-2xl shadow-sky-100 hover:bg-sky-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98]">

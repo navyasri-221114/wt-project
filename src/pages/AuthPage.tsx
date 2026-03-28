@@ -54,12 +54,11 @@ export default function AuthPage({ setUser }: { setUser: any }) {
     e.preventDefault();
     setError('');
 
-    if (isSignup && role === 'company' && !showOtp) {
+    if (isSignup && (role === 'student' || role === 'company') && !showOtp) {
        setLoading(true);
        try {
          await api.auth.sendOtp({ email: formData.email });
          setShowOtp(true);
-         alert(`A verification OTP has been sent to ${formData.email}. Please verify to continue.`);
        } catch (err: any) {
          setError(err.message || 'Failed to send OTP.');
        } finally {
@@ -198,10 +197,10 @@ export default function AuthPage({ setUser }: { setUser: any }) {
               </div>
             )}
 
-            {isSignup && role === 'company' && showOtp && (
+            {isSignup && showOtp && (
               <div className="bg-sky-50 p-4 rounded-xl border border-sky-100">
                 <label className="block text-sm font-bold text-sky-800 mb-1">Email Verification OTP</label>
-                <p className="text-xs text-sky-600 mb-3">Please fetch the OTP sent to {formData.email}</p>
+                <p className="text-xs text-sky-600 mb-3">Enter the 6-digit code sent to <b>{formData.email}</b></p>
                 <input
                   type="text" required value={otp}
                   onChange={(e) => setOtp(e.target.value)}
@@ -219,7 +218,7 @@ export default function AuthPage({ setUser }: { setUser: any }) {
               disabled={loading}
               className="w-full py-3 bg-sky-600 text-white font-semibold rounded-xl hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {loading ? 'Processing...' : (isSignup && role === 'company' && !showOtp) ? 'Send Verification' : isSignup ? 'Create Account' : 'Sign In'}
+              {loading ? 'Processing...' : (isSignup && !showOtp) ? 'Send Verification Code' : isSignup ? 'Create Account' : 'Sign In'}
               {!loading && <ArrowRight size={18} />}
             </button>
 

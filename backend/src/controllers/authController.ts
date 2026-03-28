@@ -6,8 +6,7 @@ import { StudentModel } from "../models/Student.js";
 import { CompanyModel } from "../models/Company.js";
 import { ActivationKeyModel } from "../models/ActivationKey.js";
 import { OTPModel } from "../models/OTP.js";
-import nodemailer from "nodemailer";
-
+import { sendEmail } from "../utils/sendEmail.js";
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret-key";
 
 export const authController = {
@@ -19,37 +18,19 @@ export const authController = {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     try {
-      // Store in DB
+      // Store in DB (replaces any old OTPs for the same email)
+      await OTPModel.deleteMany({ email });
       await OTPModel.create({ email, otp });
 
-      // Only attempt to send actual email if SMTP config exists
-      if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-        let transporter = nodemailer.createTransport({
-          host: process.env.SMTP_HOST || 'smtp.gmail.com',
-          port: parseInt(process.env.SMTP_PORT || '587'),
-          secure: process.env.SMTP_PORT === '465',
-          auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-          },
-        });
-
-        try {
-          await transporter.sendMail({
-            from: `"Campus Placement Portal" <${process.env.SMTP_USER}>`,
-            to: email,
-            subject: "Your Company Verification Code",
-            text: `Your activation OTP is: ${otp}`,
-            html: `<p>Your activation OTP is: <b>${otp}</b></p>`
-          });
-          console.log(`Sent OTP ${otp} to ${email} via SMTP`);
-        } catch (mailErr: any) {
-          console.error("Mail configuration error. Continuing despite error so testing can proceed. Error:", mailErr.message);
-          console.log(`YOUR DEVELOPMENT OTP IS: ${otp}`);
-        }
-      } else {
-        console.warn(`SMTP credentials missing in .env! Generated OTP ${otp} for ${email} but did not send email.`);
-      }
+      const emailHtml = `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;">
+          <h2 style="color:#0ea5e9;">PlaceOn Verification</h2>
+          <p>Your one-time verification code is:</p>
+          <h1 style="letter-spacing:0.5em;font-size:2.5rem;color:#0f172a;">${otp}</h1>
+          <p style="color:#64748b;">This code expires in 5 minutes. Do not share it with anyone.</p>
+        </div>`;
+      await sendEmail(email, "Your PlaceOn OTP", emailHtml, `Your OTP is: ${otp}`);
+      console.log(`[DEV] OTP for ${email}: ${otp}`);
 
       res.status(200).json({ message: "OTP sent successfully" });
     } catch (err: any) {
@@ -61,15 +42,18 @@ export const authController = {
   signup: async (req: Request, res: Response) => {
     const { name, email, password, role, activationKey, otp } = req.body;
 
-    if (role === 'company') {
+    // OTP check for BOTH student and company signups
+    if (role === 'student' || role === 'company') {
       if (!otp) {
-        return res.status(400).json({ error: "Verification OTP is required for company registration." });
+        return res.status(400).json({ error: "OTP verification is required." });
       }
       const otpRecord = await OTPModel.findOne({ email }).sort({ createdAt: -1 });
       if (!otpRecord || otpRecord.otp !== otp) {
         return res.status(400).json({ error: "Invalid or expired OTP." });
       }
+    }
 
+    if (role === 'company') {
       if (!activationKey) {
         return res.status(400).json({ error: "Activation key is required for companies" });
       }

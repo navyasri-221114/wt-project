@@ -54,6 +54,14 @@ export const api = {
     create: (data: any) => api.request("/jobs", { method: "POST", body: JSON.stringify(data) }),
     delete: (id: string) => api.request(`/jobs/${id}`, { method: "DELETE" }),
     update: (id: string, data: any) => api.request(`/jobs/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    getExternal: (params?: { company?: string; location?: string; limit?: number }) => {
+      const q = params ? new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([,v]) => v !== undefined).map(([k,v]) => [k, String(v)]))).toString() : '';
+      return api.request(`/jobs/external${q ? '?' + q : ''}`);
+    },
+    getAllHybrid: (params?: { company?: string; location?: string }) => {
+      const q = params ? new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([,v]) => v !== undefined).map(([k,v]) => [k, String(v)]))).toString() : '';
+      return api.request(`/jobs/all${q ? '?' + q : ''}`);
+    },
   },
 
   applications: {

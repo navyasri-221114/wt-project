@@ -93,13 +93,56 @@ export default function LandingPage() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="mt-20 relative max-w-5xl mx-auto"
           >
-            <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 bg-slate-50 p-4 transform hover:scale-[1.01] transition-transform duration-500">
-              <img
-                src="https://picsum.photos/seed/dashboard/1200/800"
-                alt="Platform Preview"
-                className="rounded-2xl w-full"
-                referrerPolicy="no-referrer"
-              />
+            <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 p-8 transform hover:scale-[1.01] transition-transform duration-500 min-h-[340px] flex items-center justify-center relative">
+              {/* Grid background */}
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.5) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+              
+              {/* Dashboard mock UI */}
+              <div className="relative w-full max-w-3xl grid grid-cols-3 gap-4">
+                {/* Stat cards */}
+                {[
+                  { label: 'Placements', value: '94%', color: 'from-sky-500 to-blue-600' },
+                  { label: 'Companies', value: '850+', color: 'from-violet-500 to-purple-600' },
+                  { label: 'Students', value: '12K+', color: 'from-emerald-500 to-teal-600' }
+                ].map((s, i) => (
+                  <div key={i} className={`bg-gradient-to-br ${s.color} rounded-2xl p-5 text-white shadow-lg`}>
+                    <p className="text-xs font-bold opacity-70 uppercase tracking-wider">{s.label}</p>
+                    <p className="text-3xl font-black mt-1">{s.value}</p>
+                  </div>
+                ))}
+
+                {/* Main content area */}
+                <div className="col-span-2 bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-xl bg-sky-500 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    </div>
+                    <p className="text-white font-bold text-sm">Active Job Listings</p>
+                  </div>
+                  {['Senior Frontend Dev @ Google', 'ML Engineer @ Microsoft', 'SDE-2 @ Amazon'].map((job, i) => (
+                    <div key={i} className="flex items-center justify-between py-2.5 border-b border-white/10 last:border-0">
+                      <p className="text-white/80 text-xs font-semibold">{job}</p>
+                      <span className="px-2 py-0.5 bg-sky-500/30 text-sky-300 text-[10px] font-bold rounded-full">OPEN</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Side card */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10 flex flex-col gap-4">
+                  <p className="text-white/60 text-xs font-black uppercase tracking-wider">Top Skills</p>
+                  {['React', 'Python', 'System Design', 'ML/AI'].map((skill, i) => (
+                    <div key={i}>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-white/80 text-xs font-bold">{skill}</span>
+                        <span className="text-sky-400 text-xs font-black">{[92, 87, 78, 71][i]}%</span>
+                      </div>
+                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full bg-sky-500 rounded-full" style={{ width: `${[92, 87, 78, 71][i]}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
             <motion.div 
               initial={{ scale: 0, x: 20 }}

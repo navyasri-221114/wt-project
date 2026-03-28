@@ -3,7 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IApplication extends Document {
   job_id: mongoose.Types.ObjectId;
   student_id: mongoose.Types.ObjectId;
-  status: 'applied' | 'shortlisted' | 'interview_scheduled' | 'selected' | 'rejected';
+  status: 'applied' | 'shortlisted' | 'interview_scheduled' | 'interviewed' | 'selected' | 'rejected';
   responses?: any;
   created_at: Date;
 }

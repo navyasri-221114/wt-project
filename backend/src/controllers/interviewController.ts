@@ -5,6 +5,8 @@ import { ApplicationModel } from "../models/Application.js";
 import { NotificationModel } from "../models/Notification.js";
 import { StudentModel } from "../models/Student.js";
 import { JobModel } from "../models/Job.js";
+import { UserModel } from "../models/User.js";
+import { sendEmail } from "../utils/sendEmail.js";
 
 export const interviewController = {
   scheduleInterview: async (req: AuthRequest, res: Response) => {
@@ -74,6 +76,20 @@ export const interviewController = {
             message: `Your interview for ${jobTitle} has been scheduled! Time: ${new Date(scheduled_at).toLocaleString()}`
           });
           console.log("Notification sent to student:", app.student_id);
+
+          try {
+             const populatedStudent = await UserModel.findById(app.student_id);
+             if (populatedStudent && populatedStudent.email) {
+                await sendEmail(
+                   populatedStudent.email,
+                   `Interview Scheduled: ${jobTitle}`,
+                   `<p>Hi ${populatedStudent.name},</p><p>Your interview for <b>${jobTitle}</b> has been scheduled for <b>${new Date(scheduled_at).toLocaleString()}</b>.</p>`,
+                   `Your interview for ${jobTitle} has been scheduled for ${new Date(scheduled_at).toLocaleString()}.`
+                );
+             }
+          } catch(emailErr) {
+             console.error("Failed to send scheduled interview email", emailErr);
+          }
         }
       }
 

@@ -8,13 +8,20 @@ export const jobController = {
       const jobs = await JobModel.find({ status: 'open' })
         .populate('company_id', 'name')
         .sort({ created_at: -1 });
+
+      const { CompanyModel } = await import("../models/Company.js");
+      const companyUserIds = jobs.map(j => j.company_id._id || j.company_id);
+      const companyProfiles = await CompanyModel.find({ user_id: { $in: companyUserIds } });
       
-      // Transform to match previous structure if necessary (company_name field)
-      const transformedJobs = jobs.map(job => ({
-        ...job.toObject(),
-        id: job._id.toString(),
-        company_name: (job.company_id as any)?.name
-      }));
+      const transformedJobs = jobs.map(job => {
+        const profile = companyProfiles.find(p => p.user_id.toString() === (job.company_id._id || job.company_id).toString());
+        return {
+          ...job.toObject(),
+          id: job._id.toString(),
+          company_name: (job.company_id as any)?.name,
+          custom_form: profile ? profile.custom_form : undefined
+        };
+      });
       
       res.json(transformedJobs);
     } catch (err: any) {
@@ -41,6 +48,22 @@ export const jobController = {
         vacancies: vacancies || 1,
         status: 'open'
       });
+
+      // Notify all students asynchronously
+      const { UserModel } = await import("../models/User.js");
+      const { sendEmail } = await import("../utils/sendEmail.js");
+      UserModel.find({ role: 'student' }).select('email').then(students => {
+         students.forEach(student => {
+            if (student.email) {
+               sendEmail(
+                  student.email, 
+                  `New Opportunity: ${title}`, 
+                  `<p>Hi!</p><p>A new role for <b>${title}</b> has just been posted. Log in to your dashboard to view the requirements and apply!</p>`
+               ).catch(console.error);
+            }
+         });
+      }).catch(console.error);
+
       res.json({ message: "Job posted", job: newJob });
     } catch (err: any) {
       res.status(400).json({ error: "Failed to post job", details: err.message });

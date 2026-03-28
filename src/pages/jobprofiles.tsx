@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, MapPin, Briefcase, IndianRupee, Star, Filter, ArrowUpRight, ShieldCheck, Clock, CheckCircle2, Building, X, Send } from "lucide-react";
+import { Search, MapPin, Briefcase, IndianRupee, Star, Filter, ArrowUpRight, ShieldCheck, Clock, CheckCircle2, Building, X, Send, Globe, Zap, ExternalLink, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import { api } from "../services/api";
@@ -8,6 +8,9 @@ import { api } from "../services/api";
 export default function JobProfiles() {
   const [searchParams] = useSearchParams();
   const [jobsData, setJobsData] = useState<any[]>([]);
+  const [externalJobs, setExternalJobs] = useState<any[]>([]);
+  const [externalLoading, setExternalLoading] = useState(true);
+  const [externalFilter, setExternalFilter] = useState({ company: '', location: '' });
   const [applications, setApplications] = useState<any[]>([]);
   const [studentProfile, setStudentProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -18,6 +21,7 @@ export default function JobProfiles() {
     bio: '', experience: '', why_us: '', links: '', resume: ''
   });
   const [submitting, setSubmitting] = useState(false);
+
 
   const [search, setSearch] = useState(searchParams.get("q") || "");
   const [activeTab, setActiveTab] = useState("All Jobs");
@@ -33,6 +37,7 @@ export default function JobProfiles() {
 
   useEffect(() => {
     fetchData();
+    fetchExternalJobs();
     const interval = setInterval(() => {
       fetchData(true);
     }, 5000);
@@ -66,6 +71,27 @@ export default function JobProfiles() {
       if (!isPolling) setLoading(false);
     }
   };
+
+  const fetchExternalJobs = async (filters?: { company?: string; location?: string }) => {
+    setExternalLoading(true);
+    try {
+      const res = await api.jobs.getExternal({ ...filters, limit: 20 });
+      setExternalJobs(res.jobs || []);
+    } catch (err) {
+      console.warn('External jobs unavailable:', err);
+      setExternalJobs([]);
+    } finally {
+      setExternalLoading(false);
+    }
+  };
+
+  const handleExternalFilter = () => {
+    fetchExternalJobs({
+      company: externalFilter.company || undefined,
+      location: externalFilter.location || undefined,
+    });
+  };
+
 
   const handleToggleSave = async (jobId: string) => {
     try {
@@ -177,22 +203,22 @@ export default function JobProfiles() {
       className="space-y-10 max-w-[1400px] mx-auto"
     >
       {/* ─── Page Header ─── */}
-      <motion.div variants={item} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight font-display">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-display">
             Company <span className="text-gradient">Openings</span>
           </h1>
-          <p className="text-slate-500 text-sm font-medium mt-1 max-w-md">
-            Live vacancies sorted by company. See exactly who's hiring right now.
+          <p className="text-slate-500 text-sm font-medium mt-1">
+            Live vacancies sorted by company. See who's hiring right now.
           </p>
         </div>
-        <div className="flex p-1 bg-slate-200/50 backdrop-blur-md rounded-xl shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] w-fit border border-slate-200/50">
+        <div className="flex p-1 bg-slate-200/50 backdrop-blur-md rounded-xl shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] w-full sm:w-fit border border-slate-200/50">
           {["All Jobs", "Recommended", "Saved"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300",
+                "flex-1 sm:flex-none px-4 sm:px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300",
                 activeTab === tab 
                   ? "bg-white text-sky-600 shadow-sm" 
                   : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
@@ -265,6 +291,214 @@ export default function JobProfiles() {
             )}
           </AnimatePresence>
         </div>
+      </motion.div>
+
+      {/* ─── 🌐 Featured Jobs — All Openings (External API + Platform Registered) ─── */}
+      <motion.div variants={item} className="space-y-5">
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center shadow-lg shadow-sky-200/50">
+              <Globe size={20} className="text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 flex flex-wrap items-center gap-2">
+                🌐 All Job Openings
+                <span className="px-2 py-0.5 bg-sky-50 text-sky-600 border border-sky-100 rounded-full text-[10px] font-black uppercase tracking-widest">API + Platform</span>
+              </h2>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">Live openings from Google, Microsoft, Amazon, TCS, Infosys + registered companies</p>
+            </div>
+          </div>
+          {/* Filters — scrollable on mobile */}
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap overflow-x-auto pb-1">
+            <input
+              type="text" placeholder="Company..."
+              value={externalFilter.company}
+              onChange={e => setExternalFilter(f => ({ ...f, company: e.target.value }))}
+              className="px-3 py-2 border border-slate-200 rounded-xl text-xs font-medium bg-white outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-400 transition-all w-28 sm:w-32 shrink-0"
+            />
+            <input
+              type="text" placeholder="Location..."
+              value={externalFilter.location}
+              onChange={e => setExternalFilter(f => ({ ...f, location: e.target.value }))}
+              className="px-3 py-2 border border-slate-200 rounded-xl text-xs font-medium bg-white outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-400 transition-all w-28 sm:w-32 shrink-0"
+            />
+            <button onClick={handleExternalFilter} className="flex items-center gap-1.5 px-3 py-2 bg-sky-600 text-white rounded-xl text-xs font-bold hover:bg-sky-700 transition-all shadow-lg shadow-sky-200 shrink-0">
+              <Filter size={13} /> Apply
+            </button>
+            <button onClick={() => { setExternalFilter({ company: '', location: '' }); fetchExternalJobs(); }} className="p-2 border border-slate-200 rounded-xl text-slate-400 hover:text-sky-600 hover:border-sky-200 transition-all shrink-0" title="Reset">
+              <RefreshCw size={13} />
+            </button>
+          </div>
+        </div>
+
+        {externalLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="bg-white border border-slate-100 rounded-2xl p-5 animate-pulse space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-sky-50 rounded-xl shrink-0" />
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="h-2.5 bg-slate-100 rounded-full w-3/4" />
+                    <div className="h-2 bg-slate-100 rounded-full w-1/2" />
+                  </div>
+                </div>
+                <div className="h-2 bg-slate-100 rounded-full w-full" />
+                <div className="h-2 bg-slate-100 rounded-full w-5/6" />
+                <div className="h-9 bg-sky-50 rounded-xl w-full mt-2" />
+              </div>
+            ))}
+          </div>
+        ) : (() => {
+          // Merge external API jobs + registered platform jobs for this section
+          const platformJobs = jobsData.map((job: any) => ({
+            id: job._id || job.id,
+            title: job.title,
+            company: job.company_name || 'Partner Company',
+            location: job.location || 'India',
+            salary: job.salary,
+            description: job.description,
+            applyLink: null, // internal apply
+            source: 'platform' as const,
+            jobRef: job, // keep full ref for internal apply
+          }));
+
+          // Apply company filter to platform jobs too
+          const filteredPlatform = platformJobs.filter((j: any) => {
+            if (externalFilter.company && !j.company.toLowerCase().includes(externalFilter.company.toLowerCase())) return false;
+            if (externalFilter.location && !j.location.toLowerCase().includes(externalFilter.location.toLowerCase())) return false;
+            return true;
+          });
+
+          const allJobs = [...externalJobs, ...filteredPlatform];
+
+          return allJobs.length === 0 ? (
+            <div className="py-12 text-center bg-sky-50/50 rounded-2xl border border-sky-100">
+              <Globe size={32} className="text-sky-300 mx-auto mb-3" />
+              <p className="text-slate-500 font-semibold text-sm">No openings match your filters.</p>
+              <button onClick={() => { setExternalFilter({ company: '', location: '' }); fetchExternalJobs(); }} className="mt-3 text-sky-600 font-bold text-sm hover:underline">Clear filters</button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <AnimatePresence>
+                {allJobs.map((job: any, i: number) => {
+                  const isPlatform = job.source === 'platform';
+                  const appStatus = isPlatform ? getAppStatus(job.id) : null;
+                  return (
+                    <motion.div
+                      key={`${job.source}-${job.id}`}
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: Math.min(i * 0.04, 0.4) }}
+                      whileHover={{ y: -3 }}
+                      className="bg-white border border-slate-100 rounded-2xl p-5 flex flex-col justify-between group shadow-sm hover:shadow-lg hover:shadow-sky-100/50 transition-all relative overflow-hidden"
+                    >
+                      {/* Decorative glow */}
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-sky-50 rounded-full blur-2xl -mr-6 -mt-6 group-hover:bg-sky-100/70 transition-colors" />
+
+                      {/* Source tag */}
+                      <div className="absolute top-3 right-3">
+                        {isPlatform ? (
+                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
+                            <ShieldCheck size={8} /> Platform
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 bg-sky-50 text-sky-600 border border-sky-100 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
+                            <Zap size={8} fill="currentColor" /> External
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="relative">
+                        {/* Company Icon + Name */}
+                        <div className="flex items-center gap-2.5 mb-3 pr-14">
+                          <div className={cn(
+                            "w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-md shrink-0",
+                            isPlatform
+                              ? "bg-gradient-to-br from-sky-600 to-sky-700 shadow-sky-200/50"
+                              : "bg-gradient-to-br from-sky-500 to-indigo-600 shadow-sky-200/50"
+                          )}>
+                            {(job.company || '?')[0].toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-black text-sky-600 truncate">{job.company}</p>
+                            <h3 className="text-sm font-black text-slate-900 leading-tight line-clamp-2 group-hover:text-sky-700 transition-colors">{job.title}</h3>
+                          </div>
+                        </div>
+
+                        {/* Meta */}
+                        <div className="space-y-1 mb-3">
+                          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
+                            <MapPin size={10} className="text-slate-400 shrink-0" />
+                            <span className="truncate">{job.location}</span>
+                          </div>
+                          {job.salary && (
+                            <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-bold">
+                              <IndianRupee size={10} className="shrink-0" />
+                              <span className="truncate">{job.salary}</span>
+                            </div>
+                          )}
+                          {job.description && (
+                            <p className="text-[10px] text-slate-400 leading-relaxed line-clamp-2">{job.description}</p>
+                          )}
+                        </div>
+
+                        {/* Tags row */}
+                        <div className="flex flex-wrap items-center gap-1 mb-3">
+                          {isPlatform && job.jobRef?.requirements?.split(',').slice(0,2).map((s: string, idx: number) => (
+                            <span key={idx} className="px-1.5 py-0.5 bg-slate-50 text-slate-500 rounded text-[9px] font-bold border border-slate-100 truncate max-w-[80px]">{s.trim()}</span>
+                          ))}
+                          {!isPlatform && <span className="px-1.5 py-0.5 bg-slate-50 text-slate-400 rounded text-[9px] font-bold border border-slate-100">Source: API</span>}
+                          <span className="px-1.5 py-0.5 bg-amber-50 text-amber-600 rounded text-[9px] font-bold border border-amber-100 flex items-center gap-0.5"><Star size={7} fill="currentColor" /> Featured</span>
+                        </div>
+                      </div>
+
+                      {/* CTA */}
+                      {isPlatform ? (
+                        appStatus ? (
+                          <div className={cn(
+                            "w-full px-3 py-2 font-bold rounded-xl flex items-center justify-center gap-2 text-[10px] uppercase tracking-wider border",
+                            appStatus.status === 'shortlisted' ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
+                            appStatus.status === 'rejected' ? "bg-red-50 text-red-700 border-red-100" :
+                            "bg-sky-50 text-sky-700 border-sky-100"
+                          )}>
+                            {appStatus.status === 'shortlisted' && <CheckCircle2 size={12} />} {appStatus.status}
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleApply(job.jobRef)}
+                            className="w-full py-2 bg-gradient-to-r from-sky-600 to-sky-700 text-white rounded-xl text-[11px] font-black uppercase tracking-wider shadow-md shadow-sky-200 hover:from-sky-700 hover:to-sky-800 transition-all flex items-center justify-center gap-1.5"
+                          >
+                            Apply Now <ArrowUpRight size={13} />
+                          </button>
+                        )
+                      ) : (
+                        <a
+                          href={job.applyLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-2 bg-gradient-to-r from-sky-600 to-indigo-600 text-white rounded-xl text-[11px] font-black uppercase tracking-wider shadow-md shadow-sky-200 hover:from-sky-700 hover:to-indigo-700 transition-all flex items-center justify-center gap-1.5"
+                        >
+                          Apply on Company Site <ExternalLink size={12} />
+                        </a>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          );
+        })()}
+        <p className="text-[10px] text-slate-400 text-center font-medium">
+          ⚡ External listings via Adzuna API, cached 45 min. Platform jobs apply directly through PlaceOn.
+        </p>
+      </motion.div>
+
+      {/* Divider */}
+      <motion.div variants={item} className="flex items-center gap-4">
+        <div className="flex-1 h-px bg-slate-200/80" />
+        <span className="text-xs font-black text-slate-400 uppercase tracking-widest px-2 flex items-center gap-2"><ShieldCheck size={12} className="text-emerald-500" /> Campus Drives</span>
+        <div className="flex-1 h-px bg-slate-200/80" />
       </motion.div>
 
       {/* ─── Grouped Job Cards Grid ─── */}

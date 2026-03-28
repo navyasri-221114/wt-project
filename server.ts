@@ -18,6 +18,7 @@ import userRoutes from "./backend/src/routes/userRoutes.js";
 import adminRoutes from "./backend/src/routes/adminRoutes.js";
 import notificationRoutes from "./backend/src/routes/notificationRoutes.js";
 import competitionRoutes from "./backend/src/routes/competitionRoutes.js";
+import externalJobRoutes from "./backend/src/routes/externalJobRoutes.js";
 
 dotenv.config();
 
@@ -132,6 +133,7 @@ app.get("/api/health", (req, res) => {
 
 // Register Backend Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/jobs", externalJobRoutes); // MUST be before jobRoutes — avoids /:id wildcard conflict
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", appRoutes);
 app.use("/api/interviews", interviewRoutes);

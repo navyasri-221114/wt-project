@@ -9,6 +9,7 @@ export interface IJob extends Document {
   location?: string;
   min_cgpa?: number;
   vacancies: number;
+  custom_form?: any[];
   status: 'open' | 'closed';
   created_at: Date;
 }
@@ -22,6 +23,12 @@ const jobSchema = new Schema<IJob>({
   location: { type: String },
   min_cgpa: { type: Number, default: 0 },
   vacancies: { type: Number, default: 1 },
+  custom_form: [{
+    id: String,
+    label: String,
+    type: { type: String, enum: ['text', 'number', 'url', 'boolean'] },
+    required: Boolean
+  }],
   status: { type: String, enum: ['open', 'closed'], default: 'open' },
   created_at: { type: Date, default: Date.now }
 });

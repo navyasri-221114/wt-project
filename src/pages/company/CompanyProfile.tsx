@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Globe, MapPin, Edit3, Save, X } from 'lucide-react';
+import { Building2, Globe, MapPin, Edit3, Save, X, Plus, Trash2 } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function CompanyProfile() {
@@ -20,7 +20,8 @@ export default function CompanyProfile() {
         name: res.name,
         description: res.profile?.description || '',
         website: res.profile?.website || '',
-        location: res.profile?.location || ''
+        location: res.profile?.location || '',
+        custom_form: res.profile?.custom_form || []
       });
     } catch (err) {
       console.error(err);
@@ -131,6 +132,100 @@ export default function CompanyProfile() {
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500 font-medium whitespace-pre-wrap resize-y"
                     placeholder="Add a compelling description about your company, culture, and mission to attract top talent..."
                   />
+                </div>
+
+                <div className="mt-8 border-t border-slate-200 pt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-slate-900">Custom Application Form</h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          custom_form: [
+                            ...(formData.custom_form || []),
+                            { id: Date.now().toString(), label: 'Expected CTC', type: 'number', required: true },
+                            { id: (Date.now()+1).toString(), label: 'GitHub Link', type: 'url', required: true },
+                            { id: (Date.now()+2).toString(), label: 'Portfolio', type: 'url', required: false },
+                            { id: (Date.now()+3).toString(), label: 'Willing to Relocate?', type: 'boolean', required: true },
+                            { id: (Date.now()+4).toString(), label: 'Resume', type: 'text', required: true }
+                          ]
+                        });
+                      }}
+                      className="px-4 py-2 bg-sky-100 text-sky-600 rounded-xl text-sm font-bold hover:bg-sky-200"
+                    >
+                      Add Top Company Fields
+                    </button>
+                  </div>
+                  
+                  {formData.custom_form?.map((field: any, index: number) => (
+                     <div key={field.id} className="flex flex-col sm:flex-row gap-4 items-center mb-3">
+                       <input 
+                          type="text" 
+                          value={field.label} 
+                          onChange={e => {
+                             const newForm = [...formData.custom_form];
+                             newForm[index].label = e.target.value;
+                             setFormData({...formData, custom_form: newForm});
+                          }}
+                          className="flex-1 w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500 font-medium"
+                       />
+                       <select
+                          value={field.type}
+                          onChange={e => {
+                             const newForm = [...formData.custom_form];
+                             newForm[index].type = e.target.value;
+                             setFormData({...formData, custom_form: newForm});
+                          }}
+                          className="w-full sm:w-auto px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-sky-500 font-medium"
+                       >
+                         <option value="text">Text</option>
+                         <option value="number">Number</option>
+                         <option value="url">URL</option>
+                         <option value="boolean">Yes/No</option>
+                       </select>
+                       <label className="flex items-center gap-2 text-sm font-bold text-slate-600">
+                         <input 
+                           type="checkbox" 
+                           checked={field.required}
+                           onChange={e => {
+                             const newForm = [...formData.custom_form];
+                             newForm[index].required = e.target.checked;
+                             setFormData({...formData, custom_form: newForm});
+                           }}
+                           className="w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500"
+                         />
+                         Required
+                       </label>
+                       <button
+                         type="button"
+                         onClick={() => {
+                             const newForm = [...formData.custom_form];
+                             newForm.splice(index, 1);
+                             setFormData({...formData, custom_form: newForm});
+                         }}
+                         className="p-2 text-red-500 hover:bg-red-50 rounded-lg shrink-0"
+                       >
+                         <Trash2 size={18} />
+                       </button>
+                     </div>
+                  ))}
+                  
+                  <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          custom_form: [
+                            ...(formData.custom_form || []),
+                            { id: Date.now().toString(), label: 'New Field', type: 'text', required: false }
+                          ]
+                        });
+                      }}
+                      className="mt-3 flex items-center gap-2 px-4 py-2 border-2 border-dashed border-slate-200 text-slate-500 rounded-xl font-bold hover:border-sky-300 hover:text-sky-500 transition-colors w-full justify-center"
+                  >
+                    <Plus size={18} /> Add Custom Field
+                  </button>
                 </div>
               </div>
             ) : (

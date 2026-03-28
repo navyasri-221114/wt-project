@@ -20,7 +20,11 @@ export default function CompanyJobs() {
     requirements: '',
     description: '',
     vacancies: 1,
-    min_cgpa: 6.0
+    min_cgpa: 6.0,
+    custom_form: [
+      { id: '1', label: 'Resume', type: 'file', required: true },
+      { id: '2', label: 'Expected Salary', type: 'text', required: false },
+    ]
   });
 
   useEffect(() => {
@@ -48,7 +52,11 @@ export default function CompanyJobs() {
         requirements: job.requirements || '',
         description: job.description || '',
         vacancies: job.vacancies || 1,
-        min_cgpa: job.min_cgpa || 6.0
+        min_cgpa: job.min_cgpa || 6.0,
+        custom_form: job.custom_form || [
+          { id: '1', label: 'Resume', type: 'file', required: true },
+          { id: '2', label: 'Expected Salary', type: 'text', required: false },
+        ]
       });
     } else {
       setEditingJob(null);
@@ -59,7 +67,11 @@ export default function CompanyJobs() {
         requirements: '',
         description: '',
         vacancies: 1,
-        min_cgpa: 6.0
+        min_cgpa: 6.0,
+        custom_form: [
+          { id: '1', label: 'Resume', type: 'file', required: true },
+          { id: '2', label: 'Expected Salary', type: 'text', required: false },
+        ]
       });
     }
     setShowModal(true);
@@ -303,7 +315,7 @@ export default function CompanyJobs() {
                 <h2 className="text-3xl font-black text-slate-900 mb-2 relative">{editingJob ? 'Edit' : 'New'} <span className="text-gradient">Posting</span></h2>
                 <p className="text-slate-500 font-medium mb-10 relative">{editingJob ? 'Update the details for this position.' : 'Define the perfect candidate for your mission.'}</p>
                 
-                <form onSubmit={handlePost} className="relative space-y-6 max-h-[70vh] overflow-y-auto pr-2 no-scrollbar">
+                <form onSubmit={handlePost} className="relative space-y-6 max-h-[70vh] overflow-y-auto pr-4 custom-scrollbar">
                    <InputGroup label="Expertise Title" name="title" value={newJob.title} onChange={(e: any) => setNewJob({...newJob, title: e.target.value})} placeholder="e.g. Strategic Frontend Lead" icon={Briefcase} />
                     <div className="grid grid-cols-2 gap-6">
                        <InputGroup label="Compensation" name="salary" value={newJob.salary} onChange={(e: any) => setNewJob({...newJob, salary: e.target.value})} placeholder="e.g. ₹20L - ₹28L" icon={IndianRupee} />
@@ -325,6 +337,37 @@ export default function CompanyJobs() {
                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 focus:bg-white transition-all font-bold text-slate-700 resize-none"
                      />
                    </div>
+
+                   {/* Sleek Custom Form Builder */}
+                   <div className="space-y-3 pt-2">
+                     <div className="flex items-center justify-between">
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Application Form Fields</label>
+                       <div className="flex gap-2">
+                         <button type="button" onClick={() => setNewJob({...newJob, custom_form: [...(newJob.custom_form||[]), {id: Date.now().toString(), label:'LinkedIn', type:'url', required:true}]})} className="text-[9px] font-black bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg uppercase transition-colors">+ LinkedIn</button>
+                         <button type="button" onClick={() => setNewJob({...newJob, custom_form: [...(newJob.custom_form||[]), {id: Date.now().toString(), label:'Portfolio/Github', type:'url', required:false}]})} className="text-[9px] font-black bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-lg uppercase transition-colors">+ Portfolio</button>
+                         <button type="button" onClick={() => setNewJob({...newJob, custom_form: [...(newJob.custom_form||[]), {id: Date.now().toString(), label:'Custom Question', type:'text', required:true}]})} className="text-[9px] font-black bg-sky-50 hover:bg-sky-100 text-sky-600 px-3 py-1.5 rounded-lg uppercase transition-colors">+ Custom</button>
+                       </div>
+                     </div>
+                     <div className="flex flex-wrap gap-2">
+                       {newJob.custom_form?.map((field: any, idx: number) => (
+                         <div key={field.id} className="flex items-center gap-2 bg-slate-50 border border-slate-200 pl-3 pr-1 py-1 rounded-xl w-[calc(50%-0.25rem)]">
+                           <input type="text" value={field.label} onChange={e => {
+                             const nf = [...newJob.custom_form]; nf[idx].label = e.target.value; setNewJob({...newJob, custom_form: nf});
+                           }} className="bg-transparent border-none outline-none text-xs font-bold text-slate-700 w-full" placeholder="Field name" />
+                           <label className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase cursor-pointer">
+                             <input type="checkbox" checked={field.required} onChange={e => {
+                               const nf = [...newJob.custom_form]; nf[idx].required = e.target.checked; setNewJob({...newJob, custom_form: nf});
+                             }} className="w-3 h-3 rounded text-sky-500" />
+                             Req
+                           </label>
+                           <button type="button" onClick={() => {
+                             const nf = [...newJob.custom_form]; nf.splice(idx, 1); setNewJob({...newJob, custom_form: nf});
+                           }} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><X size={12}/></button>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                   
                    
                     <button 
                       type="submit"

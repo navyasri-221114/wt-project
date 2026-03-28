@@ -240,10 +240,10 @@ export default function CompanyApplicants() {
                                    initial={{ opacity: 0, x: -20 }}
                                    animate={{ opacity: 1, x: 0 }}
                                    transition={{ delay: idx * 0.05 }}
-                                   key={appId} 
-                                   className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-start md:items-center gap-6"
+                                   key={appId}                                    className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-4"
                                  >
-                                   <div className="flex flex-1 items-center gap-4 text-sm font-bold text-slate-500">
+                                    <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                                    <div className="flex flex-1 items-center gap-4 text-sm font-bold text-slate-500">
                                       <div className="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 font-bold border-2 border-slate-50 shadow-sm">
                                          {app.student_name ? app.student_name[0] : 'U'}
                                       </div>
@@ -303,8 +303,24 @@ export default function CompanyApplicants() {
                                           {app.status}
                                        </div>
                                      )}
-                                   </div>
-                                 </motion.div>
+                                    </div>
+                                    </div>
+
+                                    {/* Applicant custom form responses */}
+                                    {app.responses && Object.keys(app.responses).length > 0 && (
+                                      <div className="pt-4 border-t border-slate-100">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Application Responses</p>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                          {Object.entries(app.responses).map(([key, val]) => (
+                                            <div key={key} className="bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1 truncate">{key}</p>
+                                              <p className="text-sm font-bold text-slate-800 break-all">{String(val)}</p>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </motion.div>
                                );
                              })}
                            </div>
