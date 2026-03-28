@@ -148,5 +148,49 @@ export const authController = {
     } catch (err: any) {
       res.status(500).json({ error: "Login failed", details: err.message });
     }
+  },
+
+  /**
+   * POST /api/auth/google
+   * Google OAuth — skips OTP because Google already verified the identity.
+   * If user exists → log them in. If not → auto-create student account.
+   */
+  googleAuth: async (req: Request, res: Response) => {
+    const { email, name } = req.body;
+
+    if (!email || !name) {
+      return res.status(400).json({ error: "Email and name are required" });
+    }
+
+    try {
+      let user = await UserModel.findOne({ email });
+
+      if (!user) {
+        // Auto-create a student account — no OTP needed (Google verified the email)
+        const hashedPassword = await bcrypt.hash('google-secure-token-' + email, 10);
+        user = await UserModel.create({ name, email, password: hashedPassword, role: 'student' });
+        await StudentModel.create({ user_id: user._id });
+        console.log(`[GoogleAuth] New student account created for ${email}`);
+      }
+
+      const token = jwt.sign(
+        { id: user._id.toString(), role: user.role, name: user.name, email: user.email },
+        JWT_SECRET
+      );
+
+      res.json({
+        token,
+        user: {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          avatar_url: user.avatar_url
+        }
+      });
+    } catch (err: any) {
+      console.error('[GoogleAuth] Error:', err.message);
+      res.status(500).json({ error: "Google authentication failed", details: err.message });
+    }
   }
 };

@@ -33,18 +33,15 @@ export default function AuthPage({ setUser }: { setUser: any }) {
 
       setLoading(true);
 
-      const res = await api.auth.signup({ name: name, email, password: 'google-secure-token', role: 'student' })
-        .catch(async () => {
-           // If signup fails because email exists, try login
-           return await api.auth.login({ email, password: 'google-secure-token' });
-        });
+      // Use dedicated Google auth endpoint — no OTP required, Google already verified the email
+      const res = await api.auth.googleAuth({ email, name });
       
       localStorage.setItem('token', res.token);
       localStorage.setItem('user', JSON.stringify(res.user));
       setUser(res.user);
       navigate('/dashboard');
     } catch (err: any) {
-      setError("Google authentication failed.");
+      setError(err.message || "Google authentication failed.");
     } finally {
       setLoading(false);
     }

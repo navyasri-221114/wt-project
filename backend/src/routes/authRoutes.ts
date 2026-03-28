@@ -6,5 +6,6 @@ const router = Router();
 router.post("/send-otp", authController.sendOtp);
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);
+router.post("/google", authController.googleAuth);
 
 export default router;
