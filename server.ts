@@ -38,6 +38,13 @@ app.use(cors({
   credentials: true
 }));
 
+// Fix Google Auth Popup Cross-Origin issues
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+  next();
+});
+
 const io = new SocketServer(httpServer, {
   cors: {
     origin: process.env.FRONTEND_URL || "*",
